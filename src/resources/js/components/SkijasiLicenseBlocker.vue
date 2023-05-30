@@ -18,7 +18,7 @@
             <p>
               {{ $t("keyIssue.licenseEmptyDescription") }}
               <a
-                href="https://skijasi-docs.uatech.co.id/docs/en/getting-started/installation/"
+                href="https://skijasi-docs.nadzorserveraweb.hr/docs/en/getting-started/installation/"
                 target="_blank"
               >
                 <vs-icon icon="open_in_new"></vs-icon>
@@ -30,7 +30,7 @@
             <p>
               {{ $t("keyIssue.licenseInvalidDescription") }}
               <a
-                href="https://skijasi-docs.uatech.co.id/docs/en/getting-started/installation/"
+                href="https://skijasi-docs.nadzorserveraweb.hr/docs/en/getting-started/installation/"
                 target="_blank"
               >
                 <vs-icon icon="open_in_new"></vs-icon>
@@ -42,7 +42,7 @@
             <p>
               {{ $t("keyIssue.licenseUsersExpiredDescription") }}
               <a
-                href="https://skijasi-docs.uatech.co.id/docs/en/getting-started/installation/"
+                href="https://skijasi-docs.nadzorserveraweb.hr/docs/en/getting-started/installation/"
                 target="_blank"
               >
                 <vs-icon icon="open_in_new"></vs-icon>

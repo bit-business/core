@@ -8,7 +8,7 @@
  *     termsOfService="http://swagger.io/terms/",
  *
  *     @OA\Contact(
- *         email="hello@uatech.co.id"
+ *         email="hello@nadzorserveraweb.hr"
  *     ),
  *
  *     @OA\License(

@@ -1,67 +1,67 @@
-export const label = "English";
+export const label = "Hrvatski";
 
 export default {
   button: {
-    close: "Close",
-    submit: "Submit",
-  },
-  vuelidate: {
-    required: "* {0} is required.",
-    requiredIf: "* {0} is required.",
-    integer: "* {0} must be integer.",
-    rowsRequired: "* Please fill in the field.",
-    maxLength: "* {field} must have at most {length} letters.",
-    alphaNum: "* {0} is not alphanumeric.",
-    alphaNumAndUnderscoreValidator:
-      "* {0} only alphanumeric and underscore (_) allowed.",
-    unique: "* {0} must be unique.",
-    distinct: "* Only one {0} is allowed.",
-    requiredPrimary: "* Only {0} is allowed.",
-  },
-  login: {
-    title: "Dashboard",
-    subtitle: "Welcome back, please login to your account.",
-    field: {
-      email: "Email",
-      password: "Password",
+    close: "Zatvori",
+    submit: "Pošalji",
     },
-    rememberMe: "Remember me?",
-    forgotPassword: "Forgot password",
-    button: "Login",
+    vuelidate: {
+    required: "* {0} je obavezno.",
+    requiredIf: "* {0} je obavezno.",
+    integer: "* {0} mora biti cijeli broj.",
+    rowsRequired: "* Molimo popunite polje.",
+    maxLength: "* {field} smije imati najviše {length} slova.",
+    alphaNum: "* {0} nije alfanumerički.",
+    alphaNumAndUnderscoreValidator:
+    "* {0} dozvoljeni su samo alfanumerički znakovi i donja crta (_).",
+    unique: "* {0} mora biti jedinstveno.",
+    distinct: "* Dopušten je samo jedan {0}.",
+    requiredPrimary: "* Dopušten je samo {0}.",
+    },
+    login: {
+    title: "Kontrolna ploča",
+    subtitle: "Dobrodošli nazad, molimo prijavite se na svoj račun.",
+    field: {
+    email: "Email",
+    password: "Lozinka",
+    },
+    rememberMe: "Zapamti me?",
+    forgotPassword: "Zaboravljena lozinka",
+    button: "Prijava",
     createAccount: {
-      text: "Don't have an account?",
-      link: "Create an account",
+    text: "Nemate račun?",
+    link: "Kreirajte račun",
     },
   },
 
   register: {
-    title: "Register Here",
-    subtitle: "Please fill in the form below.",
+    title: "Registrirajte se ovdje",
+    subtitle: "Molimo ispunite donji obrazac.",
     field: {
-      name: "Name",
-      username: "Username",
-      phone:"Phone",
-      email: "Email",
-      password: "Password",
-      passwordConfirmation: "Password Confirmation",
+    name: "Ime",
+    username: "Korisničko ime",
+    phone: "Telefon",
+    email: "Email",
+    password: "Lozinka",
+    passwordConfirmation: "Potvrda lozinke",
     },
-    button: "Register",
+    button: "Registriraj se",
     existingAccount: {
-      text: "Do you have an account?",
-      link: "Login",
+    text: "Imate li već račun?",
+    link: "Prijava",
     },
-  },
-
-  forgotPassword: {
-    title: "Forgot Password",
-    subtitle: "Please provide an email to send reset password mail.",
+    },
+    
+    forgotPassword: {
+    title: "Zaboravljena lozinka",
+    subtitle: "Molimo unesite email kako bismo vam poslali email za resetiranje lozinke.",
     field: {
-      email: "Email",
+    email: "Email",
     },
-    button: "Send",
+    button: "Pošalji",
     createAccount: {
-      text: "Don't have an account?",
-      link: "Create an account",
+    text: "Nemate račun?",
+    link: "Kreirajte račun",
     },
     message: {
       success:

@@ -19,8 +19,8 @@ export default {
     },
     locale: lang.languages,
     selectedLocale: {
-      key: "en",
-      label: "English",
+      key: "hr",
+      label: "Hrvatski",
     },
     keyIssue: {
       invalid: false,

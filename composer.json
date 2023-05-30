@@ -1,7 +1,7 @@
 {
   "version": "2.9.4",
   "name": "skijasi/core",
-  "description": "The API & platform builder, build your apps 10x faster even more, it's open source & 100% free !",
+  "description": "The skijasko uciliste",
   "keywords": [
     "laravel",
     "admin",
@@ -16,7 +16,7 @@
     "generator"
   ],
   "license": "proprietary",
-  "homepage": "https://skijasi.uatech.co.id/",
+  "homepage": "https://skijasi.hr/",
   "support": {
     "issues": "https://github.com/nadzorservera-croatia/skijasi/issues",
     "discussion": "https://github.com/nadzorservera-croatia/skijasi/discussions",
@@ -57,7 +57,7 @@
   "authors": [
     {
       "name": "NADZORSERVERA",
-      "email": "hello@uatech.co.id"
+      "email": "nadzorservera@email.com"
     }
   ],
   "minimum-stability": "alpha",

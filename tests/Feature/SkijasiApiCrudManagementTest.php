@@ -84,8 +84,8 @@ class SkijasiApiCrudManagementTest extends TestCase
                     'skijasi_type' => 'url',
                     'schema_type' => 'string',
                     'details' => json_encode((object) []),
-                    'example' => 'https://skijasi-docs.uatech.co.id',
-                    'example_update' => 'https://skijasi.uatech.co.id',
+                    'example' => 'https://skijasi-docs.nadzorserveraweb.hr',
+                    'example_update' => 'https://skijasi.nadzorserveraweb.hr',
                 ],
                 [
                     'skijasi_type' => 'time',

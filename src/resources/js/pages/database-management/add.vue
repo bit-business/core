@@ -62,7 +62,7 @@
               <i18n path="database.warning.docs">
                 <a
                   target="_blank"
-                  href="https://skijasi-docs.uatech.co.id/core-concept/database-management"
+                  href="https://skijasi-docs.nadzorserveraweb.hr/core-concept/database-management"
                   >docs</a
                 >
               </i18n>
@@ -708,7 +708,7 @@ export default {
               this.$vs.notify({
                 title: this.$t("alert.danger"),
                 text: this.$t("database.edit.warning.fieldAttUnsigned", {
-                  0: `<a href="https://skijasi-docs.uatech.co.id/core-concept/database-management#create-relationship-table" target="_blank"><b>${this.$t(
+                  0: `<a href="https://skijasi-docs.nadzorserveraweb.hr/core-concept/database-management#create-relationship-table" target="_blank"><b>${this.$t(
                     "database.edit.warning.visitDocs"
                   )}<b></a>`,
                 }),

@@ -1,32 +1,3 @@
-# Contribute to skijasi
-
-Skijasi is an open-source project administered by [nadzorservera](https://soft.uatech.co.id). We appreciate your interest and efforts to contribute to Skijasi.
-
-All efforts to contribute are highly appreciated, we recommend you talk to a maintainer prior to spending a lot of time making a pull request that may not align with the project roadmap.
-
-## Open Development & Community Driven
-
-Skijasi is an open-source project. See the [license](https://github.com/nadzorservera-croatia/skijasi/blob/master/license) file for licensing information. All the work done is available on GitHub.
-
-The core team and the contributors send pull requests which go through the same validation process.
-
-## Feature Requests
-
-Feature Requests by the community are highly encouraged. Please feel free to submit your ides on [github discussion](https://github.com/nadzorservera-croatia/skijasi/discussions/categories/ideas)
-
-## Code of Conduct
-
-This project and everyone participating in it are governed by the [Skijasi Code of Conduct](code_of_conduct.md). By participating, you are expected to uphold this code. Please read the [full text](code_of_conduct.md) so that you can read which actions may or may not be tolerated.
-
-## Bugs
-
-We are using [GitHub Issues](https://github.com/nadzorservera-croatia/skijasi/issues) to manage our public bugs. We keep a close eye on this so before filing a new issue, try to make sure the problem does not already exist.
-
----
-
-## Before Submitting a Pull Request
-
-The core team will review your pull request and will either merge it, request changes to it, or close it.
 
 **Before submitting your pull request** make sure the following requirements are fulfilled:
 
@@ -38,8 +9,8 @@ To do : complete this section
 
 ## Development Workflow
 
-Before develop Skijasi, please get SKIJASI_LICENSE_KEY by  register on <a href="https://skijasi.uatech.co.id/" target="_blank">Skijasi</a> or contact skijasi core team. This key must be included in the laravel project's .env.
-Steps for registering and getting a license on Skijasi Dashboard can be found on <a href="https://skijasi-docs.uatech.co.id/docs/en/getting-started/installation/" target="_blank">Skijasi Docs</a>.
+Before develop Skijasi, please get SKIJASI_LICENSE_KEY by  register on <a href="https://skijasi.nadzorserveraweb.hr/" target="_blank">Skijasi</a> or contact skijasi core team. This key must be included in the laravel project's .env.
+Steps for registering and getting a license on Skijasi Dashboard can be found on <a href="https://skijasi-docs.nadzorserveraweb.hr/docs/en/getting-started/installation/" target="_blank">Skijasi Docs</a>.
 
 ### Installation step
 
@@ -109,8 +80,6 @@ JWT_SECRET=
 #Set JWT Token lifetime, default 60 minutes
 SKIJASI_AUTH_TOKEN_LIFETIME=
 
-#License key (get the license on https://skijasi.uatech.co.id)
-SKIJASI_LICENSE_KEY=
 
 #Set default menu to generate menu in dashboard. 
 #By default Skijasi provide `admin` as default menu
@@ -199,7 +168,7 @@ Before submitting an issue you need to make sure:
 - You are experiencing a concrete technical issue with Skijasi.
 - You have already searched for related [issues](https://github.com/nadzorservera-croatia/skijasi/issues), and found none open (if you found a related _closed_ issue, please link to it from your post).
 - You are not asking a question about how to use Skijasi or about whether or not Skijasi has a certain feature. For general help using Skijasi, you may:
-  - Refer to [the official Skijasi documentation](https://skijasi-docs.uatech.co.id).
+  - Refer to [the official Skijasi documentation](https://skijasi-docs.nadzorserveraweb.hr).
   - Ask a question on [github discussion](https://github.com/nadzorservera-croatia/skijasi/discussions).
 - Your issue title is concise, on-topic and polite.
 - You can and do provide steps to reproduce your issue.

@@ -173,7 +173,7 @@
               <vs-button
                 color="success"
                 type="relief"
-                href="https://skijasi-docs.uatech.co.id/crud-generator/datatype"
+                href="https://skijasi-docs.nadzorserveraweb.hr/crud-generator/datatype"
               >
                 {{ $t("database.browse.fieldNotSupport.button.visitDocs") }}
               </vs-button>

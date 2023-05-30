@@ -1,9 +1,8 @@
 <template>
   <div class="skijasi-footer__container">
-    <div class="skijasi-footer__version">Version 1.0.0</div>
+    <div class="skijasi-footer__version">Verzija 1.0.0</div>
     <div>
-      Copyright © 2023
-      <a href="https://hzuts.hr" target="_blank">HZUTS</a>. Sva prava pridržana.
+      <a href="https://hzuts.hr" target="_blank">HZUTS</a> © 2023 Sva prava pridržana.
     </div>
   </div>
 </template>

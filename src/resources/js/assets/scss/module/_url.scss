@@ -1,0 +1,12 @@
+.skijasi-url {
+  &__input {
+    &--error {
+      color: $danger;
+      display: block;
+    }
+  }
+
+  &__container {
+    margin-bottom: 1rem !important;
+  }
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skijasi</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>window.Laravel = { csrfToken: '{{ csrf_token() }}' }</script>
+
+    <!-- Favicon -->
+    <?php
+        use NadzorServera\Skijasi\Helpers\Config;
+
+        $favicon = Config::get('favicon');
+        $api_prefix = env('MIX_API_ROUTE_PREFIX');
+        $disk = config('skijasi.storage.disk');
+        $is_exists = Storage::disk($disk)->exists($favicon);
+    ?>
+
+    @if ($is_exists && $disk != 'public' && $disk != 'local')
+        <link rel="shortcut icon" href="{{ Storage::disk($disk)->url($favicon) }}" type="image/png">
+    @else
+        <link rel="shortcut icon" href="{{ asset('storage' . '/' . $favicon) }}" type="image/png">
+    @endif
+
+    <link rel="stylesheet" href="{{ mix('css/skijasi.css') }}">
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+        window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+    </script>
+    <script src="{{ mix('js/skijasi.js') }}"></script>
+</body>
+</html>

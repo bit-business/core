@@ -1,0 +1,68 @@
+<template>
+  <vs-col :vs-lg="size" vs-xs="12" class="skijasi-search__container">
+    <vs-input
+      type="search"
+      :label="label"
+      :placeholder="placeholder"
+      :value="value"
+      @input="handleInput($event)"
+      icon="search"
+      icon-after
+    />
+    <div v-if="additionalInfo" v-html="additionalInfo"></div>
+    <div v-if="alert">
+      <div v-if="$helper.isArray(alert)">
+        <span
+          class="skijasi-search__input--error"
+          v-for="(info, index) in alert"
+          :key="index"
+        >
+          {{ info }}
+        </span>
+      </div>
+      <div v-else>
+        <span class="skijasi-search__input--error" v-html="alert"></span>
+      </div>
+    </div>
+  </vs-col>
+</template>
+
+<script>
+export default {
+  name: "SkijasiSearch",
+  components: {},
+  data: () => ({}),
+  props: {
+    size: {
+      type: String,
+      default: "12",
+    },
+    label: {
+      type: String,
+      default: "",
+    },
+    placeholder: {
+      type: String,
+      default: "Search",
+    },
+    value: {
+      type: String,
+      required: true,
+      default: "",
+    },
+    additionalInfo: {
+      type: String,
+      default: "",
+    },
+    alert: {
+      type: String || Array,
+      default: "",
+    },
+  },
+  methods: {
+    handleInput(val) {
+      this.$emit("input", val);
+    },
+  },
+};
+</script>

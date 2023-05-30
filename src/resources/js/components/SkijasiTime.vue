@@ -1,0 +1,89 @@
+<template>
+  <vs-col :vs-lg="size" vs-xs="12" class="skijasi-time__container">
+    <label v-if="label != ''" for="" class="skijasi-time__label">{{
+      label
+    }}</label>
+    <div class="skijasi-time__time-container">
+      <datetime
+        :label="label"
+        type="time"
+        :title="label"
+        :value="value"
+        :value-zone="valueZone"
+        :zone="zone"
+        class="skijasi-time__input"
+        @input="handleInput($event)"
+      ></datetime>
+      <div class="skijasi-time__item-icon-box">
+        <vs-icon icon="schedule" class="skijasi-time__item-icon"></vs-icon>
+      </div>
+    </div>
+    <div v-if="additionalInfo" v-html="additionalInfo"></div>
+    <div v-if="alert">
+      <div v-if="$helper.isArray(alert)">
+        <span
+          class="skijasi-time__input--error"
+          v-for="(info, index) in alert"
+          :key="index"
+        >
+          {{ info }}
+        </span>
+      </div>
+      <div v-else>
+        <span class="skijasi-time__input--error" v-html="alert"></span>
+      </div>
+    </div>
+  </vs-col>
+</template>
+
+<script>
+import { Datetime } from "vue-datetime";
+
+export default {
+  name: "SkijasiTime",
+  components: {
+    datetime: Datetime,
+  },
+  data: () => ({}),
+  props: {
+    size: {
+      type: String,
+      default: "12",
+    },
+    label: {
+      type: String,
+      default: "",
+    },
+    placeholder: {
+      type: String,
+      default: "Time",
+    },
+    value: {
+      type: String,
+      required: true,
+      default: "",
+    },
+    additionalInfo: {
+      type: String,
+      default: "",
+    },
+    alert: {
+      type: String || Array,
+      default: "",
+    },
+    valueZone: {
+      type: String,
+      default: "local",
+    },
+    zone: {
+      type: String,
+      default: "local",
+    },
+  },
+  methods: {
+    handleInput(val) {
+      this.$emit("input", val);
+    },
+  },
+};
+</script>

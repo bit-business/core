@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Seeders\Skijasi\ManualGenerate;
+
+use Illuminate\Database\Seeder;
+use NadzorServera\Skijasi\Facades\Skijasi;
+
+class {{class}} extends Seeder
+{
+	/**
+	* Auto generated seed file
+	*
+	* @return void
+	*
+	* @throws Exception
+	*/
+	public function run()
+	{
+		\DB::beginTransaction();
+		try {
+			\DB::table('{{table}}')->delete();
+
+			{{insert_statements}}
+
+			\DB::commit();
+		} catch(Exception $e) {
+			\DB::rollBack();
+
+			throw new Exception('Exception occur ' . $e);
+		}
+	}
+}

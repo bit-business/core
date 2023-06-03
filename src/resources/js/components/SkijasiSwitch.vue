@@ -72,11 +72,11 @@ export default {
     },
     onLabel: {
       type: String,
-      default: "On",
+      default: "Da",
     },
     offLabel: {
       type: String,
-      default: "Off",
+      default: "Ne",
     },
     value: {
       type: Boolean,

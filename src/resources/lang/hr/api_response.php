@@ -1,10 +1,10 @@
 <?php
 
 return [
-    '200' => 'Permintaan berhasil',
-    '201' => 'Permintaan berhasil',
+    '200' => 'Request was successful',
+    '201' => 'Request was successful',
     '300' => '',
-    '400' => 'Data yang diberikan tidak valid',
+    '400' => 'The given data was invalid',
     '401' => 'Unauthorized: Access is denied due to invalid credentials.',
     '402' => 'Payment Required',
     '412' => 'Precondition Failed',

@@ -455,7 +455,7 @@
                                   $caseConvert.stringSnakeToCamel(dataRow.field)
                                 ]
                               "
-                              width="90%"
+                              width="75%"
                               alt=""
                             />
                             <div

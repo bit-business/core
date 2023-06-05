@@ -280,7 +280,7 @@ export default {
     },
     header: {
       table: "Tablica",
-      action: "Akcija",
+      action: "Opcije",
     },
     body: {
       button: "Dodaj CRUD za ovu tablicu",
@@ -538,7 +538,7 @@ export default {
       action: "Akcija",
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Broj rezultata",
       descriptionConnector: "od",
       descriptionBody: "Stranice",
     },
@@ -739,7 +739,7 @@ export default {
       header: {
         name: "Ime",
         description: "Opis",
-        action: "Akcija",
+        action: "Opcije",
       },
       button: "Postavi izabrane uloge za korisnika",
       success: {
@@ -935,12 +935,12 @@ export default {
       notAllowedToRead: "You're not allowed to read {tableName}",
     },
     header: {
-      action: "Action",
+      action: "Opcije",
     },
     footer: {
-      descriptionTitle: "Registries",
-      descriptionConnector: "of",
-      descriptionBody: "Pages",
+      descriptionTitle: "Broj rezultata",
+      descriptionConnector: "od",
+      descriptionBody: "Stranica",
     },
     add: {
       title: "Add {tableName}",
@@ -1028,8 +1028,8 @@ export default {
           fieldIndex: "Index",
           fieldAttribute: "Unsigned",
           fieldIncrement: "Auto Increment",
-          action: "Action",
-          add: "Add",
+          action: "Opcije",
+          add: "Dodaj",
         },
       },
       error: {
@@ -1039,11 +1039,11 @@ export default {
         fieldLength: "Field length is required.",
       },
       footer: {
-        descriptionTitle: "Registries",
-        descriptionConnector: "of",
-        descriptionBody: "Pages",
+        descriptionTitle: "Broj rezultata",
+        descriptionConnector: "od",
+        descriptionBody: "Stranica",
       },
-      button: "Save",
+      button: "Spremi",
     },
     edit: {
       title: "Alter Table",
@@ -1064,8 +1064,8 @@ export default {
           fieldIndex: "Index",
           fieldAttribute: "Unsigned",
           fieldIncrement: "Auto Increment",
-          action: "Action",
-          add: "Add",
+          action: "Opcije",
+          add: "Dodaj",
         },
         drop: "Are you sure want to delete this field?",
       },
@@ -1086,11 +1086,11 @@ export default {
         fieldLength: "Field length is required.",
       },
       footer: {
-        descriptionTitle: "Registries",
-        descriptionConnector: "of",
-        descriptionBody: "Pages",
+        descriptionTitle: "Broj rezultata",
+        descriptionConnector: "od",
+        descriptionBody: "Stranica",
       },
-      button: "Save",
+      button: "Spremi",
     },
     rollback: {
       title: "Rollback",

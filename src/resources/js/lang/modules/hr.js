@@ -1116,22 +1116,22 @@ export default {
     },
   },
   fileManager: {
-    title: "Upravljač datotekama",
+    title: "Upravitelj datotekama",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate upravljač datotekama",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate preglednik datoteka",
     },
     URL: {
       label: "Nalepi URL slike ovde",
       placeholder: "URL",
       descriptionText:
-        "Ako je vaš URL tačan, ovde ćete videti pregled slike. Velike slike mogu se pojaviti nakon nekoliko minuta. Prihvatamo samo PNG i JPEG.",
+        "Ako je vaš URL točan, ovdje ćete vidjeti slike. Velike slike mogu se pojaviti nakon nekoliko minuta. Prihvaćamo samo PNG i JPEG.",
       invalid: "Slika nije važeća",
     },
   },
   imageManager: {
-    title: "Upravljač slika",
+    title: "Preglednik slika",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate upravljač slika",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate slike",
     },
   },
   firebase: {
@@ -1142,17 +1142,17 @@ export default {
     },
     form: {
       apiKey: "API ključ",
-      authDomain: "Domen za autorizaciju",
+      authDomain: "Domena za autorizaciju",
       projectId: "Id projekta",
       storageBucket: "Kanta za skladištenje",
       messagingSenderId: "Pošiljalac poruka",
       appId: "Id aplikacije",
-      measurementId: "Id merenja",
+      measurementId: "Id mjerenja",
       serverKey: "Server ključ",
     },
   },
   logViewer: {
-    title: "Pregledač dnevnika",
+    title: "Preglednik dnevnika",
     warning: {
       notAllowedToBrowse: "Nemate dozvolu da pregledate pregledač dnevnika",
     },
@@ -1164,11 +1164,11 @@ export default {
     },
   },
   notification: {
-    notification: "Obaveštenje",
-    detailMessage: "Detaljna poruka",
+    notification: "Obavijesti",
+    detailMessage: "Detaljnije poruka",
   },
   noInternetAccess:
-    "Podaci se ne mogu učitati jer niste povezani na internet. Molimo vas da ponovo povežete internet!",
+    "Podaci se ne mogu učitati jer niste povezani na internet. Molimo vas da se ponovo povežete na internet!",
   offlineFeature: {
     dataPending: "Podaci čekaju...",
     dataUpdatePending: "Ažuriranje podataka čeka...",

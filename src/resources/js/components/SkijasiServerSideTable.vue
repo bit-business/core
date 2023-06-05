@@ -5,7 +5,7 @@
         <vs-row class="skijasi-server-side-table__header">
           <vs-col vs-lg="6" vs-md="6" vs-sm="6" vs-xs="12">
             <div class="skijasi-server-side-table__header-select">
-              Show&nbsp;
+              Prikaži&nbsp;
               <vs-select v-model="limit" width="100px">
                 <vs-select-item
                   :key="index"
@@ -14,7 +14,7 @@
                   v-for="(row, index) in descriptionItems"
                 />
               </vs-select>
-              &nbsp;Entries
+              &nbsp;rezultata
             </div>
           </vs-col>
           <vs-col vs-lg="6" vs-md="6" vs-sm="6" vs-xs="12">
@@ -91,11 +91,11 @@ export default {
       type: Array,
     },
     descriptionTitle: {
-      default: "Registries",
+      default: "Broj rezultata",
       type: String,
     },
     descriptionConnector: {
-      default: "of",
+      default: "od",
       type: String,
     },
     descriptionBody: {

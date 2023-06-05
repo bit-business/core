@@ -22,6 +22,6 @@
     @endif
 </head>
   <body>
-      <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae nulla explicabo ullam ab nostrum, facere quaerat maiores culpa quia quibusdam minus amet repudiandae itaque repellat, voluptate beatae excepturi optio mollitia!</p>
+      <p>U tijeku je održavanje servera sa nadogradnjama! Ukoliko trebate hitno pristup, molim kontaktirajte osobu zaduženu za server.</p>
   </body>
 </html>

@@ -94,7 +94,7 @@ export default {
   verifyEmail: {
     title: "Verifikacija Emaila",
     failed: "Verifikacija emaila je u tijeku ....",
-    button: "Verifikuj",
+    button: "Verificiraj",
     request: "Pošalji ponovno",
     field: {
       token: "Token",

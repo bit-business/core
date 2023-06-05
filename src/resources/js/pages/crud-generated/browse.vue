@@ -455,7 +455,7 @@
                                   $caseConvert.stringSnakeToCamel(dataRow.field)
                                 ]
                               "
-                              width="20%"
+                              width="90%"
                               alt=""
                             />
                             <div
@@ -488,17 +488,11 @@
                               "
                             ></span>
                                  <skijasi-switch
-    v-if="dataRow.type == 'switch'"
-    :label="''"
-    :placeholder="''"
+    v-else-if="dataRow.type == 'switch'"
     v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
     size="12"
     :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
 >
-    {{ bindSelection(
-        dataRow.details.items,
-        record[$caseConvert.stringSnakeToCamel(dataRow.field)]
-    ) }}
 </skijasi-switch>
                             <a
                               v-else-if="dataRow.type == 'url'"

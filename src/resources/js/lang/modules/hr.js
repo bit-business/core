@@ -535,7 +535,7 @@ export default {
     header: {
       key: "Ključ",
       displayName: "Ime za prikaz",
-      action: "Akcija",
+      action: "Opcije",
     },
     footer: {
       descriptionTitle: "Broj rezultata",
@@ -644,7 +644,7 @@ export default {
     header: {
       name: "Ime",
       email: "E-pošta",
-      action: "Akcija",
+      action: "Opcije",
     },
     footer: {
       descriptionTitle: "Registri",
@@ -762,7 +762,7 @@ export default {
       name: "Ime",
       displayName: "Prikazano ime",
       description: "Opis",
-      action: "Akcija",
+      action: "Opcije",
     },
     footer: {
       descriptionTitle: "Registri",
@@ -848,7 +848,7 @@ export default {
       tableName: "Ime tabele",
       alwaysAllow: "Uvijek dozvoli",
       isPublic: "Javno",
-      action: "Akcija",
+      action: "Opcije",
       rolesCanSeeAllData: "Uloge mogu vidjeti sve podatke",
       fieldIdentifyRelatedUser: "Polje Identificiraju Povezanog Korisnika"
     },
@@ -1116,9 +1116,9 @@ export default {
     },
   },
   fileManager: {
-    title: "Upravljač datotekama",
+    title: "Upravitelj datotekama",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate upravljač datotekama",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate datotekama",
     },
     URL: {
       label: "Nalepi URL slike ovde",
@@ -1129,9 +1129,9 @@ export default {
     },
   },
   imageManager: {
-    title: "Upravljač slika",
+    title: "Upravitelj slikama",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate upravljač slika",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate slike",
     },
   },
   firebase: {
@@ -1152,19 +1152,19 @@ export default {
     },
   },
   logViewer: {
-    title: "Pregledač dnevnika",
+    title: "Nadzor aktivnosti",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate pregledač dnevnika",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate nadzor aktivnosti.",
     },
   },
   apidocs: {
     title: "API dokumentacija",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate API dokumentaciju.",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate API dokumentaciju.",
     },
   },
   notification: {
-    notification: "Obaveštenje",
+    notification: "Obavijesti",
     detailMessage: "Detaljna poruka",
   },
   noInternetAccess:

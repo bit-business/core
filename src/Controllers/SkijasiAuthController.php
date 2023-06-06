@@ -83,7 +83,7 @@ class SkijasiAuthController extends Controller
             activity('Authentication')
             ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
-                ->log('Login has been success');
+                ->log('Korisnik se prijavio');
 
             return $this->createNewToken($token, auth()->user(), $remember);
         } catch (JWTException $e) {
@@ -141,7 +141,7 @@ class SkijasiAuthController extends Controller
             activity('Authentication')
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
-                ->log('Login has been success');
+                ->log('Korisnik se prijavio');
 
             return $this->createNewToken($token, auth()->user(), $remember);
         } catch (JWTException $e) {

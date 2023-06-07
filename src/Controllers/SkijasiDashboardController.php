@@ -11,23 +11,23 @@ class SkijasiDashboardController extends Controller
 {
     public function index()
     {
-        try {
+         try {
             $widgets = config('skijasi.widgets');
             $data = [];
             foreach ($widgets as $widget) {
                 $widget_class = new $widget();
                 if ($widget_class instanceof WidgetInterface) {
                     $permissions = $widget_class->getPermissions();
-                    if (is_null($permissions)) {
+                //    if (is_null($permissions)) {
                         $widget_data = $widget_class->run();
                         $data[] = $widget_data;
-                    } else {
-                        $allowed = AuthenticatedUser::isAllowedTo($permissions);
-                        if ($allowed) {
-                            $widget_data = $widget_class->run();
-                            $data[] = $widget_data;
-                        }
-                    }
+                  //  } else {
+                     //   $allowed = AuthenticatedUser::isAllowedTo($permissions);
+                    //    if ($allowed) {
+                       //     $widget_data = $widget_class->run();
+                         //   $data[] = $widget_data;
+                       // }
+                   // }
                 }
             }
 

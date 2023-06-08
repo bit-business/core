@@ -20,7 +20,7 @@ class UserWidget implements WidgetInterface
     public function run($params = null)
     {
         return [
-            'label' => 'User',
+            'label' => 'Broj članova HZUTS-a',
             'icon' => 'person',
             'value' => User::count(),
             'prefix_value' => '',

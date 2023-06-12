@@ -25,10 +25,10 @@
               name: 'UserProfile',
             }"
           >
-            Profile
+            Profil
           </skijasi-sidebar-item>
           <skijasi-sidebar-item icon="logout" @click="logout()">
-            Logout
+            Odlogiraj se
           </skijasi-sidebar-item>
         </skijasi-sidebar-group>
         <vs-select
@@ -235,3 +235,9 @@ export default {
   },
 };
 </script>
+<style>
+.vs-avatar img {
+  object-fit: cover;
+  object-position: center;
+}
+</style>

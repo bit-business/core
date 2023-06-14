@@ -1208,7 +1208,9 @@ export default {
               return list[displayColumn];
             }
           }
-        }  else if (relationType == "belongs_to_many") {
+        }  
+        
+  /*      else if (relationType == "belongs_to_many") {
           let field = this.$caseConvert.stringSnakeToCamel(dataRow.field)
           const lists = record[field]
           let flatList = []
@@ -1217,7 +1219,24 @@ export default {
           });
           return flatList.join(",").replace(",", ", ");
         }
-      } else {
+      }
+      */
+       //fix mijenjao ovo zbog toga sto ne prikazuje relation samo bijelo bude cijela crud tablica
+        else if (relationType == "belongs_to_many") {
+  let field = this.$caseConvert.stringSnakeToCamel(dataRow.field)
+  const lists = record[field]
+  let flatList = []
+  if (lists) {
+    Object.keys(lists).forEach(function (ls, key) {
+      if (lists[ls] && lists[ls][displayColumn]) {
+        flatList.push(lists[ls][displayColumn]);
+      }
+    });
+  }
+  return flatList.join(",").replace(",", ", ");
+}  //fix mijenjao ovo zbog toga sto ne prikazuje relation samo bijelo bude cijela crud tablica
+      
+     } else {
         return null;
       }
     },

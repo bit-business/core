@@ -21,7 +21,7 @@
               <vs-col
                 v-for="(dataRow, rowIndex) in dataType.dataRows"
                 :key="rowIndex"
-                :vs-lg="dataRow.details.size ? dataRow.details.size : '12'"
+                :vs-lg="dataRow.details.size ? dataRow.details.size : '6'"
               >
                 <template v-if="dataRow.edit && dataRow.type !== 'hidden'">
                   <!-- <input type="text" v-model="dataRow.value"> -->

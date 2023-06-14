@@ -35,11 +35,11 @@ export default {
   },
 
   register: {
-    title: "Registrirajte se Ovdje",
+    title: "Registrirajte se ovdje",
     subtitle: "Molimo popunite formular ispod.",
     field: {
       name: "Ime",
-      username: "Korisničko ime",
+      username: "Prezime",
       phone: "Telefon",
       email: "Email",
       password: "Lozinka",
@@ -115,7 +115,7 @@ export default {
 
   myProfile: {
     title: "Moj Profil",
-    username: "Korisničko ime",
+    username: "Prezime",
     logout: "Odjava",
     profile: "Profil",
     email: "Email",
@@ -130,7 +130,7 @@ export default {
     buttons: {
       updateProfile: "Ažuriraj Profil",
       updateEmail: "Ažuriraj Email",
-      verifyEmail: "Verifikuj Email",
+      verifyEmail: "Verificiraj Email",
       changePassword: "Promijeni Lozinku",
     },
   },
@@ -174,7 +174,7 @@ export default {
 
   alert: {
     success: "Uspješno",
-    danger: "Opasnost",
+    danger: "Greška",
     error: "Greška",
   },
 
@@ -653,7 +653,7 @@ export default {
     },
     help: {
       emailVerified:
-        "Prebacite ovo na uključeno da bi automatski verifikovali e-poštu kreiranog korisnika",
+        "Prebacite ovo na uključeno da bi automatski verificirali e-poštu kreiranog korisnika",
     },
     add: {
       title: "Dodaj korisnika",
@@ -663,8 +663,8 @@ export default {
           placeholder: "Ime",
         },
         username: {
-          title: "Korisničko ime",
-          placeholder: "Korisničko ime",
+          title: "Prezime",
+          placeholder: "Prezime",
         },
         email: {
           title: "E-pošta",
@@ -698,8 +698,8 @@ export default {
           placeholder: "Ime",
         },
         username: {
-          title: "Korisničko ime",
-          placeholder: "Korisničko ime",
+          title: "Prezime",
+          placeholder: "Prezime",
         },
         email: {
           title: "E-pošta",

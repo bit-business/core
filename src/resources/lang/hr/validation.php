@@ -2,10 +2,10 @@
 
 return [
     'auth' => [
-        'invalid_credentials'  => 'Invalid email or password',
-        'user_not_found'       => 'User not found',
-        'wrong_old_password'   => 'Invalid old password',
-        'password_not_changes' => 'new password must be different with old password',
+        'invalid_credentials'  => 'Neispravan email ili šifra',
+        'user_not_found'       => 'Korisnički profil ne postoji',
+        'wrong_old_password'   => 'Neispravna stara šifra',
+        'password_not_changes' => 'nova šifra mora biti drugačija od stare',
     ],
     'crud' => [
         'table_not_found'                     => 'Table :table does not exists',
@@ -21,10 +21,10 @@ return [
         'mimetype_invalid' => 'Base64 mimetype is invalid',
     ],
     'verification' => [
-        'email_sended'               => 'An verification mail has been send to your email',
-        'invalid_verification_token' => 'Invalid verification token',
-        'verification_not_found'     => 'Verification not found',
-        'time_wait_loading'          => 'Wait until loaded finish',
+        'email_sended'               => 'Poruka za potvrdu poslana je na vašu e-poštu',
+        'invalid_verification_token' => 'Nevažeći token za provjeru',
+        'verification_not_found'     => 'Potvrda nije pronađena',
+        'time_wait_loading'          => 'Pričekajte dok se učitavanje ne završi',
     ],
     'database' => [
         'table_already_exists'      => 'Table :table already exists.',

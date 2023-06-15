@@ -921,7 +921,7 @@ export default {
         yes: "Yes",
         no: "No",
       },
-      button: "Edit",
+      button: "Izmijeni",
       rolesCanSeeAllData: "Roles Can See All Data",
       fieldIdentifyRelatedUser: "Field Identify Related User"
     },

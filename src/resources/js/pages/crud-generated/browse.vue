@@ -418,7 +418,7 @@
                         {{ dataRow.displayName }}
                       </template>
                     </skijasi-th>
-                    <vs-th> Action </vs-th>
+                    <vs-th> Opcije </vs-th>
                   </template>
 
                   <template slot="tbody">

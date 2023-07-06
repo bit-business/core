@@ -6,7 +6,7 @@
   &__label {
     padding-left: 5px;
     font-size: 0.85rem;
-    color: rgba(0, 0, 0, 0.0);
+    color: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -19,3 +19,7 @@
     }
   }
 }
+.custom-switch .skijasi-switch__label {
+  color: rgba(0, 0, 0, 0.0) !important; /* Adjust the opacity as needed */
+}
+

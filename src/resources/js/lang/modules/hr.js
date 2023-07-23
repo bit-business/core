@@ -174,6 +174,7 @@ export default {
 
   alert: {
     success: "Uspješno",
+    update_success: "pohranjeno",
     danger: "Greška",
     error: "Greška",
   },

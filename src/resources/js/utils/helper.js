@@ -86,7 +86,7 @@ export default {
   formatDate(value) {
     const date = process.env.MIX_DATE_FORMAT
       ? process.env.MIX_DATE_FORMAT
-      : "MMMM Do YYYY";
+      : "DD.MM.YYYY.";
     const time = process.env.MIX_TIME_FORMAT
       ? process.env.MIX_TIME_FORMAT
       : "h:mm:ss a";

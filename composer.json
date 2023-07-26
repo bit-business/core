@@ -1,26 +1,16 @@
 {
   "version": "2.9.4",
   "name": "skijasi/core",
-  "description": "The skijasko uciliste",
+  "description": "web",
   "keywords": [
-    "laravel",
-    "admin",
-    "panel",
-    "dashboard",
-    "lcdp",
-    "ncdp",
-    "no code",
-    "low code",
-    "pwa",
-    "vue",
-    "generator"
+    "test"
   ],
-  "license": "proprietary",
-  "homepage": "https://skijasi.hr/",
+  "license": "MIT",
+  "homepage": "https://skijasi.hrhr/",
   "support": {
-    "issues": "https://github.com/nadzorservera-croatia/skijasi/issues",
-    "discussion": "https://github.com/nadzorservera-croatia/skijasi/discussions",
-    "source": "https://github.com/nadzorservera-croatia/skijasi"
+    "issues": "https://github.com/nadzorservera-hrhrhrhr/skijasi/issues",
+    "discussion": "https://github.com/nadzorservera-hrhrhrh/skijasi/discussions",
+    "source": "https://github.com/nadzorservera-hrhrhrh/skijasi"
   },
   "type": "library",
   "require": {
@@ -56,8 +46,8 @@
   },
   "authors": [
     {
-      "name": "NADZORSERVERA",
-      "email": "nadzorservera@email.com"
+      "name": "skiweb",
+      "email": "someeemailneki@email.com"
     }
   ],
   "minimum-stability": "alpha",

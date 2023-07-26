@@ -9,21 +9,21 @@
               <vs-row class="profile__container">
                 <skijasi-text
                   v-model="user.name"
-                  size="12"
+                  size="6"
                   :label="$t('myProfile.name')"
                   :placeholder="$t('myProfile.name')"
                   :alert="errors.name"
                 ></skijasi-text>
                 <skijasi-text
                   v-model="user.username"
-                  size="12"
+                  size="6"
                   :label="$t('myProfile.username')"
                   :placeholder="$t('myProfile.username')"
                   :alert="errors.username"
                 ></skijasi-text>
                 <skijasi-upload-image
                   v-model="user.avatar"
-                  size="12"
+                  size="6"
                   :label="$t('myProfile.avatar')"
                   :placeholder="$t('myProfile.avatar')"
                   :alert="errors.avatar"
@@ -31,7 +31,7 @@
                 <vs-col vs-lg="12">
                   <skijasi-code-editor
                     v-model="user.additionalInfo"
-                    size="12"
+                    size="6"
                     :label="$t('myProfile.additionalInfo')"
                     :placeholder="$t('myProfile.additionalInfo')"
                     :alert="errors.additionalInfo"

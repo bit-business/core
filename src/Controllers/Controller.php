@@ -229,6 +229,43 @@ abstract class Controller extends BaseController
         return $records;
     }
 
+
+
+    public function getDataDetailPDF($slug, $id)
+    {
+        $data_type = $this->getDataType($slug);
+        $data_rows = collect($data_type->dataRows);
+        $fields = collect($data_type->dataRows)->where('read', 1)->pluck('field')->first();
+
+        $ids = collect($data_type->dataRows)->where('field', 'id')->pluck('field')->first();
+        $field_other_relation = [];
+    
+        foreach ($data_rows as $key => $data_row) {
+            if (isset($data_row['relation']) && $data_row['relation']['relation_type'] != 'belongs_to') {
+                $field_other_relation[] = $data_row['field'];
+            }
+        }
+    
+       // $fields = array_diff(array_merge($fields, $ids), $field_other_relation);
+        $data = null;
+        $record = null;
+
+        if ($data_type->model_name) {
+            $model = app($data_type->model_name);
+            $record = $model::query()->select($fields)->where('id', $id)->first();
+        } else {
+            $record = DB::table($data_type->name)->select($fields)->where('id', $id)->first();
+        }
+        
+    
+    
+        $record = GetData::getRelationData($data_type, $record);
+    
+        return $record;
+    }
+    
+
+
     public function getDataDetail($slug, $id)
     {
         $data_type = $this->getDataType($slug);
@@ -288,6 +325,128 @@ abstract class Controller extends BaseController
 
         return $record;
     }
+
+
+    public function getDataDetail2($slug, $idmember)
+    {
+        $data_type = $this->getDataType($slug);
+        $data_rows = collect($data_type->dataRows);
+        $fields = collect($data_type->dataRows)->where('read', 1)->pluck('field')->all();
+        $ids = collect($data_type->dataRows)->where('field', 'idmember')->pluck('field')->all();
+        $field_other_relation = [];
+
+        foreach ($data_rows as $key => $data_row) {
+            if (isset($data_row['relation']) && $data_row['relation']['relation_type'] != 'belongs_to') {
+                $field_other_relation[] = $data_row['field'];
+            }
+        }
+
+        $fields = array_diff(array_merge($fields, $ids), $field_other_relation);
+        $data = null;
+        $record = null;
+
+        if ($data_type->model_name) {
+            $model = app($data_type->model_name);
+            $row = $model::query()->select($fields)->where('idmember', $idmember)->get();
+
+            if ($row) {
+                $class = new ReflectionClass(get_class($row));
+                $class_methods = $class->getMethods();
+                $record = json_decode(json_encode($row));
+
+                foreach ($class_methods as $class_method) {
+                    if ($class_method->class == $class->name) {
+                        try {
+                            $record->{$class_method->name} = json_decode(json_encode($row->{$class_method->name}));
+                        } catch (Exception $e) {
+                            // $record->{$class_method->name} = json_decode(json_encode($row->{$class_method->name}()));
+                        }
+                    }
+                }
+            }
+        } else {
+            $record = DB::table($data_type->name)->select($fields)->where('idmember', $idmember)->get();
+        }
+        if (count($field_other_relation) > 0) {
+            foreach ($data_rows as $key => $data_row) {
+                if (isset($data_row->relation) && $data_row->relation['relation_type'] == 'belongs_to_many') {
+                    $table_name = $data_type['name'];
+                    $table_destination = $data_row->relation['destination_table'];
+                    $table_manytomany = $data_row['field'];
+                    $data_relation = DB::table($table_manytomany)
+                        ->leftjoin($table_name, $table_manytomany.'.id', '=', $table_name.'_id')
+                        ->select($table_name.'_id', $table_destination.'_id')
+                        ->get();
+                    $record->$table_manytomany = $data_relation;
+                }
+            }
+        }
+
+        $record = GetData::getRelationData($data_type, $record);
+
+        return $record;
+    }
+
+    public function getDataDetail3($slug, $idedukacijskogsegmentaclana)
+    {
+        $data_type = $this->getDataType($slug);
+        $data_rows = collect($data_type->dataRows);
+        $fields = collect($data_type->dataRows)->where('read', 1)->pluck('field')->all();
+        $ids = collect($data_type->dataRows)->where('field', 'idedukacijskogsegmentaclana')->pluck('field')->all();
+        $field_other_relation = [];
+
+        foreach ($data_rows as $key => $data_row) {
+            if (isset($data_row['relation']) && $data_row['relation']['relation_type'] != 'belongs_to') {
+                $field_other_relation[] = $data_row['field'];
+            }
+        }
+
+        $fields = array_diff(array_merge($fields, $ids), $field_other_relation);
+        $data = null;
+        $record = null;
+
+        if ($data_type->model_name) {
+            $model = app($data_type->model_name);
+            $row = $model::query()->select($fields)->where('idedukacijskogsegmentaclana', $idedukacijskogsegmentaclana)->get();
+    
+            if ($row) {
+                $class = new ReflectionClass(get_class($row));
+                $class_methods = $class->getMethods();
+                $record = json_decode(json_encode($row));
+
+                foreach ($class_methods as $class_method) {
+                    if ($class_method->class == $class->name) {
+                        try {
+                            $record->{$class_method->name} = json_decode(json_encode($row->{$class_method->name}));
+                        } catch (Exception $e) {
+                            // $record->{$class_method->name} = json_decode(json_encode($row->{$class_method->name}()));
+                        }
+                    }
+                }
+            }
+        } else {
+            $record = DB::table($data_type->name)->select($fields)->where('idedukacijskogsegmentaclana', $idedukacijskogsegmentaclana)->get();
+        }
+        if (count($field_other_relation) > 0) {
+            foreach ($data_rows as $key => $data_row) {
+                if (isset($data_row->relation) && $data_row->relation['relation_type'] == 'belongs_to_many') {
+                    $table_name = $data_type['name'];
+                    $table_destination = $data_row->relation['destination_table'];
+                    $table_manytomany = $data_row['field'];
+                    $data_relation = DB::table($table_manytomany)
+                        ->leftjoin($table_name, $table_manytomany.'.id', '=', $table_name.'_id')
+                        ->select($table_name.'_id', $table_destination.'_id')
+                        ->get();
+                    $record->$table_manytomany = $data_relation;
+                }
+            }
+        }
+
+        $record = GetData::getRelationData($data_type, $record);
+
+        return $record;
+    }
+
 
     public function insertData($data, $data_type)
     {

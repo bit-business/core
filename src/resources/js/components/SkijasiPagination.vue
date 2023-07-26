@@ -145,15 +145,15 @@ export default {
     },
     descriptionTitle: {
       type: String,
-      default: "Registries",
+      default: "Broj rezultata",
     },
     descriptionConnector: {
       type: String,
-      default: "of",
+      default: "od",
     },
     descriptionBody: {
       type: String,
-      default: "Pages",
+      default: "Stranice",
     },
   },
   data: () => ({

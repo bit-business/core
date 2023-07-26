@@ -174,15 +174,15 @@
                 <table border="0" cellpadding="0" cellspacing="0"
                   style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
                   <tr>
-                    <td>
-                      <p>Hi {{ $user->name }},</p>
-                      <p>Thank you for using {{ config('app.name') }}. Before you get started, we just need to confirm that this is you. Here is the verification code for your account: </p>
+                     <td>
+                      <p>Dobrodošli {{ $user->name }},</p>
+                      <p>Registrirali ste se na {{ config('app.name') }} webstranicu. Prije nego što počnete, samo trebamo potvrditi da ste to vi. Ovdje je kontrolni token za vaš račun: </p>
 
                       <h1>{{$token}}</h1>
 
-                      <p>All you have to do is copy the verification code and paste it to <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">this form</a> to complete the email verification process.</p>
+                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga na <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
 
-                      <p>Regards,<br />{{ config('app.name') }}</p>
+                      <p>Srdačno<br />{{ config('app.name') }}</p>
                     </td>
                   </tr>
                 </table>

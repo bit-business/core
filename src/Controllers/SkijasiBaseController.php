@@ -9,6 +9,8 @@ use NadzorServera\Skijasi\Helpers\ApiResponse;
 use NadzorServera\Skijasi\Helpers\Firebase\FCMNotification;
 use NadzorServera\Skijasi\Helpers\GetData;
 use NadzorServera\Skijasi\Models\DataType;
+use Illuminate\Support\Facades\Log;
+
 
 class SkijasiBaseController extends Controller
 {
@@ -62,8 +64,601 @@ class SkijasiBaseController extends Controller
             $request->validate([
                 'id' => 'exists:'.$data_type->name,
             ]);
-
+    
             $data = $this->getDataDetail($slug, $request->id);
+            // add event notification handle
+            $table_name = $data_type->name;
+            FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_READ, $table_name);
+    
+            return ApiResponse::onlyEntity($data);
+        } catch (Exception $e) {
+            return ApiResponse::failed($e);
+        }
+    }
+
+    public function generatepdffprint(Request $request)
+    {
+     
+
+        $request->validate([
+            'id' => 'required',
+        ]);
+        $slug = $this->getSlug($request);
+        $data_type = $this->getDataType($slug);
+        $request->validate([
+            'id' => 'exists:'.$data_type->name,
+        ]);
+
+   
+//primanje podataka iz vue
+        $programNaziv = $request->input('programNaziv');
+        $programRavnatelj = $request->input('programRavnatelj');
+        $programVoditeljEdukacijskeGrupe = $request->input('programVoditeljEdukacijskeGrupe');
+        $programDuljinaPrograma = $request->input('programDuljinaPrograma');
+        $programDuljinaProgramaTekst = $request->input('programDuljinaProgramaTekst');
+        $programRjKlasa = $request->input('programRjKlasa');
+        $programRjurbr = $request->input('programRjurbr');
+        $programRjdatum = $request->input('programRjdatum');
+        $programKlasaGodina = $request->input('programKlasaGodina');
+        $profesijaClana = $request->input('profesijaClana');
+        $programClanklasabrojtekst = $request->input('programClanklasabrojtekst');
+
+        $datumprijabe = $request->input('datumprijabe');
+        $zavrsenaedukacija = $request->input('zavrsenaedukacija');
+        $brojclanskiidurbrojtekst = $request->input('brojclanskiidurbrojtekst');
+        $programMaticniBroj = $request->input('programMaticniBroj');
+        $listaArray = $request->input('listaArray');
+    
+
+     
+  
+   
+
+      $options = new \Dompdf\Options();
+      
+      $options->set('isHtml5ParserEnabled', true);
+      $options->set('isRemoteEnabled', true);
+      $options->set('dpi', 150);
+      $options->set('defaultFont', 'DejaVu Sans');
+      $options->set('margin_left', 0);
+      $options->set('margin_right', 0);
+      $options->set('margin_top', 0);
+      $options->set('margin_bottom', 0);
+
+      $options->set('defaultMediaType', 'visual');
+
+      $dompdf = new \Dompdf\Dompdf($options);
+      
+
+    // Load your template.pdf file
+   // $dompdf->set_paper('A4', 'portrait');
+    $dompdf->set_paper(array(0,0,595.28,841.89), 'portrait');
+
+    
+
+    // Query the database to get the data
+    $data = DB::table('su_clanovi')->where('id', $request->id)->first();
+    
+
+    $birthdateFormatted =  $this->formatDate($data->birthdate);
+
+    setlocale(LC_TIME, 'hr_HR.UTF-8'); // Set the locale to Croatian
+    $today = new \DateTime();
+    $formattedTodayDate = strftime('%d. %B', $today->getTimestamp());
+    $formattedTodayDateYear = strftime('%y', $today->getTimestamp());
+    
+
+    // Convert the data to HTML and add it to the PDF
+    $html = $this->convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj, $programVoditeljEdukacijskeGrupe, $programDuljinaPrograma, $programDuljinaProgramaTekst, $programKlasaGodina, $profesijaClana, $programRjKlasa, $programRjurbr, $programRjdatum, $birthdateFormatted, $programClanklasabrojtekst, $datumprijabe, $zavrsenaedukacija, $brojclanskiidurbrojtekst, $formattedTodayDate, $formattedTodayDateYear, $listaArray, $programMaticniBroj);
+
+    $dompdf->loadHtml($html);
+
+    // Render the PDF
+    $dompdf->render();
+
+    $dompdf->stream();
+
+    // Output the generated PDF
+    $output = $dompdf->output();
+
+    // Return the PDF as a response
+    return response($output, 200)
+            ->header('Content-Type', 'application/pdf');
+}
+    
+    
+
+
+    public function generatepdff(Request $request)
+{
+
+   
+
+        $request->validate([
+            'id' => 'required',
+        ]);
+        $slug = $this->getSlug($request);
+        $data_type = $this->getDataType($slug);
+        $request->validate([
+            'id' => 'exists:'.$data_type->name,
+        ]);
+
+   
+//primanje podataka iz vue
+        $programNaziv = $request->input('programNaziv');
+        $programRavnatelj = $request->input('programRavnatelj');
+        $programVoditeljEdukacijskeGrupe = $request->input('programVoditeljEdukacijskeGrupe');
+        $programDuljinaPrograma = $request->input('programDuljinaPrograma');
+        $programDuljinaProgramaTekst = $request->input('programDuljinaProgramaTekst');
+        $programRjKlasa = $request->input('programRjKlasa');
+        $programRjurbr = $request->input('programRjurbr');
+        $programRjdatum = $request->input('programRjdatum');
+        $programKlasaGodina = $request->input('programKlasaGodina');
+        $profesijaClana = $request->input('profesijaClana');
+        $programClanklasabrojtekst = $request->input('programClanklasabrojtekst');
+
+        $datumprijabe = $request->input('datumprijabe');
+        $zavrsenaedukacija = $request->input('zavrsenaedukacija');
+        $brojclanskiidurbrojtekst = $request->input('brojclanskiidurbrojtekst');
+        $programMaticniBroj = $request->input('programMaticniBroj');
+        $listaArray = $request->input('listaArray');
+    
+
+      $options = new \Dompdf\Options();
+      
+      $options->set('isHtml5ParserEnabled', true);
+      $options->set('isRemoteEnabled', true);
+      $options->set('dpi', 150);
+      $options->set('defaultFont', 'DejaVu Sans');
+      $options->set('margin_left', 0);
+      $options->set('margin_right', 0);
+      $options->set('margin_top', 0);
+      $options->set('margin_bottom', 0);
+
+      $options->set('defaultMediaType', 'visual');
+
+      $dompdf = new \Dompdf\Dompdf($options);
+      
+
+    // Load your template.pdf file
+   // $dompdf->set_paper('A4', 'portrait');
+    $dompdf->set_paper(array(0,0,595.28,841.89), 'portrait');
+
+    
+
+    // Query the database to get the data
+    $data = DB::table('su_clanovi')->where('id', $request->id)->first();
+    
+
+    $birthdateFormatted =  $this->formatDate($data->birthdate);
+
+    setlocale(LC_TIME, 'hr_HR.UTF-8'); // Set the locale to Croatian
+    $today = new \DateTime();
+    $formattedTodayDate = strftime('%d. %B', $today->getTimestamp());
+    $formattedTodayDateYear = strftime('%y', $today->getTimestamp());
+    
+
+    // Convert the data to HTML and add it to the PDF
+    $html = $this->convertDataToHtml($data, $programNaziv, $programRavnatelj, $programVoditeljEdukacijskeGrupe, $programDuljinaPrograma, $programDuljinaProgramaTekst, $programKlasaGodina, $profesijaClana, $programRjKlasa, $programRjurbr, $programRjdatum, $birthdateFormatted, $programClanklasabrojtekst, $datumprijabe, $zavrsenaedukacija, $brojclanskiidurbrojtekst, $formattedTodayDate, $formattedTodayDateYear, $listaArray, $programMaticniBroj);
+
+    $dompdf->loadHtml($html);
+
+    // Render the PDF
+    $dompdf->render();
+
+    $dompdf->stream();
+
+    // Output the generated PDF
+    $output = $dompdf->output();
+
+    // Return the PDF as a response
+    return response($output, 200)
+            ->header('Content-Type', 'application/pdf');
+}
+
+private function formatDate($dateString) {
+    $date = \DateTime::createFromFormat('Y-m-d', $dateString);
+    return $date->format('d.m.Y.');
+}
+
+
+private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $programVoditeljEdukacijskeGrupe, $programDuljinaPrograma, $programDuljinaProgramaTekst, $programKlasaGodina, $profesijaClana, $programRjdatum, $programRjKlasa, $programRjurbr, $birthdateFormatted, $programClanklasabrojtekst, $datumprijabe, $zavrsenaedukacija, $brojclanskiidurbrojtekst, $formattedTodayDate, $formattedTodayDateYear, $listaArray, $programMaticniBroj )
+{
+    $data = (array) $data; // Convert object to array
+    $listaArray = (array) $listaArray;
+
+   // Split the string into individual items
+   $segments = explode(',', $listaArray[0]);
+
+   $listHtml = '<div class="text-box-lista">';
+   $listHtml .= '<ul style="list-style-type: none; padding-left: 0;">';
+
+   foreach ($segments as $index => $segmentName) {
+       $number = str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT); // This will ensure numbers are 01, 02, 03, etc.
+       $listHtml .= "<li>{$number}.&nbsp;&nbsp;{$segmentName}</li>";
+   }
+
+   $listHtml .= '</ul>';
+   $listHtml .= '</div>';
+
+\Log::info('Generated listHtml:', (array)$listHtml);
+
+    $html = '<html><head><meta charset="UTF-8"><style>
+    @page {
+        margin: 0px;
+    }
+    /* Define the styles for the text boxes */
+    .text-box {
+     position: absolute;
+      font-size: 23px;
+      z-index: 2;
+    }
+    .text-box-lista {
+        font-weight: lighter;
+         font-size: 22.7px;
+         z-index: 2;
+       }
+
+    .text-box-small {
+        position: absolute;
+         font-size: 15px;
+         z-index: 2;
+       }
+    /* Define the styles for the labels */
+    .label {
+      position: absolute;
+      font-size: 32px;
+      //font-weight: bold;
+      z-index: 2;
+    }
+    /* Define the styles for the background image */
+    .bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://appevent4.apps-machine.com/event1/uvjerenje-template.jpg");
+        background-repeat: no-repeat;
+        background-size: contain;
+        z-index: 1;
+      
+        /* Hide the image when printing */
+        @media print {
+          visibility: hidden;
+        }
+      }
+  
+  </style></head><body>
+
+  <div class="bg"></div>
+
+  <div class="text-box" style="top: 8.5%; left: 23%;">
+    USTANOVA ZA OBRAZOVANJE ODRASLIH SKIJAŠKO UČILIŠTE
+  </div>
+
+  <div class="text-box" style="top: 11.4%; left: 39%;">
+    Maksimirska 51, Zagreb
+  </div>
+
+  <div class="text-box" style="top: 14.4%; left: 13.1%;">' . $brojclanskiidurbrojtekst . '</div>
+
+  <div class="text-box" style="top: 14.4%; left: 44.3%;">' . $programClanklasabrojtekst . '</div>
+
+  <div class="text-box" style="top: 14.4%; left: 78.7%; text-align: center; width: 10%;">' . $programMaticniBroj . '</div>
+
+  <div class="label" style="top: 23.7%; left:25%; text-align: center; width: 50%;">
+  '.$data["firstname"].' '.$data["lastname"].'
+</div>
+
+
+<div class="text-box" style="top: 27.08%; left: 12.54%;">
+'.implode('&nbsp;&nbsp;', str_split($data["oib"])).'
+</div>
+
+
+<div class="text-box" style="top: 27.37%; left: 50.33%;">'.$data["fatherfirstname"].' '.$data["fatherlastname"].' i '.$data["motherfirstname"].' '.$data["motherlastname"].'</div>
+
+<div class="text-box" style="top: 29.90%; left: 18.38%; text-align: center; width: 15%;">'.$birthdateFormatted.'</div>
+
+<div class="text-box" style="top: 29.90%; left: 53.00%;">'.$data["birthplace"].'</div>
+
+<div class="text-box" style="top: 32.70%; left: 20.33%;">'.$data["birthcountry"].'</div>
+
+<div class="text-box" style="top: 32.70%; left: 60.33%;">'.$data["citizenship"].'</div>
+
+
+<div class="text-box" style="top: 35.20%; left: 25.00%;">' . $profesijaClana . '</div>
+
+<div class="text-box" style="top: 40.70%; left: 10.00%; text-align: center; width: 80%;">' . $programNaziv . '</div>
+
+
+<div class="text-box" style="top: 43.37%; left: 33.00%;">' . $programDuljinaProgramaTekst . '</div>
+
+<div class="text-box" style="top: 43.37%; left: 77.00%;">' . $programDuljinaPrograma . '</div>
+
+<div class="text-box" style="top: 46.00%; left: 23.00%;">' . $datumprijabe . '</div>
+
+<div class="text-box" style="top: 46.00%; left: 43.00%;">' . $zavrsenaedukacija . '</div>
+
+<div class="text-box" style="top: 49.60%; left: 10.20%;">' . $listHtml . '</div>
+
+
+<div class="text-box" style="top: 76.00%; left: 24.33%;">' . $zavrsenaedukacija . '</div>
+
+<div class="text-box" style="top: 79.00%; left: 10.00%; text-align: center; width: 80%;">' . $programNaziv . '</div>
+
+<div class="text-box" style="top: 82.00%; left: 20.00%;">
+ Zagrebu </div>
+
+ <div class="text-box" style="top: 82.00%; left: 66.00%;">' . $formattedTodayDate . '</div>
+
+ <div class="text-box" style="top: 82.00%; left: 80.54%;">' . $formattedTodayDateYear . '</div>
+
+ <div class="text-box" style="top: 86.30%; left: 10.50%;">' . $programVoditeljEdukacijskeGrupe . '</div>
+
+ <div class="text-box" style="top: 86.30%; left: 69.70%;">' . $programRavnatelj . '</div>
+
+ <div class="text-box-small" style="top: 89.0%; left: 43.00%;">' . $programRjdatum . '</div>
+
+<div class="text-box-small" style="top: 89.0%; left: 63.00%;">' . $programRjKlasa . '</div>
+
+<div class="text-box-small" style="top: 89.00%; left: 78.60%;">' . $programRjurbr . '</div>
+
+
+';
+
+if (isset($data["gender"]) && $data["gender"] !== "") {
+  if ($data["gender"] === "Žensko") {
+
+    $html .= '<div class="text-box" style="top: 24.65%; left:85.9%;">X</div>';
+
+      $html .= '<div class="text-box" style="top: 76.61%; left:14.60%;">x</div>';
+
+      $html .= '<div class="text-box" style="top: 27.50%; left:39.7%;">x</div>';
+
+      $html .= '<div class="text-box" style="top: 38.20%; left:12.50%;">x</div>';
+
+      $html .= '<div class="text-box" style="top: 38.20%; left:20.30%;">x</div>';
+  }
+  else if ($data["gender"] === "Muško") {
+    $html .= '<div class="text-box" style="top: 24.65%; left:89.1%;">X</div>';
+
+    $html .= '<div class="text-box" style="top: 76.61%; left:16.1%;">x</div>';
+
+    $html .= '<div class="text-box" style="top: 27.50%; left:41.90%;">x</div>';
+
+    $html .= '<div class="text-box" style="top: 38.20%; left:13.80%;">x</div>';
+
+    $html .= '<div class="text-box" style="top: 38.20%; left:21.40%;">x</div>';
+}
+}
+
+
+$html .= '</body></html>';
+
+  return $html;
+}
+
+
+
+
+private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj, $programVoditeljEdukacijskeGrupe, $programDuljinaPrograma, $programDuljinaProgramaTekst, $programKlasaGodina, $profesijaClana, $programRjdatum, $programRjKlasa, $programRjurbr, $birthdateFormatted, $programClanklasabrojtekst, $datumprijabe, $zavrsenaedukacija, $brojclanskiidurbrojtekst, $formattedTodayDate, $formattedTodayDateYear, $listaArray, $programMaticniBroj )
+{
+    $data = (array) $data; // Convert object to array
+    $listaArray = (array) $listaArray;
+
+   // Split the string into individual items
+   $segments = explode(',', $listaArray[0]);
+
+   $listHtml = '<div class="text-box-lista">';
+   $listHtml .= '<ul style="list-style-type: none; padding-left: 0;">';
+
+   foreach ($segments as $index => $segmentName) {
+       $number = str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT); // This will ensure numbers are 01, 02, 03, etc.
+       $listHtml .= "<li>{$number}.&nbsp;&nbsp;{$segmentName}</li>";
+   }
+
+   $listHtml .= '</ul>';
+   $listHtml .= '</div>';
+
+\Log::info('Generated listHtml:', (array)$listHtml);
+
+    $html = '<html><head><meta charset="UTF-8"><style>
+    @page {
+        margin: 0px;
+    }
+    /* Define the styles for the text boxes */
+    .text-box {
+     position: absolute;
+      font-size: 23px;
+      z-index: 2;
+    }
+    .text-box-lista {
+        font-weight: lighter;
+         font-size: 22.7px;
+         z-index: 2;
+       }
+
+    .text-box-small {
+        position: absolute;
+         font-size: 15px;
+         z-index: 2;
+       }
+    /* Define the styles for the labels */
+    .label {
+      position: absolute;
+      font-size: 32px;
+      //font-weight: bold;
+      z-index: 2;
+    }
+    /* Define the styles for the background image */
+    .bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+      
+        /* Hide the image when printing */
+        @media print {
+          visibility: hidden;
+        }
+      }
+  
+  </style></head><body>
+
+  <div class="bg"></div>
+
+  <div class="text-box" style="top: 8.5%; left: 23%;">
+    USTANOVA ZA OBRAZOVANJE ODRASLIH SKIJAŠKO UČILIŠTE
+  </div>
+
+  <div class="text-box" style="top: 11.4%; left: 39%;">
+    Maksimirska 51, Zagreb
+  </div>
+
+  <div class="text-box" style="top: 14.4%; left: 13.1%;">' . $brojclanskiidurbrojtekst . '</div>
+
+  <div class="text-box" style="top: 14.4%; left: 44.3%;">' . $programClanklasabrojtekst . '</div>
+
+  <div class="text-box" style="top: 14.4%; left: 78.7%; text-align: center; width: 10%;">' . $programMaticniBroj . '</div>
+
+  <div class="label" style="top: 23.7%; left:25%; text-align: center; width: 50%;">
+  '.$data["firstname"].' '.$data["lastname"].'
+</div>
+
+
+<div class="text-box" style="top: 27.08%; left: 12.54%;">
+'.implode('&nbsp;&nbsp;', str_split($data["oib"])).'
+</div>
+
+
+<div class="text-box" style="top: 27.37%; left: 50.33%;">'.$data["fatherfirstname"].' '.$data["fatherlastname"].' i '.$data["motherfirstname"].' '.$data["motherlastname"].'</div>
+
+<div class="text-box" style="top: 29.90%; left: 18.38%; text-align: center; width: 15%;">'.$birthdateFormatted.'</div>
+
+<div class="text-box" style="top: 29.90%; left: 53.00%;">'.$data["birthplace"].'</div>
+
+<div class="text-box" style="top: 32.70%; left: 20.33%;">'.$data["birthcountry"].'</div>
+
+<div class="text-box" style="top: 32.70%; left: 60.33%;">'.$data["citizenship"].'</div>
+
+
+<div class="text-box" style="top: 35.20%; left: 25.00%;">' . $profesijaClana . '</div>
+
+<div class="text-box" style="top: 40.70%; left: 10.00%; text-align: center; width: 80%;">' . $programNaziv . '</div>
+
+
+<div class="text-box" style="top: 43.37%; left: 33.00%;">' . $programDuljinaProgramaTekst . '</div>
+
+<div class="text-box" style="top: 43.37%; left: 77.00%;">' . $programDuljinaPrograma . '</div>
+
+<div class="text-box" style="top: 46.00%; left: 23.00%;">' . $datumprijabe . '</div>
+
+<div class="text-box" style="top: 46.00%; left: 43.00%;">' . $zavrsenaedukacija . '</div>
+
+<div class="text-box" style="top: 49.60%; left: 10.20%;">' . $listHtml . '</div>
+
+
+<div class="text-box" style="top: 76.00%; left: 24.33%;">' . $zavrsenaedukacija . '</div>
+
+<div class="text-box" style="top: 79.00%; left: 10.00%; text-align: center; width: 80%;">' . $programNaziv . '</div>
+
+<div class="text-box" style="top: 82.00%; left: 20.00%;">
+ Zagrebu </div>
+
+ <div class="text-box" style="top: 82.00%; left: 66.00%;">' . $formattedTodayDate . '</div>
+
+ <div class="text-box" style="top: 82.00%; left: 80.54%;">' . $formattedTodayDateYear . '</div>
+
+ <div class="text-box" style="top: 86.30%; left: 10.50%;">' . $programVoditeljEdukacijskeGrupe . '</div>
+
+ <div class="text-box" style="top: 86.30%; left: 69.70%;">' . $programRavnatelj . '</div>
+
+ <div class="text-box-small" style="top: 89.0%; left: 43.00%;">' . $programRjdatum . '</div>
+
+<div class="text-box-small" style="top: 89.0%; left: 63.00%;">' . $programRjKlasa . '</div>
+
+<div class="text-box-small" style="top: 89.00%; left: 78.60%;">' . $programRjurbr . '</div>
+
+
+';
+
+if (isset($data["gender"]) && $data["gender"] !== "") {
+  if ($data["gender"] === "Žensko") {
+
+    $html .= '<div class="text-box" style="top: 24.65%; left:85.9%;">X</div>';
+
+      $html .= '<div class="text-box" style="top: 76.61%; left:14.60%;">x</div>';
+
+      $html .= '<div class="text-box" style="top: 27.50%; left:39.7%;">x</div>';
+
+      $html .= '<div class="text-box" style="top: 38.20%; left:12.50%;">x</div>';
+
+      $html .= '<div class="text-box" style="top: 38.20%; left:20.30%;">x</div>';
+  }
+  else if ($data["gender"] === "Muško") {
+    $html .= '<div class="text-box" style="top: 24.65%; left:89.1%;">X</div>';
+
+    $html .= '<div class="text-box" style="top: 76.61%; left:16.1%;">x</div>';
+
+    $html .= '<div class="text-box" style="top: 27.50%; left:41.90%;">x</div>';
+
+    $html .= '<div class="text-box" style="top: 38.20%; left:13.80%;">x</div>';
+
+    $html .= '<div class="text-box" style="top: 38.20%; left:21.40%;">x</div>';
+}
+}
+
+$html .= '</body></html>';
+
+  return $html;
+}
+
+
+
+    
+  public function citanjeispiti(Request $request)
+  {
+      try {
+          $request->validate([
+              'idedukacijskogsegmentaclana' => 'required',
+          ]);
+          $slug = $this->getSlug($request);
+          $data_type = $this->getDataType($slug);
+          $request->validate([
+              'idedukacijskogsegmentaclana' => 'exists:'.$data_type->name,
+          ]);
+
+          $data = $this->getDataDetail3($slug, $request->idedukacijskogsegmentaclana);
+          // add event notification handle
+          $table_name = $data_type->name;
+          FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_READ, $table_name);
+
+          return ApiResponse::onlyEntity($data);
+      } catch (Exception $e) {
+          return ApiResponse::failed($e);
+      }
+  }
+
+    
+    public function citanje(Request $request)
+    {
+        try {
+            $request->validate([
+                'idmember' => 'required',
+            ]);
+            $slug = $this->getSlug($request);
+            $data_type = $this->getDataType($slug);
+            $request->validate([
+                'idmember' => 'exists:'.$data_type->name,
+            ]);
+
+            $data = $this->getDataDetail2($slug, $request->idmember);
             // add event notification handle
             $table_name = $data_type->name;
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_READ, $table_name);
@@ -109,7 +704,7 @@ class SkijasiBaseController extends Controller
                     'old' => $updated['old_data'],
                     'attributes' => $updated['updated_data'],
                 ])
-                ->log($data_type->display_name_singular.' has been updated');
+                ->log($data_type->display_name_singular.' je izmijenjen');
             // add event notification handle
             $table_name = $data_type->name;
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_UPDATE, $table_name);

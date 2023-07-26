@@ -94,7 +94,7 @@ export default {
   verifyEmail: {
     title: "Verifikacija Emaila",
     failed: "Verifikacija emaila je u tijeku ....",
-    button: "Verifikuj",
+    button: "Verificiraj",
     request: "Pošalji ponovno",
     field: {
       token: "Token",
@@ -174,6 +174,7 @@ export default {
 
   alert: {
     success: "Uspješno",
+    update_success: "pohranjeno",
     danger: "Opasnost",
     error: "Greška",
   },
@@ -280,7 +281,7 @@ export default {
     },
     header: {
       table: "Tablica",
-      action: "Akcija",
+      action: "Opcije",
     },
     body: {
       button: "Dodaj CRUD za ovu tablicu",
@@ -535,10 +536,10 @@ export default {
     header: {
       key: "Ključ",
       displayName: "Ime za prikaz",
-      action: "Akcija",
+      action: "Opcije",
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Broj rezultata",
       descriptionConnector: "od",
       descriptionBody: "Stranice",
     },
@@ -644,7 +645,7 @@ export default {
     header: {
       name: "Ime",
       email: "E-pošta",
-      action: "Akcija",
+      action: "Opcije",
     },
     footer: {
       descriptionTitle: "Registri",
@@ -739,7 +740,7 @@ export default {
       header: {
         name: "Ime",
         description: "Opis",
-        action: "Akcija",
+        action: "Opcije",
       },
       button: "Postavi izabrane uloge za korisnika",
       success: {
@@ -762,7 +763,7 @@ export default {
       name: "Ime",
       displayName: "Prikazano ime",
       description: "Opis",
-      action: "Akcija",
+      action: "Opcije",
     },
     footer: {
       descriptionTitle: "Registri",
@@ -848,7 +849,7 @@ export default {
       tableName: "Ime tabele",
       alwaysAllow: "Uvijek dozvoli",
       isPublic: "Javno",
-      action: "Akcija",
+      action: "Opcije",
       rolesCanSeeAllData: "Uloge mogu vidjeti sve podatke",
       fieldIdentifyRelatedUser: "Polje Identificiraju Povezanog Korisnika"
     },
@@ -935,12 +936,12 @@ export default {
       notAllowedToRead: "You're not allowed to read {tableName}",
     },
     header: {
-      action: "Action",
+      action: "Opcije",
     },
     footer: {
-      descriptionTitle: "Registries",
-      descriptionConnector: "of",
-      descriptionBody: "Pages",
+      descriptionTitle: "Broj rezultata",
+      descriptionConnector: "od",
+      descriptionBody: "Stranica",
     },
     add: {
       title: "Add {tableName}",
@@ -1028,8 +1029,8 @@ export default {
           fieldIndex: "Index",
           fieldAttribute: "Unsigned",
           fieldIncrement: "Auto Increment",
-          action: "Action",
-          add: "Add",
+          action: "Opcije",
+          add: "Dodaj",
         },
       },
       error: {
@@ -1039,11 +1040,11 @@ export default {
         fieldLength: "Field length is required.",
       },
       footer: {
-        descriptionTitle: "Registries",
-        descriptionConnector: "of",
-        descriptionBody: "Pages",
+        descriptionTitle: "Broj rezultata",
+        descriptionConnector: "od",
+        descriptionBody: "Stranica",
       },
-      button: "Save",
+      button: "Spremi",
     },
     edit: {
       title: "Alter Table",
@@ -1064,8 +1065,8 @@ export default {
           fieldIndex: "Index",
           fieldAttribute: "Unsigned",
           fieldIncrement: "Auto Increment",
-          action: "Action",
-          add: "Add",
+          action: "Opcije",
+          add: "Dodaj",
         },
         drop: "Are you sure want to delete this field?",
       },
@@ -1086,11 +1087,11 @@ export default {
         fieldLength: "Field length is required.",
       },
       footer: {
-        descriptionTitle: "Registries",
-        descriptionConnector: "of",
-        descriptionBody: "Pages",
+        descriptionTitle: "Broj rezultata",
+        descriptionConnector: "od",
+        descriptionBody: "Stranica",
       },
-      button: "Save",
+      button: "Spremi",
     },
     rollback: {
       title: "Rollback",
@@ -1116,9 +1117,9 @@ export default {
     },
   },
   fileManager: {
-    title: "Upravljač datotekama",
+    title: "Upravitelj datotekama",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate upravljač datotekama",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate datotekama",
     },
     URL: {
       label: "Nalepi URL slike ovde",
@@ -1129,9 +1130,9 @@ export default {
     },
   },
   imageManager: {
-    title: "Upravljač slika",
+    title: "Upravitelj slikama",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate upravljač slika",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate slike",
     },
   },
   firebase: {
@@ -1152,19 +1153,19 @@ export default {
     },
   },
   logViewer: {
-    title: "Pregledač dnevnika",
+    title: "Nadzor aktivnosti",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate pregledač dnevnika",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate nadzor aktivnosti.",
     },
   },
   apidocs: {
     title: "API dokumentacija",
     warning: {
-      notAllowedToBrowse: "Nemate dozvolu da pregledate API dokumentaciju.",
+      notAllowedToBrowse: "Nemate dozvolu da pregledavate API dokumentaciju.",
     },
   },
   notification: {
-    notification: "Obaveštenje",
+    notification: "Obavijesti",
     detailMessage: "Detaljna poruka",
   },
   noInternetAccess:

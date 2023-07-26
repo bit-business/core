@@ -20,7 +20,7 @@ class RoleWidget implements WidgetInterface
     public function run($params = null)
     {
         return [
-            'label' => 'Role',
+            'label' => 'Broj posjeta webstranici',
             'icon' => 'accessibility',
             'value' => Role::count(),
             'prefix_value' => '',

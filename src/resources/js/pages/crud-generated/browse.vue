@@ -329,7 +329,7 @@
                               "
                               icon="visibility"
                             >
-                              Detail
+                              Detaljnije
                             </skijasi-dropdown-item>
                             <skijasi-dropdown-item
                               :to="{
@@ -349,7 +349,7 @@
                               "
                               icon="edit"
                             >
-                              Edit
+                              Izmijeni
                             </skijasi-dropdown-item>
                             <skijasi-dropdown-item
                               icon="delete"
@@ -364,7 +364,7 @@
                                 )
                               "
                             >
-                              Delete
+                              Obriši
                             </skijasi-dropdown-item>
                             <skijasi-dropdown-item
                               @click="confirmDeleteDataPending(data[index].id)"
@@ -408,6 +408,7 @@
                   @sort="handleSort"
                 >
                   <template slot="thead">
+                  <vs-th> Opcije </vs-th>
                     <skijasi-th
                       v-for="(dataRow, index) in dataType.dataRows"
                       :key="`header-${index}`"
@@ -417,7 +418,7 @@
                         {{ dataRow.displayName }}
                       </template>
                     </skijasi-th>
-                    <vs-th> Action </vs-th>
+                    <vs-th> Opcije </vs-th>
                   </template>
 
                   <template slot="tbody">
@@ -438,6 +439,86 @@
                           ) || !isOnline
                         "
                       >
+                        <vs-td class="crud-generated__button">
+                          <skijasi-dropdown vs-trigger-click>
+                            <vs-button
+                              size="large"
+                              type="flat"
+                              icon="more_vert"
+                            ></vs-button>
+                            <vs-dropdown-menu>
+                              <skijasi-dropdown-item
+                                :to="{
+                                  name: 'CrudGeneratedRead',
+                                  params: {
+                                    id: record.id,
+                                    slug: $route.params.slug,
+                                  },
+                                }"
+                                v-if="
+                                  isCanRead &&
+                                  $helper.isAllowedToModifyGeneratedCRUD(
+                                    'read',
+                                    dataType
+                                  )
+                                "
+                                icon="visibility"
+                              >
+                                Detaljnije
+                              </skijasi-dropdown-item>
+                              <skijasi-dropdown-item
+                                :to="{
+                                  name: 'CrudGeneratedEdit',
+                                  params: {
+                                    id: record.id,
+                                    slug: $route.params.slug,
+                                  },
+                                }"
+                                v-if="
+                                  isCanEdit &&
+                                  $helper.isAllowedToModifyGeneratedCRUD(
+                                    'edit',
+                                    dataType
+                                  )
+                                "
+                                icon="edit"
+                              >
+                                Izmijeni
+                              </skijasi-dropdown-item>
+                              <skijasi-dropdown-item
+                                icon="delete"
+                                @click="confirmDelete(record.id)"
+                                v-if="
+                                  !idsOfflineDeleteRecord.includes(
+                                    record.id.toString()
+                                  ) &&
+                                  $helper.isAllowedToModifyGeneratedCRUD(
+                                    'delete',
+                                    dataType
+                                  )
+                                "
+                              >
+                                Obriši
+                              </skijasi-dropdown-item>
+                              <skijasi-dropdown-item
+                                @click="confirmDeleteDataPending(record.id)"
+                                icon="delete_outline"
+                                v-if="
+                                  idsOfflineDeleteRecord.includes(
+                                    record.id.toString()
+                                  )
+                                "
+                              >
+                                {{
+                                  $t(
+                                    "offlineFeature.crudGenerator.deleteDataPending"
+                                  )
+                                }}
+                              </skijasi-dropdown-item>
+                            </vs-dropdown-menu>
+                          </skijasi-dropdown>
+                        </vs-td>
+                      
                         <vs-td
                           v-for="(dataRow, indexColumn) in dataType.dataRows"
                           :key="`${index}-${indexColumn}`"
@@ -455,7 +536,7 @@
                                   $caseConvert.stringSnakeToCamel(dataRow.field)
                                 ]
                               "
-                              width="20%"
+                              width="75%"
                               alt=""
                             />
                             <div
@@ -488,17 +569,11 @@
                               "
                             ></span>
                                  <skijasi-switch
-    v-if="dataRow.type == 'switch'"
-    :label="''"
-    :placeholder="''"
+    v-else-if="dataRow.type == 'switch'"
     v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
-    size="12"
+    size="6"
     :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
 >
-    {{ bindSelection(
-        dataRow.details.items,
-        record[$caseConvert.stringSnakeToCamel(dataRow.field)]
-    ) }}
 </skijasi-switch>
                             <a
                               v-else-if="dataRow.type == 'url'"
@@ -644,7 +719,7 @@
                                 "
                                 icon="visibility"
                               >
-                                Detail
+                                Detaljnije
                               </skijasi-dropdown-item>
                               <skijasi-dropdown-item
                                 :to="{
@@ -663,7 +738,7 @@
                                 "
                                 icon="edit"
                               >
-                                Edit
+                                Izmijeni
                               </skijasi-dropdown-item>
                               <skijasi-dropdown-item
                                 icon="delete"
@@ -678,7 +753,7 @@
                                   )
                                 "
                               >
-                                Delete
+                                Obriši
                               </skijasi-dropdown-item>
                               <skijasi-dropdown-item
                                 @click="confirmDeleteDataPending(record.id)"
@@ -1133,15 +1208,21 @@ export default {
               return list[displayColumn];
             }
           }
-        }  else if (relationType == "belongs_to_many") {
-          let field = this.$caseConvert.stringSnakeToCamel(dataRow.field)
-          const lists = record[field]
-          let flatList = []
-          Object.keys(lists).forEach(function (ls, key) {
-            flatList.push(lists[ls][displayColumn]);
-          });
-          return flatList.join(",").replace(",", ", ");
-        }
+        } 
+        //fix mijenjao ovo zbog toga sto ne prikazuje relation samo bijelo bude cijela crud tablica
+        else if (relationType == "belongs_to_many") {
+  let field = this.$caseConvert.stringSnakeToCamel(dataRow.field)
+  const lists = record[field]
+  let flatList = []
+  if (lists) {
+    Object.keys(lists).forEach(function (ls, key) {
+      if (lists[ls] && lists[ls][displayColumn]) {
+        flatList.push(lists[ls][displayColumn]);
+      }
+    });
+  }
+  return flatList.join(",").replace(",", ", ");
+}  //fix mijenjao ovo zbog toga sto ne prikazuje relation samo bijelo bude cijela crud tablica
       } else {
         return null;
       }

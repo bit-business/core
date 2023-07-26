@@ -1,6 +1,7 @@
 <template>
   <vs-row>
     <skijasi-widget :col="col" :widgets="dashboardData"> </skijasi-widget>
+    <div style="text-align: center;">Napomena: U analitici su trenutno tesni podaci za testiranje. Ova stranica još nije dovršena.</div>
   </vs-row>
 </template>
 

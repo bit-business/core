@@ -40,7 +40,7 @@
           $t("verifyEmail.button")
         }}</vs-button>
         <div class="verify__resend">
-          <span>Not receive email or token expired?</span>
+          <span>Nije Vam stigao email ili je token istekao?</span>
           <vs-button
             v-if="retry || expired"
             type="relief"

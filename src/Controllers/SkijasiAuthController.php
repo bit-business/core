@@ -83,7 +83,7 @@ class SkijasiAuthController extends Controller
             activity('Authentication')
             ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
-                ->log('Login has been success');
+                ->log('Korisnik se prijavio');
 
             return $this->createNewToken($token, auth()->user(), $remember);
         } catch (JWTException $e) {
@@ -141,7 +141,7 @@ class SkijasiAuthController extends Controller
             activity('Authentication')
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
-                ->log('Login has been success');
+                ->log('Korisnik se prijavio');
 
             return $this->createNewToken($token, auth()->user(), $remember);
         } catch (JWTException $e) {
@@ -158,7 +158,7 @@ class SkijasiAuthController extends Controller
             // auth()->invalidate();
             activity('Authentication')
                 ->causedBy(auth()->user() ?? null)
-                ->log('Logout has been success');
+                ->log('Korisnik se odjavio');
 
             return ApiResponse::success();
         } catch (Exception $e) {
@@ -208,7 +208,7 @@ class SkijasiAuthController extends Controller
                     ]])
                     ->performedOn($user)
                     ->event('created')
-                    ->log('Register has been created');
+                    ->log('Stvorena je izmjena');
 
                 return $this->createNewToken($token, auth()->user());
             } else {
@@ -360,7 +360,7 @@ class SkijasiAuthController extends Controller
                 ->withProperties(['attributes' => $request->all()])
                 ->performedOn($user)
                 ->event('updated')
-                ->log('Change password has been updated');
+                ->log('Promijenjena je šifra');
 
             return ApiResponse::success($user);
         } catch (Exception $e) {
@@ -560,7 +560,7 @@ class SkijasiAuthController extends Controller
                 ]])
                 ->performedOn($user)
                 ->event('updated')
-                ->log('Update profile has been updated');
+                ->log('Korisnička slika je promijenjena');
 
             return ApiResponse::success($user);
         } catch (Exception $e) {
@@ -625,7 +625,7 @@ class SkijasiAuthController extends Controller
                 ]])
                 ->performedOn($user)
                 ->event('updated')
-                ->log('Update email has been updated');
+                ->log('Email je ažuriran');
 
             return ApiResponse::success([
                 'should_verify_email' => false,

@@ -15,6 +15,19 @@ export default {
     return resource.get(url);
   },
 
+  generatepdff(data) {
+    const ep = entityPrefix + "/" + data.slug + "/generatepdff";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url, { responseType: 'blob' }); // Add the responseType option
+  },
+  generatepdffprint(data) {
+    const ep = entityPrefix + "/" + data.slug + "/generatepdffprint";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url, { responseType: 'blob' }); // Add the responseType option
+  },
+  
   all(data = {}) {
     const ep = entityPrefix + "/" + data.slug + "/all";
     const url = ep;
@@ -24,6 +37,14 @@ export default {
   read(data) {
     const ep = entityPrefix + "/" + data.slug + "/read";
     const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+  },
+
+  citanje(params = {}) {
+
+    const ep = entityPrefix + "/" + "hzuts-clanovi" + "/citanje";
+    const qs = QueryString(params);
     const url = ep + qs;
     return resource.get(url);
   },

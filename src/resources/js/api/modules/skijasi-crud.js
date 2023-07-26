@@ -20,6 +20,7 @@ export default {
     return resource.get(url);
   },
 
+
   readBySlug(data) {
     const ep = apiPrefix + "/v1/crud/read-by-slug";
     const qs = QueryString(data);

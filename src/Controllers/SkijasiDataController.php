@@ -31,6 +31,9 @@ class SkijasiDataController extends Controller
         return ApiResponse::success($operators);
     }
 
+
+
+
     public function getSupportedTableRelations()
     {
         $table_relations = Skijasi::getSupportedTableRelations();

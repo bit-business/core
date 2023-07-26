@@ -137,6 +137,8 @@ class SkijasiCRUDController extends Controller
         }
     }
 
+    
+
     public function edit(Request $request)
     {
         $this->addTablePolymorphism($request);

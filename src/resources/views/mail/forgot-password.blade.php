@@ -174,15 +174,15 @@
                 <table border="0" cellpadding="0" cellspacing="0"
                   style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
                   <tr>
-                    <td>
-                      <p>Hi {{ $user->name }},</p>
-                      <p>You are receiving this email because we received a password reset request for your account. Here is the verification code for your account: </p>
+                      <td>
+                      <p>Dobrodošli {{ $user->name }},</p>
+                      <p>Primili ste ovu e-poruku jer smo primili zahtjev za ponovno postavljanje lozinke za vaš račun. Ovdje je kontrolni kod za vaš račun: </p>
 
                       <h1>{{$token}}</h1>
 
-                      <p>All you have to do is copy the verification code and paste it to email verification form to continue the reset password process.</p>
+                      <p>Sve što trebate učiniti je kopirati kod za provjeru i zalijepiti ga u obrazac za provjeru e-pošte kako biste nastavili s postupkom resetiranja lozinke.</p>
 
-                      <p>Regards,<br />{{ config('app.name') }}</p>
+                      <p>Srdačno,<br />{{ config('app.name') }}</p>
                     </td>
                   </tr>
                 </table>

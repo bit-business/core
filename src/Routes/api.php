@@ -144,6 +144,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::delete('/delete', 'SkijasiCRUDController@delete')->middleware(SkijasiCheckPermissions::class.':delete_crud_data');
             Route::get('/read-by-slug', 'SkijasiCRUDController@readBySlug')->middleware(SkijasiCheckPermissions::class.':read_crud_data');
             Route::get('/maintenance', 'SkijasiCRUDController@setMaintenanceState')->middleware(SkijasiCheckPermissions::class.':maintenance_crud_data');
+      
+
+
         });
 
         Route::group(['prefix' => 'table'], function () {
@@ -171,6 +174,15 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
                     Route::get($data_type->slug.'/read', $crud_data_controller.'@read')
                         ->name($data_type->slug.'.read')
+                        ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',read');
+
+                        Route::get($data_type->slug.'/citanje', $crud_data_controller.'@citanje')
+                        ->name($data_type->slug.'.citanje')
+                        ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',read');
+
+
+                        Route::get($data_type->slug.'/citanjeispiti', $crud_data_controller.'@citanjeispiti')
+                        ->name($data_type->slug.'.citanjeispiti')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',read');
 
                     Route::put($data_type->slug.'/edit', $crud_data_controller.'@edit')
@@ -203,9 +215,19 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.all')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',edit');
 
+
+
+                        Route::get($data_type->slug.'/generatepdff', $crud_data_controller.'@generatepdff')
+                        ->name($data_type->slug.'.generatepdff');
+                        Route::get($data_type->slug.'/generatepdffprint', $crud_data_controller.'@generatepdffprint')
+                        ->name($data_type->slug.'.generatepdffprint');
+
+                
+
                     Route::post($data_type->slug.'/maintenance', $crud_data_controller.'@setMaintenanceState')
                         ->name($data_type->slug.'.maintenance')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',maintenance');
+
                 }
             } catch (\InvalidArgumentException $e) {
                 throw new \InvalidArgumentException("Custom routes hasn't been configured because: ".$e->getMessage(), 1);

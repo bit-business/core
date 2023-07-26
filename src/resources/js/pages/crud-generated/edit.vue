@@ -21,7 +21,7 @@
               <vs-col
                 v-for="(dataRow, rowIndex) in dataType.dataRows"
                 :key="rowIndex"
-                :vs-lg="dataRow.details.size ? dataRow.details.size : '12'"
+                :vs-lg="dataRow.details.size ? dataRow.details.size : '6'"
               >
                 <template v-if="dataRow.edit && dataRow.type !== 'hidden'">
                   <!-- <input type="text" v-model="dataRow.value"> -->
@@ -534,11 +534,11 @@ export default {
                 : "";
             } else if (
               data.type == "relation" &&
-              data.relation.relationType == "belongs_to_many"
+              data.relation.relationType == 'belongs_to_many'
             ) {
               let record =
                 this.record[this.$caseConvert.stringSnakeToCamel(data.field)];
-              let destinationTableId = data.relation.destinationTable + "Id";
+              let destinationTableId = data.relation.destinationTable + 'Id';
               data.value = [];
               Object.entries(record).filter(function (item, key) {
                 return (data.value[key] = item[1][destinationTableId]);

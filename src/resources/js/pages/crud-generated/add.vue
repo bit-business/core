@@ -21,7 +21,7 @@
               <vs-col
                 v-for="(dataRow, rowIndex) in dataType.dataRows"
                 :key="rowIndex"
-                :vs-lg="dataRow.details.size ? dataRow.details.size : '6'"
+                :vs-lg="dataRow.details.size ? dataRow.details.size : '12'"
               >
                 <!-- <input type="text" v-model="dataRow.value"> -->
                 <!-- <vs-input type="text" v-model="dataRow.value"></vs-input> -->

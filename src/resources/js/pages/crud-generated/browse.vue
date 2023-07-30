@@ -298,9 +298,9 @@
                           }}</span>
 
 <span v-else-if="dataRow.type == 'datetime'">
-  {{ this.formatDate(record[$caseConvert.stringSnakeToCamel(dataRow.field)]) }}
+  {{ formatDate(record[$caseConvert.stringSnakeToCamel(dataRow.field)]) }}
 </span> <span v-else-if="dataRow.type == 'date'">
-  {{ this.formatDate(record[$caseConvert.stringSnakeToCamel(dataRow.field)]) }}
+  {{ formatDate(record[$caseConvert.stringSnakeToCamel(dataRow.field)]) }}
 </span>
                           <span v-else>{{
                             record[

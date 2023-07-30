@@ -296,6 +296,12 @@
                           <span v-else-if="dataRow.type == 'relation'">{{
                             displayRelationData(record, dataRow)
                           }}</span>
+
+<span v-else-if="dataRow.type == 'datetime'">
+  {{ this.formatDate(record[$caseConvert.stringSnakeToCamel(dataRow.field)]) }}
+</span> <span v-else-if="dataRow.type == 'date'">
+  {{ this.formatDate(record[$caseConvert.stringSnakeToCamel(dataRow.field)]) }}
+</span>
                           <span v-else>{{
                             record[
                               $caseConvert.stringSnakeToCamel(dataRow.field)
@@ -893,6 +899,9 @@ export default {
 
       return item.split("storage").pop();
     },
+    formatDate(date) {
+    return this.$helper.formatDate(date);
+  },
     confirmDeleteDataPending(id) {
       this.willDeleteId = id;
       this.$vs.dialog({

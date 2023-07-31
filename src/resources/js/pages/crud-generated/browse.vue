@@ -1,6 +1,7 @@
 <template>
   <div>
     <template v-if="!showMaintenancePage">
+      <!--
       <skijasi-breadcrumb-hover full>
         <template slot="action">
           <download-excel
@@ -82,7 +83,7 @@
             {{ $t("action.showTrash") }}
           </skijasi-dropdown-item>
         </template>
-      </skijasi-breadcrumb-hover>
+      </skijasi-breadcrumb-hover>-->
 
       <vs-row v-if="$helper.isAllowedToModifyGeneratedCRUD('browse', dataType)">
         <vs-col vs-lg="12">
@@ -102,6 +103,30 @@
         <vs-col vs-lg="12">
           <vs-card>
             <div slot="header">
+
+              <vs-button
+  color="danger"
+  type="relief"
+  @click.stop="handleBulkDelete"
+  style="float: right;  margin-left: 1.2rem; "
+>
+  <vs-icon icon="delete_sweep"></vs-icon>
+ Obriši
+</vs-button>
+
+              <vs-button
+  color="primary"
+  type="relief"
+  v-if="isCanAdd && $helper.isAllowedToModifyGeneratedCRUD('add', dataType)"
+  :to="{ name: 'CrudGeneratedAdd' }"
+  icon="add"
+  style="float: right;  "
+>
+  {{ $t("action.add") }}
+</vs-button>  
+
+
+
               <h3>{{ dataType.displayNameSingular }}</h3>
             </div>
             <div>
@@ -445,7 +470,24 @@
                           ) || !isOnline
                         "
                       >
-                        <vs-td class="crud-generated__button">
+                    
+                          <vs-td class="crud-generated__button" style="text-align: center;">
+    <router-link
+        :to="{
+            name: 'CrudGeneratedRead',
+            params: {
+                id: record.id,
+                slug: $route.params.slug,
+            }
+        }"
+        v-if="isCanRead && $helper.isAllowedToModifyGeneratedCRUD('read', dataType.name) && !isShowDataRecycle"
+    >
+        <vs-button color="primary" type="relief" size="small" style=" display: block; margin-bottom: 8px;">
+            <vs-icon icon="visibility"></vs-icon>
+            Detalji
+        </vs-button>
+    </router-link>
+                          <!--
                           <skijasi-dropdown vs-trigger-click>
                             <vs-button
                               size="large"
@@ -522,7 +564,7 @@
                                 }}
                               </skijasi-dropdown-item>
                             </vs-dropdown-menu>
-                          </skijasi-dropdown>
+                          </skijasi-dropdown>-->
                         </vs-td>
                       
                         <vs-td
@@ -894,6 +936,20 @@ export default {
     this.loadIdsOfflineDelete();
   },
   methods: {
+
+    handleBulkDelete() {
+    if (this.selected.length > 0) {
+      this.confirmDeleteMultiple();
+    } else {
+      this.$vs.notify({
+        title: 'Upozorenje',
+        text: 'Odaberi člana',
+        color: 'warning',
+        position: 'top-right',
+        duration: 5000
+      });
+    }
+  },
     getDownloadUrl(item) {
       if (item == null || item == undefined) return;
 

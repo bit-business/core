@@ -980,9 +980,9 @@ export default {
       "Your active period has expired. Please add your active period to Skijasi Dashboard so that your license can be used again. For more complete instructions, please see here.",
   },
   authorizationIssue: {
-    title: "Session Expired",
-    subtitle: "Sorry, cannot continue request because",
-    message: "Authorization Failed, token expired or empty",
+    title: "Sesija istekla",
+    subtitle: "Molimo prijavite se ponovo",
+    message: "Vaš login je istekao, molimo prijavite se ponovo",
   },
   database: {
     browse: {
@@ -1148,7 +1148,7 @@ export default {
       storageBucket: "Kanta za skladištenje",
       messagingSenderId: "Pošiljalac poruka",
       appId: "Id aplikacije",
-      measurementId: "Id merenja",
+      measurementId: "Id mjerenja",
       serverKey: "Server ključ",
     },
   },

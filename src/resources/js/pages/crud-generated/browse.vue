@@ -453,7 +453,7 @@
                   </template>
 
                   <template slot="tbody">
-                    <vs-tr
+                     <vs-tr style="text-align: center;"
                       :data="record"
                       :key="index"
                       v-for="(record, index) in records"

@@ -22,7 +22,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: "Loading...",
+      default: "Molimo pričekajte...",
     },
   },
   data: () => ({}),

@@ -76,6 +76,76 @@ class SkijasiBaseController extends Controller
         }
     }
 
+    public function generatepdffid(Request $request)
+{
+
+   
+
+        $request->validate([
+            'id' => 'required',
+        ]);
+        $slug = $this->getSlug($request);
+        $data_type = $this->getDataType($slug);
+        $request->validate([
+            'id' => 'exists:'.$data_type->name,
+        ]);
+
+   
+//primanje podataka iz vue
+       
+    
+
+      $options = new \Dompdf\Options();
+      
+      $options->set('isHtml5ParserEnabled', true);
+      $options->set('isRemoteEnabled', true);
+      $options->set('dpi', 300);
+      $options->set('defaultFont', 'DejaVu Sans');
+      $options->set('margin_left', 0);
+      $options->set('margin_right', 0);
+      $options->set('margin_top', 0);
+      $options->set('margin_bottom', 0);
+      $options->set('defaultMediaType', 'visual');
+
+      $dompdf = new \Dompdf\Dompdf($options);
+      $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
+
+    // Load your template.pdf file
+   // $dompdf->set_paper('A4', 'portrait');
+   $dompdf->set_paper(array(0, 0, 158.7, 248.6), 'landscape');
+
+    
+
+    // Query the database to get the data
+    $data = DB::table('tbl_members')->where('id', $request->id)->first();
+    
+
+    
+
+    // Convert the data to HTML and add it to the PDF
+    $html = $this->convertDataToHtmlID($data);
+
+    $dompdf->loadHtml($html);
+
+    // Render the PDF
+    $dompdf->render();
+
+    $dompdf->stream();
+
+    // Output the generated PDF
+    $output = $dompdf->output();
+
+    // Return the PDF as a response
+    return response($output, 200)
+            ->header('Content-Type', 'application/pdf');
+}
+
+
+
+
+
+
+
     public function generatepdffprint(Request $request)
     {
      
@@ -260,6 +330,128 @@ private function formatDate($dateString) {
     $date = \DateTime::createFromFormat('Y-m-d', $dateString);
     return $date->format('d.m.Y.');
 }
+
+
+
+private function convertDataToHtmlID($data)
+{
+    $data = (array) $data; // Convert object to array
+
+    $profilephotourl = asset('storage/' . $data['picturelocation']);
+
+
+    $html = '<html><head><meta charset="UTF-8"><style>
+    @page {
+        margin: 0px;
+    }
+
+    .image-container {
+        position: absolute;
+        top: 30%;
+        left: 10%;
+        width: 30%;
+        height: 30%; /* Adjust based on desired height */
+        display: flex;
+        justify-content: center; /* Center image horizontally */
+        align-items: center; /* Center image vertically */
+        overflow: hidden; /* Ensure no part of the image spills out */
+    }
+    
+    .image-container img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: 2;
+    }
+    
+    /* Define the styles for the text boxes */
+    .text-box {
+     position: absolute;
+      font-size: 23px;
+      z-index: 2;
+    }
+    .text-box-lista {
+        font-weight: lighter;
+         font-size: 22.7px;
+         z-index: 2;
+       }
+
+    .text-box-small {
+        position: absolute;
+         font-size: 15px;
+         z-index: 2;
+       }
+    /* Define the styles for the labels */
+    .label {
+      position: absolute;
+      font-size: 32px;
+      //font-weight: bold;
+      z-index: 2;
+    }
+    /* Define the styles for the background image */
+    .bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("");
+        background-repeat: no-repeat;
+        background-size: contain;
+        z-index: 1;
+      
+        /* Hide the image when printing */
+        @media print {
+          visibility: hidden;
+        }
+      }
+  
+  </style></head><body>
+
+  <div class="bg"></div>
+
+
+
+
+  <div class="text-box" style="top: 8.5%; left: 23%;">
+    USTANOVA ZA OBRAZOVANJE ODRASLIH SKIJAŠKO UČILIŠTE
+  </div>
+
+  <div class="image-container">
+  <img src="'. $profilephotourl . '" alt="BTS">
+  
+
+</div>
+
+  <div class="text-box" style="top: 11.4%; left: 39%;">
+    TEST
+  </div>
+
+
+  <div class="label" style="top: 23.7%; left:25%; text-align: center; width: 50%;">
+  '.$data["firstname"].'
+</div>
+
+
+<div class="text-box" style="top: 27.08%; left: 12.54%;">
+'.implode('&nbsp;&nbsp;', str_split($data["id"])).'
+</div>
+
+
+
+';
+
+
+
+
+$html .= '</body></html>';
+
+  return $html;
+}
+
 
 
 private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $programVoditeljEdukacijskeGrupe, $programDuljinaPrograma, $programDuljinaProgramaTekst, $programKlasaGodina, $profesijaClana, $programRjdatum, $programRjKlasa, $programRjurbr, $birthdateFormatted, $programClanklasabrojtekst, $datumprijabe, $zavrsenaedukacija, $brojclanskiidurbrojtekst, $formattedTodayDate, $formattedTodayDateYear, $listaArray, $programMaticniBroj )
@@ -659,6 +851,7 @@ $html .= '</body></html>';
             ]);
 
             $data = $this->getDataDetail2($slug, $request->idmember);
+            
             // add event notification handle
             $table_name = $data_type->name;
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_READ, $table_name);

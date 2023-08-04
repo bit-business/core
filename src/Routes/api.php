@@ -221,6 +221,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.generatepdff');
                         Route::get($data_type->slug.'/generatepdffprint', $crud_data_controller.'@generatepdffprint')
                         ->name($data_type->slug.'.generatepdffprint');
+                        Route::get($data_type->slug.'/generatepdffid', $crud_data_controller.'@generatepdffid')
+                        ->name($data_type->slug.'.generatepdffid');
 
                 
 

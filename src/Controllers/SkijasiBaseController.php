@@ -93,7 +93,7 @@ class SkijasiBaseController extends Controller
    
 //primanje podataka iz vue
        
-    
+
 
       $options = new \Dompdf\Options();
       
@@ -105,10 +105,11 @@ class SkijasiBaseController extends Controller
       $options->set('margin_right', 0);
       $options->set('margin_top', 0);
       $options->set('margin_bottom', 0);
-      $options->set('defaultMediaType', 'visual');
+   
+
 
       $dompdf = new \Dompdf\Dompdf($options);
-      $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
+    //  $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
 
     // Load your template.pdf file
    // $dompdf->set_paper('A4', 'portrait');
@@ -125,13 +126,16 @@ class SkijasiBaseController extends Controller
     // Convert the data to HTML and add it to the PDF
     $html = $this->convertDataToHtmlID($data);
 
+
+ 
+
     $dompdf->loadHtml($html);
 
     // Render the PDF
     $dompdf->render();
 
     $dompdf->stream();
-
+ 
     // Output the generated PDF
     $output = $dompdf->output();
 
@@ -278,7 +282,7 @@ class SkijasiBaseController extends Controller
       
       $options->set('isHtml5ParserEnabled', true);
       $options->set('isRemoteEnabled', true);
-      $options->set('dpi', 150);
+      $options->set('dpi', 300);
       $options->set('defaultFont', 'DejaVu Sans');
       $options->set('margin_left', 0);
       $options->set('margin_right', 0);
@@ -337,7 +341,8 @@ private function convertDataToHtmlID($data)
 {
     $data = (array) $data; // Convert object to array
 
-    $profilephotourl = asset('storage/' . $data['picturelocation']);
+  //  $profilephotourl = asset('storage/' . $data['picturelocation']);
+  $profilephotourl = htmlspecialchars(asset('storage/' . $data['picturelocation']));
 
 
     $html = '<html><head><meta charset="UTF-8"><style>
@@ -368,7 +373,7 @@ private function convertDataToHtmlID($data)
     /* Define the styles for the text boxes */
     .text-box {
      position: absolute;
-      font-size: 23px;
+      font-size: 20px;
       z-index: 2;
     }
     .text-box-lista {
@@ -385,7 +390,7 @@ private function convertDataToHtmlID($data)
     /* Define the styles for the labels */
     .label {
       position: absolute;
-      font-size: 32px;
+      font-size: 22px;
       //font-weight: bold;
       z-index: 2;
     }
@@ -398,7 +403,7 @@ private function convertDataToHtmlID($data)
         bottom: 0;
         width: 100%;
         height: 100%;
-        background-image: url("");
+        background-image: url("'. $profilephotourl . '");
         background-repeat: no-repeat;
         background-size: contain;
         z-index: 1;
@@ -416,12 +421,13 @@ private function convertDataToHtmlID($data)
 
 
 
-  <div class="text-box" style="top: 8.5%; left: 23%;">
-    USTANOVA ZA OBRAZOVANJE ODRASLIH SKIJAŠKO UČILIŠTE
+
   </div>
 
+
   <div class="image-container">
-  <img src="'. $profilephotourl . '" alt="BTS">
+  
+
   
 
 </div>
@@ -444,7 +450,7 @@ private function convertDataToHtmlID($data)
 
 ';
 
-
+$html .= '<div class="text-box" style="top: 8.5%; left: 3%;">Test:' . $profilephotourl . '</div>';
 
 
 $html .= '</body></html>';

@@ -92,7 +92,10 @@ class SkijasiBaseController extends Controller
 
    
 //primanje podataka iz vue
-       
+        $statuspdf = $request->input('statuspdf');
+        $cardseng = $request->input('cardseng');
+        $cardscro = $request->input('cardscro');
+        $gradovipdf = $request->input('gradovipdf');
 
 
       $options = new \Dompdf\Options();
@@ -106,7 +109,7 @@ class SkijasiBaseController extends Controller
       $options->set('margin_top', 0);
       $options->set('margin_bottom', 0);
    
-
+        $options->set('tempDir', '/var/www/nadzornaploca-dev/storage/');
 
       $dompdf = new \Dompdf\Dompdf($options);
     //  $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
@@ -121,11 +124,12 @@ class SkijasiBaseController extends Controller
     $data = DB::table('tbl_members')->where('id', $request->id)->first();
     
 
-    
 
-    // Convert the data to HTML and add it to the PDF
-    $html = $this->convertDataToHtmlID($data);
 
+
+
+// Convert the data to HTML and add it to the PDF
+$html = $this->convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf);
 
  
 
@@ -282,7 +286,7 @@ class SkijasiBaseController extends Controller
       
       $options->set('isHtml5ParserEnabled', true);
       $options->set('isRemoteEnabled', true);
-      $options->set('dpi', 300);
+      $options->set('dpi', 150);
       $options->set('defaultFont', 'DejaVu Sans');
       $options->set('margin_left', 0);
       $options->set('margin_right', 0);
@@ -337,25 +341,31 @@ private function formatDate($dateString) {
 
 
 
-private function convertDataToHtmlID($data)
+private function convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf)
 {
     $data = (array) $data; // Convert object to array
 
-  //  $profilephotourl = asset('storage/' . $data['picturelocation']);
-  $profilephotourl = htmlspecialchars(asset('storage/' . $data['picturelocation']));
+$imagePath = 'storage/' . $data['picturelocation'];
+
+// Read the image content
+$imageData = file_get_contents($imagePath);
+
+// Encode the image data to base64
+$base64Image = base64_encode($imageData);
 
 
-    $html = '<html><head><meta charset="UTF-8"><style>
+
+ $html = '<html><head><meta charset="UTF-8"><style>
     @page {
         margin: 0px;
     }
 
     .image-container {
         position: absolute;
-        top: 30%;
-        left: 10%;
-        width: 30%;
-        height: 30%; /* Adjust based on desired height */
+        top: 18%;
+        left: 7%;
+        width: 32%;
+        height: 56%; /* Adjust based on desired height */
         display: flex;
         justify-content: center; /* Center image horizontally */
         align-items: center; /* Center image vertically */
@@ -390,10 +400,32 @@ private function convertDataToHtmlID($data)
     /* Define the styles for the labels */
     .label {
       position: absolute;
-      font-size: 22px;
-      //font-weight: bold;
+      font-size: 38px;
+      font-weight: bold;
       z-index: 2;
     }
+    .labeltop1 {
+        position: absolute;
+        font-size: 44px; /* Adjust the font size as needed */
+        font-weight: bold;
+        z-index: 2;
+        overflow: visible; /* Allow text to extend beyond boundaries */
+        white-space: nowrap; /* Prevent text from wrapping */
+        font-size-adjust: 0.5; /* Adjust font size to fit */
+      }
+      
+      .labeltop2 {
+        position: absolute;
+        font-size: 45px; /* Adjust the font size as needed */
+        font-weight: normal;
+        z-index: 2;
+        overflow: visible; /* Allow text to extend beyond boundaries */
+        white-space: nowrap; /* Prevent text from wrapping */
+        font-size-adjust: 0.5; /* Adjust font size to fit */
+      }
+      
+      
+      
     /* Define the styles for the background image */
     .bg {
         position: absolute;
@@ -403,7 +435,7 @@ private function convertDataToHtmlID($data)
         bottom: 0;
         width: 100%;
         height: 100%;
-        background-image: url("'. $profilephotourl . '");
+        background-image: url("");
         background-repeat: no-repeat;
         background-size: contain;
         z-index: 1;
@@ -418,39 +450,35 @@ private function convertDataToHtmlID($data)
 
   <div class="bg"></div>
 
-
-
-
-
+  <div class="image-container">
+    <img src="data:image/jpeg;base64,' . $base64Image . '" alt="NEMA SLIKE" />
   </div>
 
-
-  <div class="image-container">
-  
-
-  
-
+  <div class="labeltop1" style="top: 2.0%; left:0%; text-align: right; width: 54%;">
+  '.$cardscro.'
+</div>
+  <div class="labeltop2" style="top: 2.0%; left:56%; text-align: left; width: 40%; ">
+  '.$cardseng.'
 </div>
 
-  <div class="text-box" style="top: 11.4%; left: 39%;">
-    TEST
-  </div>
 
-
-  <div class="label" style="top: 23.7%; left:25%; text-align: center; width: 50%;">
+  <div class="label" style="top: 18.0%; left:35%; ">
   '.$data["firstname"].'
 </div>
 
-
-<div class="text-box" style="top: 27.08%; left: 12.54%;">
-'.implode('&nbsp;&nbsp;', str_split($data["id"])).'
+ <div class="label" style="top: 33.0%; left:35%; ">
+  '.$data["lastname"].'
 </div>
 
+ <div class="label" style="top: 48.0%; left:35%;  ">
+  '.$gradovipdf.'
+</div>
+
+<div class="label" style="top: 63.0%; left: 35%; ">
+'.$data["id"].'
+</div>';
 
 
-';
-
-$html .= '<div class="text-box" style="top: 8.5%; left: 3%;">Test:' . $profilephotourl . '</div>';
 
 
 $html .= '</body></html>';

@@ -41,7 +41,7 @@ export default {
   }),
   methods: {
     openLoader(payload = null) {
-      this.title = payload ? payload.title : "Loading";
+      this.title = payload ? payload.title : "Učitavanje";
       this.color = payload ? payload.color : "primary";
       this.headerColor = payload ? payload.headerColor : null;
       this.loader = true;

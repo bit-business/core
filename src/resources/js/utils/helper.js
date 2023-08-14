@@ -3,6 +3,13 @@ import * as _ from "lodash";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
+moment.updateLocale('en', {
+  invalidDate: 'Nema datum'
+});
+moment.updateLocale('hr', {
+  invalidDate: 'Nema datum'
+});
+
 export default {
   generateDisplayName(fieldName) {
     let displayName = "";

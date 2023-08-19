@@ -394,50 +394,55 @@ class GetData
                 } elseif ($data_row->type == 'upload_image') {
                     if (isset($record->{$data_row->field})) {
                         $upload_image = $record->{$data_row->field};
-                        if (isset($upload_image)) {
-                            if (config('lfm.should_create_thumbnails') == true) {
-                                $put_thumbs = config('lfm.thumb_folder_name');
-                                $upload_image = explode('/', $upload_image);
-                                $file_name = $upload_image[count($upload_image) - 1];
-                                $upload_image[count($upload_image) - 1] = $put_thumbs;
-                                $upload_image[] = $file_name;
-                                $upload_image = join('/', $upload_image);
-                            }
-                            $upload_image = asset('storage/'.$upload_image);
-                            $record->{$data_row->field} = $upload_image;
-                        }
-                    }
+                    
+                        
+                        
+                      if (isset($upload_image)) {
+                             if (str_contains($upload_image, 'http')) {
+                                 $upload_image = $upload_image;
+                             } else {
+                                 if (config('lfm.should_create_thumbnails') == true) {
+                                     $put_thumbs = config('lfm.thumb_folder_name');
+                                     $upload_image = explode('/', $upload_image);
+                                     $file_name = $upload_image[count($upload_image) - 1];
+                                     $upload_image[count($upload_image) - 1] = $put_thumbs;
+                                     $upload_image[] = $file_name;
+                                     $upload_image = join('/', $upload_image);
+                                 }
+                                 $upload_image = asset('storage/'.$upload_image);
+                             }
+                             $record->{$data_row->field} = $upload_image;
+                         }
+                     }
                 } elseif (isset($data_row->relation) && $data_row->relation['relation_type'] == 'belongs_to_many') {
                     $table_manytomany = $data_row['field'];
                     $data_relation = DB::table($table_manytomany)->get();
                     $record->$table_manytomany = $data_relation;
                 }
             }
-
             return $record;
         });
-        if (! $is_roles) {
-            if ($is_field) {
-                foreach ($records as $key => $record) {
-                    if (isset($record->{$field_identify_related_user}) &&
-                        $record->{$field_identify_related_user} != auth()->user()->id) {
-                        unset($records[$key]);
-                    }
-                }
+         if (! $is_roles) {
+             if ($is_field) {
+                 foreach ($records as $key => $record) {
+                     if (
+                         isset($record->{$field_identify_related_user}) &&
+                         $record->{$field_identify_related_user} != auth()->user()->id
+                     ) {
+                         unset($records[$key]);
+                     }
+                 }
             }
         }
-
         $data = [];
-
         foreach ($records as $row) {
             $data[] = self::getRelationData($data_type, $row);
         }
-
         $entities['data'] = $data;
         $entities['total'] = count($data);
-
         return $entities;
     }
+    
 
     public static function getRelationData($data_type, $row)
     {

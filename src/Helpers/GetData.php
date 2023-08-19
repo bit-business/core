@@ -1,13 +1,13 @@
 <?php
 
-namespace Uasoft\Badaso\Helpers;
+namespace NadzorServera\Skijasi\Helpers;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 use ReflectionClass;
-use Uasoft\Badaso\Models\DataType;
-use Uasoft\Badaso\Models\Permission;
-use Uasoft\Badaso\Models\UserRole;
+use NadzorServera\Skijasi\Models\DataType;
+use NadzorServera\Skijasi\Models\Permission;
+use NadzorServera\Skijasi\Models\UserRole;
 
 class GetData
 {

@@ -176,13 +176,13 @@
                   <tr>
                      <td>
                       <p>Dobrodošli {{ $user->name }},</p>
-                      <p>Registrirali ste se na {{ config('app.name') }} webstranicu. Prije nego što počnete, samo trebamo potvrditi da ste to vi. Ovdje je kontrolni token za vaš račun: </p>
+                      <p>Registrirali ste se na {{ config('app.name') }} web stranici. Prije nego što počnete, samo trebamo potvrditi da ste to vi. Ovdje je kontrolni token za vaš račun: </p>
 
                       <h1>{{$token}}</h1>
 
-                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga na <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
+                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
 
-                      <p>Srdačno<br />{{ config('app.name') }}</p>
+                      <p>Srdačno,<br />{{ config('app.name') }}</p>
                     </td>
                   </tr>
                 </table>

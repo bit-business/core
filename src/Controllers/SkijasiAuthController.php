@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use PHPOpenSourceSaver\JWTAuth\Contracts\Providers\Auth;
 use stdClass;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use NadzorServera\Skijasi\Exceptions\SingleException;
@@ -158,6 +157,7 @@ class SkijasiAuthController extends Controller
             // auth()->invalidate();
             activity('Authentication')
                 ->causedBy(auth()->user() ?? null)
+                ->withProperties(['attributes' => auth()->user()])
                 ->log('Korisnik se odjavio');
 
             return ApiResponse::success();
@@ -173,18 +173,109 @@ class SkijasiAuthController extends Controller
             $request->validate([
                 'name'     => 'required|string|max:255',
                 'username' => 'required|string|max:255|alpha_num',
-                'phone'    => 'required|numeric|min:6',
+                'brojmobitela'    => 'required|numeric|min:6',
                 'email'    => 'required|string|email|max:255|unique:NadzorServera\Skijasi\Models\User',
-                'password' => 'required|string|min:6|confirmed',
+                'password' => 'required|string|min:5|confirmed',
             ]);
 
-            $user = User::create([
+            $existingUser = User::where('name', $request->get('name'))
+            ->where('username', $request->get('username'))
+            ->where('user_type', 'Hzuts član')
+            ->first();
+
+            if ($existingUser) {
+                // Update existing user's information postojeci korisnik
+                $existingUser->update([
+                   // 'name'     => $request->get('name'),
+                   // 'username' => $request->get('username'),
+                    'brojmobitela' => $request->get('brojmobitela'),
+                    'email'    => $request->get('email'),
+                    'password' => Hash::make($request->get('password')),
+                    'drzava'    => $request->get('drzava'),
+                    'grad'    => $request->get('grad'),
+                    'postanskibroj'    => $request->get('postanskibroj'),
+                    'adresa'    => $request->get('adresa'),
+                    'oib'    => $request->get('oib'),
+                    'spol'    => $request->get('spol'),
+                    'datumrodjenja'    => $request->get('datumrodjenja'),
+                    'avatar'    => $request->get('avatar'),
+            
+                ]);
+    
+                $role = $this->getCustomerRole();
+
+                $user_role = new UserRole();
+                $user_role->user_id = $user->id;
+                $user_role->role_id = $role->id;
+                $user_role->save();
+    
+                $should_verify_email = Config::get('adminPanelVerifyEmail') == '1' ? true : false;
+                if (! $should_verify_email) {
+                    $ttl = $this->getTTL();
+                    $token = auth()->setTTL($ttl)->login($user);
+    
+                    DB::commit();
+    
+                    activity('Authentication')
+                        ->causedBy(auth()->user() ?? null)
+                        ->withProperties(['attributes' => [
+                            'user' => $user,
+                            'role' => $user_role,
+                        ]])
+                        ->performedOn($user)
+                        ->event('created')
+                        ->log('Stvorena je izmjena');
+    
+                    return $this->createNewToken($token, auth()->user());
+                } else {
+                    User::where('email', $request->get('email'))->update([
+                        'last_sent_token_at' => date('Y-m-d H:i:s'),
+                    ]);
+                    $token = rand(111111, 999999);
+                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                    $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
+                    $data = [
+                        'user_id'            => $user->id,
+                        'verification_token' => $token,
+                        'expired_at'         => $expired_token,
+                        'count_incorrect'    => 0,
+                    ];
+    
+                    UserVerification::firstOrCreate($data);
+    
+                    $this->sendVerificationToken(['user' => $user, 'token' => $token]);
+    
+                    DB::commit();
+    
+                    return ApiResponse::success([
+                        'message' => __('skijasi::validation.verification.email_sended'),
+                    ]);
+
+
+                } 
+              } else {
+                // Create a new user obican korisnik
+
+
+                $user = User::create([
                 'name'     => $request->get('name'),
                 'username' => $request->get('username'),
-                'phone' => $request->get('phone'),
+                'brojmobitela' => $request->get('brojmobitela'),
                 'email'    => $request->get('email'),
                 'password' => Hash::make($request->get('password')),
-            ]);
+
+                'drzava'    => $request->get('drzava'),
+                'grad'    => $request->get('grad'),
+                'postanskibroj'    => $request->get('postanskibroj'),
+                'adresa'    => $request->get('adresa'),
+                'oib'    => $request->get('oib'),
+                'spol'    => $request->get('spol'),
+                'datumrodjenja'    => $request->get('datumrodjenja'),
+                'avatar'    => $request->get('avatar'),
+
+                'user_type'    => 'Običan Korisnik',
+              
+                ]);
 
             $role = $this->getCustomerRole();
 
@@ -211,7 +302,7 @@ class SkijasiAuthController extends Controller
                     ->log('Stvorena je izmjena');
 
                 return $this->createNewToken($token, auth()->user());
-            } else {
+              } else {
                 User::where('email', $request->get('email'))->update([
                     'last_sent_token_at' => date('Y-m-d H:i:s'),
                 ]);
@@ -234,7 +325,7 @@ class SkijasiAuthController extends Controller
                 return ApiResponse::success([
                     'message' => __('skijasi::validation.verification.email_sended'),
                 ]);
-            }
+            }}
         } catch (Exception $e) {
             DB::rollBack();
 

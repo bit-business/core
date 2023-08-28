@@ -13,7 +13,7 @@ export default [
     name: "AuthLogin",
     component: Pages,
     meta: {
-      title: "Login",
+      title: "Prijava",
     },
   },
   {
@@ -21,7 +21,7 @@ export default [
     name: "AuthRegister",
     component: Pages,
     meta: {
-      title: "Register",
+      title: "Registracija",
     },
   },
   {
@@ -29,7 +29,7 @@ export default [
     name: "AuthForgotPassword",
     component: Pages,
     meta: {
-      title: "Forgot Password",
+      title: "Zaboravljena lozinka",
     },
   },
   {
@@ -37,7 +37,7 @@ export default [
     name: "AuthResetPassword",
     component: Pages,
     meta: {
-      title: "Reset Password",
+      title: "Resetiranje lozinke",
     },
   },
   {
@@ -45,7 +45,7 @@ export default [
     name: "AuthVerify",
     component: Pages,
     meta: {
-      title: "Email Verification",
+      title: "Verifikacija Emaila",
     },
   },
   {

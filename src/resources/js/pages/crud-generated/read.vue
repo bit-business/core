@@ -12,7 +12,7 @@
               params: { id: $route.params.id, slug: $route.params.slug },
             }"
             ><vs-icon icon="edit"></vs-icon>
-            {{ $t("crudGenerated.detail.button") }}</vs-button
+            {{ $t("Izmijeni") }}</vs-button
           >
         </template>
       </skijasi-breadcrumb-row>

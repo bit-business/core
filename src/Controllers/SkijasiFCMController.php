@@ -5,6 +5,8 @@ namespace NadzorServera\Skijasi\Controllers;
 use Illuminate\Http\Request;
 use NadzorServera\Skijasi\Helpers\ApiResponse;
 use NadzorServera\Skijasi\Models\FirebaseCloudMessages;
+use NadzorServera\Skijasi\Helpers\Firebase\FCMNotification;
+
 
 class SkijasiFCMController extends Controller
 {
@@ -38,4 +40,20 @@ class SkijasiFCMController extends Controller
             return ApiResponse::failed($e);
         }
     }
+
+       // za slanje poruka stavio
+       public function sendNotification(Request $request)
+       {
+         $notification = new FCMNotification();
+       
+         // You can replace the token and data as needed
+         $notification->send(
+           ["AAAAt2ONPBo:APA91bFwCadksbJU8pPd98OKPYwntUnw8V8twTS1DO2U2yKgkBcqbxShxOplHfXk63-JtsJ3j4h1-vTbs5hZ-o9UeHlA-X7WBx3ubRtCKRCWwO6SxMzziBPlm1V3IQgokhbhslKJpZf0"], 
+           "Title", 
+           "Message", 
+           ["userId" => 1]
+         );
+       
+         return response()->json(['message' => 'Notification sent']);
+       }
 }

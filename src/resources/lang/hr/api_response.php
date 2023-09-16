@@ -5,7 +5,7 @@ return [
     '201' => 'Request was successful',
     '300' => '',
     '400' => 'The given data was invalid',
-    '401' => 'Unauthorized: Access is denied due to invalid credentials.',
+    '401' => 'Niste prijavljeni: Molimo prijavite se!',
     '402' => 'Payment Required',
     '412' => 'Precondition Failed',
     '403' => "You don't have permission to access",

@@ -49,4 +49,26 @@ export default {
   addRoles(data) {
     return resource.post(apiPrefix + "/v1/user-roles/add-edit", data);
   },
+
+
+  unapprovedAvatars(data = {}) {
+    const ep = apiPrefix + "/v1/users/unapproved-avatars";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+},
+approveAvatar(data) {
+  return resource.put(apiPrefix + "/v1/users/approve-avatar", data);
+},
+declineAvatar(data) {
+  return resource.put(apiPrefix + "/v1/users/decline-avatar", data);
+},
+
+
+
+totalUsers() {
+  const url = apiPrefix + "/v1/users/count";
+  return resource.get(url);
+},
+
 };

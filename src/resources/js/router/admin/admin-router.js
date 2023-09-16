@@ -26,7 +26,7 @@ export default [
     name: "UserProfile",
     component: Pages,
     meta: {
-      title: "User Profile",
+      title: "Moj Profil",
     },
   },
 ];

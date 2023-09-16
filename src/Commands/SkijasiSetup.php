@@ -96,6 +96,8 @@ class SkijasiSetup extends Command
         $decoded_json['dependencies']['sass-loader'] = '^11.0.1';
         $decoded_json['dependencies']['resolve-url-loader'] = '^4.0.0';
 
+        $decoded_json['dependencies']['dompurify'] = '^3.0.5';
+
         $decoded_json['dependencies']['@johmun/vue-tags-input'] = '^2.1.0';
         $decoded_json['dependencies']['@tinymce/tinymce-vue'] = '^3';
         $decoded_json['dependencies']['body-scroll-lock'] = '^4.0.0-beta.0';
@@ -261,15 +263,15 @@ class SkijasiSetup extends Command
             'MIX_SKIJASI_SECRET_LOGIN_PREFIX' =>'skijasi-secret-login',
             'MIX_API_ROUTE_PREFIX' => 'skijasi-api',
             'MIX_LOG_VIEWER_ROUTE' => '"log-viewer"',
-            'MIX_FIREBASE_API_KEY' => '',
-            'MIX_FIREBASE_AUTH_DOMAIN' => '',
-            'MIX_FIREBASE_PROJECT_ID' => '',
-            'MIX_FIREBASE_STORAGE_BUCKET' => '',
-            'MIX_FIREBASE_MESSAGE_SEENDER' => '',
-            'MIX_FIREBASE_APP_ID' => '',
-            'MIX_FIREBASE_MEASUREMENT_ID' => '',
-            'MIX_FIREBASE_WEB_PUSH_CERTIFICATES' => '',
-            'MIX_FIREBASE_SERVER_KEY' => '',
+            'FIREBASE_API_KEY' => '',
+            'FIREBASE_AUTH_DOMAIN' => '',
+            'FIREBASE_PROJECT_ID' => '',
+            'FIREBASE_STORAGE_BUCKET' => '',
+            'FIREBASE_MESSAGE_SEENDER' => '',
+            'FIREBASE_APP_ID' => '',
+            'FIREBASE_MEASUREMENT_ID' => '',
+            'FIREBASE_WEB_PUSH_CERTIFICATES' => '',
+            'FIREBASE_SERVER_KEY' => '',
             'FILESYSTEM_DRIVER' => 'public',
             'AWS_ACCESS_KEY_ID' => '',
             'AWS_SECRET_ACCESS_KEY' => '',

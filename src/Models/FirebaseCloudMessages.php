@@ -42,8 +42,13 @@ class FirebaseCloudMessages extends Model
         parent::boot();
 
         static::creating(function (Model $model) {
-            $model->setAttribute($model->getKeyName(), Str::uuid());
+            $model->uuid = Str::uuid();
         });
+
+        //kod od prije
+       // static::creating(function (Model $model) {
+        //    $model->setAttribute($model->getKeyName(), Str::uuid());
+       // });
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -148,6 +148,8 @@
                 multiple
               >
                 <template slot="thead">
+
+                  <vs-th> Opcije </vs-th>
                   <vs-th
                     v-for="(dataRow, index) in dataType.dataRows"
                     :key="index"
@@ -157,7 +159,7 @@
                       {{ dataRow.displayName }}
                     </template>
                   </vs-th>
-                  <vs-th> {{ $t("crudGenerated.header.action") }} </vs-th>
+                  
                 </template>
 
                 <template slot-scope="{ data }">
@@ -178,6 +180,25 @@
                         ) || !isOnline
                       "
                     >
+
+                    <vs-td class="crud-generated__button" style="text-align: center;">
+                        <router-link
+                            :to="{
+                                name: 'CrudGeneratedRead',
+                                params: {
+                                    id: record.id,
+                                    slug: $route.params.slug,
+                                }
+                            }"
+                            v-if="isCanRead && $helper.isAllowedToModifyGeneratedCRUD('read', dataType.name) && !isShowDataRecycle"
+                        >
+                            <vs-button color="primary" type="relief" size="small" style=" display: block; margin-bottom: 8px;">
+                                <vs-icon icon="visibility"></vs-icon>
+                                Detalji
+                            </vs-button>
+                        </router-link>
+                      </vs-td>
+
                       <vs-td
                         v-for="(dataRow, indexColumn) in dataType.dataRows"
                         :key="indexColumn"
@@ -334,6 +355,9 @@
                           }}</span>
                         </template>
                       </vs-td>
+
+                
+                      <!--
                       <vs-td class="crud-generated__button">
                         <skijasi-dropdown vs-trigger-click>
                           <vs-button
@@ -415,6 +439,7 @@
                           </vs-dropdown-menu>
                         </skijasi-dropdown>
                       </vs-td>
+                    -->
                     </template>
                   </vs-tr>
                 </template>
@@ -449,7 +474,7 @@
                         {{ dataRow.displayName }}
                       </template>
                     </skijasi-th>
-                    <vs-th> Opcije </vs-th>
+             
                   </template>
 
                   <template slot="tbody">
@@ -472,21 +497,22 @@
                       >
                     
                           <vs-td class="crud-generated__button" style="text-align: center;">
-    <router-link
-        :to="{
-            name: 'CrudGeneratedRead',
-            params: {
-                id: record.id,
-                slug: $route.params.slug,
-            }
-        }"
-        v-if="isCanRead && $helper.isAllowedToModifyGeneratedCRUD('read', dataType.name) && !isShowDataRecycle"
-    >
-        <vs-button color="primary" type="relief" size="small" style=" display: block; margin-bottom: 8px;">
-            <vs-icon icon="visibility"></vs-icon>
-            Detalji
-        </vs-button>
-    </router-link>
+                        <router-link
+                            :to="{
+                                name: 'CrudGeneratedRead',
+                                params: {
+                                    id: record.id,
+                                    slug: $route.params.slug,
+                                }
+                            }"
+                            v-if="isCanRead && $helper.isAllowedToModifyGeneratedCRUD('read', dataType.name) && !isShowDataRecycle"
+                        >
+                            <vs-button color="primary" type="relief" size="small" style=" display: block; margin-bottom: 8px;">
+                                <vs-icon icon="visibility"></vs-icon>
+                                Detalji
+                            </vs-button>
+                        </router-link>
+                      </vs-td>
                           <!--
                           <skijasi-dropdown vs-trigger-click>
                             <vs-button
@@ -565,7 +591,7 @@
                               </skijasi-dropdown-item>
                             </vs-dropdown-menu>
                           </skijasi-dropdown>-->
-                        </vs-td>
+                   
                       
                         <vs-td
                           v-for="(dataRow, indexColumn) in dataType.dataRows"

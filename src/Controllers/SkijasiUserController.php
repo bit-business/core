@@ -57,6 +57,8 @@ class SkijasiUserController extends Controller
                 'username'  => "required|string|max:255|alpha_num|unique:NadzorServera\Skijasi\Models\User,username,{$request->id}",
                 'name'      => 'required',
                 'avatar'    => 'nullable',
+
+       
             ]);
 
             $user = User::find($request->id);
@@ -64,8 +66,36 @@ class SkijasiUserController extends Controller
 
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->avatar = $request->avatar;
+
             $user->additional_info = $request->additional_info;
+
+            $user->datumrodjenja = $request->datumrodjenja;
+            $user->brojmobitela = $request->brojmobitela;
+            $user->drzava = $request->drzava;
+            $user->grad = $request->grad;
+            $user->postanskibroj = $request->postanskibroj;
+            $user->adresa = $request->adresa;
+            $user->oib = $request->oib;
+            $user->spol = $request->spol;
+            $user->urlfacebook = $request->urlfacebook;
+            $user->urltwitter = $request->urltwitter;
+            $user->urlinstagram = $request->urlinstagram;
+            $user->urllinkedin = $request->urllinkedin;
+
+            $user->prikazi_fb = $request->prikazi_fb;
+            $user->prikazi_ig = $request->prikazi_ig;
+            $user->prikazi_tw = $request->prikazi_tw;
+            $user->prikazi_lnk = $request->prikazi_lnk;
+
+           
+           // $user->avatar = $request->avatar;
+           if ($request->has('avatar')) {
+            $user->new_avatar = $request->avatar;
+            $user->avatar_approved = true;
+        }
+        
+
+
             if ($request->password && $request->password != '') {
                 $user->password = Hash::make($request->password);
             }
@@ -84,7 +114,7 @@ class SkijasiUserController extends Controller
                 ]])
                 ->performedOn($user)
                 ->event('updated')
-                ->log('User '.$user->name.' has been updated');
+                ->log('Korisniku '.$user->name.' je ažuriran profil');
 
             return ApiResponse::success($user);
         } catch (Exception $e) {
@@ -93,6 +123,96 @@ class SkijasiUserController extends Controller
             return ApiResponse::failed($e);
         }
     }
+
+    public function unapprovedAvatars()
+{
+    $users = User::where('avatar_approved', 1)->get();
+    return response()->json($users);
+}
+
+
+    public function approveAvatar(Request $request)
+{
+    $user = User::find($request->id);
+
+    if (!$user) {
+        return ApiResponse::failed('User not found');
+    }
+
+    if (!$user->new_avatar) {
+        return ApiResponse::failed('No new avatar to approve');
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // Replace old avatar with new_avatar
+        $user->avatar = $user->new_avatar;
+        $user->new_avatar = null;
+        $user->avatar_approved = false;
+        
+        $user->save();
+
+        DB::commit();
+
+        // Log the approval
+        activity('User')
+            ->causedBy(auth()->user() ?? null)
+            ->performedOn($user)
+            ->event('avatar_approved')
+            ->log('Odobrena je nova profilna slika za: '.$user->name.'');
+
+        return ApiResponse::success('Avatar approved successfully');
+    } catch (Exception $e) {
+        DB::rollBack();
+
+        return ApiResponse::failed($e);
+    }
+}
+
+public function declineAvatar(Request $request)
+{
+    $user = User::find($request->id);
+
+    if (!$user) {
+        return ApiResponse::failed('User not found');
+    }
+
+    if (!$user->new_avatar) {
+        return ApiResponse::failed('No new avatar to decline');
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // Remove new_avatar without replacing the main avatar
+        Storage::delete($user->new_avatar); // Make sure to delete the unapproved image from storage
+        $user->new_avatar = null;
+        $user->avatar_approved = false;
+        
+        $user->save();
+
+        DB::commit();
+
+        // Log the decline
+        activity('User')
+            ->causedBy(auth()->user() ?? null)
+            ->performedOn($user)
+            ->event('avatar_declined')
+            ->log('Odbijena je nova profilna slika '.$user->name.'');
+
+        return ApiResponse::success('Avatar declined successfully');
+    } catch (Exception $e) {
+        DB::rollBack();
+
+        return ApiResponse::failed($e);
+    }
+}
+
+
+
+
+
 
     public function add(Request $request)
     {
@@ -155,7 +275,7 @@ class SkijasiUserController extends Controller
                 ->causedBy(auth()->user() ?? null)
                 ->performedOn($user)
                 ->event('deleted')
-                ->log('User '.$user->name.' has been deleted');
+                ->log('Korisnike '.$user->name.' je obrisan');
 
             return ApiResponse::success();
         } catch (Exception $e) {
@@ -191,7 +311,7 @@ class SkijasiUserController extends Controller
                 ->causedBy(auth()->user() ?? null)
                 ->performedOn($user)
                 ->event('deleted')
-                ->log('User '.$user_name.' has been deleted');
+                ->log('Korisnik '.$user_name.' je obrisan');
 
             return ApiResponse::success();
         } catch (Exception $e) {

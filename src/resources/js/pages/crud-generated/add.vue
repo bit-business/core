@@ -8,7 +8,7 @@
             <div slot="header">
               <h3>
                 {{
-                  $t("crudGenerated.add.title", {
+                  $t("Dodavanje", {
                     tableName: dataType.displayNameSingular,
                   })
                 }}
@@ -16,7 +16,7 @@
             </div>
             <vs-row>
               <vs-col vs-lg="12" v-if="!isValid">
-                <p class="is-error">No fields have been filled</p>
+                <p class="is-error">Polja nisu unesena.</p>
               </vs-col>
               <vs-col
                 v-for="(dataRow, rowIndex) in dataType.dataRows"
@@ -343,7 +343,7 @@
               <vs-col vs-lg="12">
                 <vs-button color="primary" type="relief" @click="submitForm">
                   <vs-icon icon="save"></vs-icon>
-                  {{ $t("crudGenerated.add.button") }}
+                  {{ $t("Spremi") }}
                 </vs-button>
                 <vs-button
                   :to="{
@@ -458,7 +458,7 @@ export default {
         .then((response) => {
           this.$closeLoader();
           this.$router.push({
-            name: "CrudGeneratedBrowse",
+            name: "CrudGeneratedRead",
             params: {
               slug: this.$route.params.slug,
             },

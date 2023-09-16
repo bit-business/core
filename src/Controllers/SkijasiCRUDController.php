@@ -69,6 +69,7 @@ class SkijasiCRUDController extends Controller
             return APIResponse::failed($e);
         }
     }
+    
 
     public function read(Request $request)
     {

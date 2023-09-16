@@ -26,7 +26,8 @@ class FCMNotification
 
     public function __construct()
     {
-        $this->firebase_server_key = \env('MIX_FIREBASE_SERVER_KEY', '');
+        // od prije $this->firebase_server_key = \env('FIREBASE_SERVER_KEY', '');
+        $this->firebase_server_key = ('AAAAt2ONPBo:APA91bEOK_iLTSNXpEoSqeV7_mV9Gv2xUgAdZL1_OltxabZ4M5H7WIvFZRlVgJG0f-97QMXf0RFv6xiRl1e1RPk_pOWgV_e6nKwmS_rqtPVp_iXE6YSpQIZ-8v7QF2G6ND5TVfbSPE3i');
         $this->client = new Client();
         $this->priority = \config('firebase.priority');
         $this->tell_role_names = \config('firebase.tell_role_names');
@@ -35,7 +36,7 @@ class FCMNotification
     /**
      * @param  array  $data
      */
-    protected function send(array $ids = [], string $title = '', string $body = '', $data = []): void
+    public function send(array $ids = [], string $title = '', string $body = '', $data = []): void
     {
         $data_json_params = [
             'registration_ids' => $ids,
@@ -158,4 +159,22 @@ class FCMNotification
             //throw $th;
         }
     }
+
+
+    // za slanje poruka stavio
+    public function sendNotification(Request $request)
+    {
+      $notification = new FCMNotification();
+    
+      // You can replace the token and data as needed
+      $notification->send(
+        ["AAAAt2ONPBo:APA91bEOK_iLTSNXpEoSqeV7_mV9Gv2xUgAdZL1_OltxabZ4M5H7WIvFZRlVgJG0f-97QMXf0RFv6xiRl1e1RPk_pOWgV_e6nKwmS_rqtPVp_iXE6YSpQIZ-8v7QF2G6ND5TVfbSPE3i"], 
+        "Title", 
+        "Message", 
+        ["userId" => 1]
+      );
+    
+      return response()->json(['message' => 'Notification sent']);
+    }
+
 }

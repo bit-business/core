@@ -927,13 +927,13 @@ export default {
       fieldIdentifyRelatedUser: "Field Identify Related User"
     },
   },
-
+ 
   crudGenerated: {
     warning: {
-      notAllowedToBrowse: "You're not allowed to browse {tableName}",
-      notAllowedToAdd: "You're not allowed to add {tableName}",
-      notAllowedToEdit: "You're not allowed to edit {tableName}",
-      notAllowedToRead: "You're not allowed to read {tableName}",
+      notAllowedToBrowse: "Nemaš dopuštenja za gledanje {tableName}",
+      notAllowedToAdd: "Nemaš dopuštenja za dodavanje {tableName}",
+      notAllowedToEdit: "Nemaš dopuštenja za mijenjanje {tableName}",
+      notAllowedToRead: "Nemaš dopuštenja za čitanje {tableName}",
     },
     header: {
       action: "Opcije",
@@ -944,24 +944,24 @@ export default {
       descriptionBody: "Stranica",
     },
     add: {
-      title: "Add {tableName}",
-      button: "Save",
+      title: "Nova {tableName}",
+      button: "Spremi",
     },
     edit: {
-      title: "Edit {tableName}",
-      button: "Update",
+      title: "Izmjena {tableName}",
+      button: "Spremi",
     },
     detail: {
-      title: "Detail {tableName}",
-      button: "Edit",
+      title: "Podaci za {tableName}",
+      button: "Izmijeni",
     },
     sort: {
-      title: "Sort {tableName}",
+      title: "Sortiraj {tableName}",
     },
     maintenanceDialog: {
-      title: "Setting",
+      title: "Radovi na serveru",
       switch: "Maintenance Mode",
-      button: "Save",
+      button: "Spremi",
     },
   },
   keyIssue: {

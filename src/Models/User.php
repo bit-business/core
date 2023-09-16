@@ -35,12 +35,36 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'username',
-        'phone',
+        'brojmobitela',
         'email',
+
+        'datumrodjenja',
+        'drzava',
+        'grad',
+        'postanskibroj',
+        'adresa',
+        'oib',
+        'spol',
+
         'password',
         'avatar',
         'additional_info',
         'last_sent_token_at',
+
+        'urlinstagram',
+        'urlfacebook',
+        'urltwitter',
+        'urllinkedin',
+
+        'prikazi_fb',
+        'prikazi_ig',
+        'prikazi_tw',
+        'prikazi_lnk',
+        
+        'new_avatar',
+        'avatar_approved',
+
+        'user_type',
     ];
 
     /**
@@ -81,7 +105,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getDescriptionForEvent(string $eventName): string
     {
-        return "This model has been {$eventName}";
+        return "Zabilježen je sljedeci podatak {$eventName}";
     }
 
     public function roles()
@@ -113,4 +137,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+
+
 }

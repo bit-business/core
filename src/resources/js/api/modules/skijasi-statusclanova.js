@@ -37,16 +37,20 @@ export default {
 
 
   edit(data) {
+    if (!data.endstatusdate || data.endstatusdate.trim() === '') {
+      delete data.endstatusdate;
+  }
+
     return resource.put(apiPrefix + "/v1/entities/tbl-member-status/edit", data);
   },
 
   add(data) {
-    if (!data.endstatusdate || data.endstatusdate.trim() === '') {
-      data.endstatusdate = null;
-    }
+
     if (!data.statusdate || data.statusdate.trim() === '') {
       data.statusdate = null;
     }
+  
+
     return resource.post(apiPrefix + "/v1/entities/tbl-member-status/add", data);
   },
 

@@ -23,4 +23,11 @@ export default {
     const url = `${apiPrefix}/v1/firebase/messages/count-unread`;
     return resource.get(url);
   },
+
+
+  sendFirebaseMessage() {
+    const url = `${apiPrefix}/v1/firebase/cloud_messages/send-firebase-message`;
+    return resource.post(url);
+  }
+  
 };

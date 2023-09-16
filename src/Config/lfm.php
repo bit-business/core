@@ -70,6 +70,19 @@ return [
                 'image/svg+xml',
             ],
         ],
+
+        'galerija' => [
+            'folder_name' => 'galerija',
+            'startup_view' => 'grid',
+            'max_size' => 500000, // size in KB
+            'valid_mime' => [
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'video/mp4',
+                'video/mov',
+            ],
+        ],
     ],
 
     /*
@@ -100,7 +113,7 @@ return [
      */
     'rename_duplicates' => true,
 
-    'alphanumeric_filename' => false,
+    'alphanumeric_filename' => true,
 
     'alphanumeric_directory' => false,
 

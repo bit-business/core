@@ -14,6 +14,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::get('/', 'SkijasiDashboardController@index')->middleware(SkijasiAuthenticate::class);
         });
 
+
+        
+
         Route::group(['prefix' => 'data'], function () {
             Route::get('/components', 'SkijasiDataController@getComponents');
             Route::get('/filter-operators', 'SkijasiDataController@getFilterOperators');
@@ -37,6 +40,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::post('/verify', 'SkijasiAuthController@verify');
             Route::post('/re-request-verification', 'SkijasiAuthController@reRequestVerification');
             Route::post('/'.env('MIX_SKIJASI_SECRET_LOGIN_PREFIX'), 'SkijasiAuthController@secretLogin');
+
+            Route::post('/send-contact-form', 'SkijasiAuthController@sendContactForm')->middleware('throttle:2,1');
+
         });
 
         Route::group(['prefix' => 'auth/user'], function () {
@@ -45,6 +51,11 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::put('/profile', 'SkijasiAuthController@updateProfile');
             Route::put('/email', 'SkijasiAuthController@updateEmail');
             Route::post('/verify-email', 'SkijasiAuthController@verifyEmail');
+
+
+
+           
+
         });
 
         Route::group(['prefix' => 'file'], function () {
@@ -56,6 +67,12 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::post('/upload/lfm', 'SkijasiFileController@uploadFileUsingLfm');
             Route::get('/delete/lfm', 'SkijasiFileController@deleteFileUsingLfm');
             Route::get('/mimetypes', 'SkijasiFileController@availableMimetype');
+
+
+            Route::get('/getfolders', 'SkijasiFileController@getFolders');
+
+            Route::get('/get-images-from-slike', 'SkijasiFileController@getImagesFromSlike');
+
         });
 
         Route::group(['prefix' => 'configurations'], function () {
@@ -102,6 +119,13 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::post('/add', 'SkijasiUserController@add')->middleware(SkijasiCheckPermissions::class.':add_users');
             Route::delete('/delete', 'SkijasiUserController@delete')->middleware(SkijasiCheckPermissions::class.':delete_users');
             Route::delete('/delete-multiple', 'SkijasiUserController@deleteMultiple')->middleware(SkijasiCheckPermissions::class.':delete_users');
+
+            Route::get('/unapproved-avatars', 'SkijasiUserController@unapprovedAvatars');
+            Route::put('/approve-avatar', 'SkijasiUserController@approveAvatar');
+            Route::put('/decline-avatar', 'SkijasiUserController@declineAvatar');
+
+          
+
         });
 
         Route::group(['prefix' => 'permissions'], function () {
@@ -224,7 +248,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         Route::get($data_type->slug.'/generatepdffid', $crud_data_controller.'@generatepdffid')
                         ->name($data_type->slug.'.generatepdffid');
 
-                
+
+
 
                     Route::post($data_type->slug.'/maintenance', $crud_data_controller.'@setMaintenanceState')
                         ->name($data_type->slug.'.maintenance')
@@ -255,11 +280,19 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
         Route::group(['prefix' => 'firebase', 'middleware' => 'auth'], function () {
             Route::group(['prefix' => 'cloud_messages'], function () {
                 Route::put('/save-token-messages', 'SkijasiFCMController@saveTokenMessage');
+
+                
+                Route::post('/send-firebase-message', 'SkijasiFCMController@sendNotification');
+
             });
             Route::group(['prefix' => 'messages', 'middleware' => 'auth'], function () {
                 Route::get('/', 'SkijasiNotificationsController@getMessages');
                 Route::put('/{id}', 'SkijasiNotificationsController@readMessage');
                 Route::get('/count-unread', 'SkijasiNotificationsController@getCountUnreadMessage');
+
+                
+
+
             });
         });
     });

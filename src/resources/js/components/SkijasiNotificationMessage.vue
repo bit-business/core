@@ -157,6 +157,8 @@ export default {
       this.$api.skijasiFcm
         .getMessages()
         .then(({ data }) => {
+
+          console.log("TEST učitao poruke sidebar:",data);
           this.messages = data.messages.map((item, index) => {
             item.style = {
               backgroundColor: !item.isRead ? "#f0f5f9" : "#ffffff",
@@ -165,6 +167,7 @@ export default {
             if(item.createdAt){
               item.createdAt = moment(item.createdAt).utc().format('YYYY-MM-DD HH:mm:ss');
             }
+            console.log("TEST učitao poruke sidebar2:",item);
             return item;
           });
 

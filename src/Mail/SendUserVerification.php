@@ -33,7 +33,7 @@ class SendUserVerification extends Mailable
     public function build()
     {
         return $this
-            ->subject('Email Verification | Skijasi')
+            ->subject('Potvrda Registracije | HZUTS')
             ->markdown('skijasi::mail.email-verification');
     }
 }

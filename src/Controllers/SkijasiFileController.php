@@ -8,6 +8,11 @@ use UniSharp\LaravelFilemanager\Controllers\DeleteController;
 use UniSharp\LaravelFilemanager\Controllers\ItemsController;
 use UniSharp\LaravelFilemanager\Controllers\UploadController;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+
+
+
 class SkijasiFileController extends Controller
 {
     public function uploadFile(Request $request)
@@ -76,4 +81,51 @@ class SkijasiFileController extends Controller
     {
         return ApiResponse::success(config('lfm.folder_categories'));
     }
+
+
+
+
+    public function getFolders(Request $request) {
+        // Default to the storage path if no directory is provided
+        $defaultPath = storage_path('app/public/galerija');
+        $directory = $request->input('directory', $defaultPath);
+        
+        // Check if directory exists
+        if (!File::exists($directory)) {
+            return response()->json(['error' => 'Directory not found', 'directory' => $directory], 404);
+        }
+        
+        $folders = Storage::disk('public')->directories(str_replace(storage_path('app/public/'), '', $directory));
+        
+        if (empty($folders)) {
+           return response()->json(['error' => 'No folders found'], 404);
+        }
+        
+        return response()->json($folders);
+    }
+    
+    
+    /**
+ * Get images from storage/slike directory za Galerija
+ */
+public function getImagesFromSlike()
+{
+    // Initialize ItemsController from Laravel File Manager
+    $itemController = new ItemsController();
+
+    // Set the working directory to 'slike'
+    request()->merge(['working_dir' => '/photos/galerija']);
+    
+    // Fetch the items from 'slike' directory
+    $files = $itemController->getItems();
+
+    // Assuming the result contains images, you may want to filter it if it contains non-image files
+    $images = array_map(function($file) {
+        return $file->url;
+    }, $files);
+
+    // Return the response
+    return ApiResponse::success($images);
+}
+
 }

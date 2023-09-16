@@ -4,7 +4,7 @@
 <head>
   <meta name="viewport" content="width=device-width">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Email template</title>
+  <title>Email verifikacija</title>
   <style>
     * {
       color: black;
@@ -176,13 +176,13 @@
                   <tr>
                      <td>
                       <p>Dobrodošli {{ $user->name }},</p>
-                      <p>Registrirali ste se na {{ config('app.name') }} webstranicu. Prije nego što počnete, samo trebamo potvrditi da ste to vi. Ovdje je kontrolni token za vaš račun: </p>
+                      <p>Registrirali ste se na {{ config('app.name') }} stranici. Prije nego što započnete, samo trebamo potvrditi da ste to vi. Ovdje je kontrolni token za vaš račun: </p>
 
                       <h1>{{$token}}</h1>
 
-                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga na <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
+                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
 
-                      <p>Srdačno<br />{{ config('app.name') }}</p>
+                      <p>Srdačno,<br />{{ config('app.name') }}</p>
                     </td>
                   </tr>
                 </table>

@@ -49,7 +49,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: "Date",
+      default: "Datum",
     },
     value: {
       type: String,

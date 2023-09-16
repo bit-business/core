@@ -8,13 +8,13 @@ class FirebasePublishFile
 {
     public function getContentFirebaseMessagingSwJs()
     {
-        $MIX_FIREBASE_API_KEY = \env('MIX_FIREBASE_API_KEY');
-        $MIX_FIREBASE_AUTH_DOMAIN = \env('MIX_FIREBASE_AUTH_DOMAIN');
-        $MIX_FIREBASE_PROJECT_ID = \env('MIX_FIREBASE_PROJECT_ID');
-        $MIX_FIREBASE_STORAGE_BUCKET = \env('MIX_FIREBASE_STORAGE_BUCKET');
-        $MIX_FIREBASE_MESSAGE_SEENDER = \env('MIX_FIREBASE_MESSAGE_SEENDER');
-        $MIX_FIREBASE_APP_ID = \env('MIX_FIREBASE_APP_ID');
-        $MIX_FIREBASE_MEASUREMENT_ID = \env('MIX_FIREBASE_MEASUREMENT_ID');
+        $FIREBASE_API_KEY = \env('FIREBASE_API_KEY');
+        $FIREBASE_AUTH_DOMAIN = \env('FIREBASE_AUTH_DOMAIN');
+        $FIREBASE_PROJECT_ID = \env('FIREBASE_PROJECT_ID');
+        $FIREBASE_STORAGE_BUCKET = \env('FIREBASE_STORAGE_BUCKET');
+        $FIREBASE_MESSAGE_SEENDER = \env('FIREBASE_MESSAGE_SEENDER');
+        $FIREBASE_APP_ID = \env('FIREBASE_APP_ID');
+        $FIREBASE_MEASUREMENT_ID = \env('FIREBASE_MEASUREMENT_ID');
 
         $script_content = <<<JAVASCRIPT
         let cacheName = "app-skijasi-cache";
@@ -76,13 +76,13 @@ class FirebasePublishFile
                 "https://www.gstatic.com/firebasejs/8.2.7/firebase-messaging.js"
             );
             var firebaseConfig = {
-                apiKey: "$MIX_FIREBASE_API_KEY",
-                authDomain: "$MIX_FIREBASE_AUTH_DOMAIN",
-                projectId: "$MIX_FIREBASE_PROJECT_ID",
-                storageBucket: "$MIX_FIREBASE_STORAGE_BUCKET",
-                messagingSenderId: "$MIX_FIREBASE_MESSAGE_SEENDER",
-                appId: "$MIX_FIREBASE_APP_ID",
-                measurementId: "$MIX_FIREBASE_MEASUREMENT_ID",
+                apiKey: "$FIREBASE_API_KEY",
+                authDomain: "$FIREBASE_AUTH_DOMAIN",
+                projectId: "$FIREBASE_PROJECT_ID",
+                storageBucket: "$FIREBASE_STORAGE_BUCKET",
+                messagingSenderId: "$FIREBASE_MESSAGE_SEENDER",
+                appId: "$FIREBASE_APP_ID",
+                measurementId: "$FIREBASE_MEASUREMENT_ID",
             };
             const app = firebase.initializeApp(firebaseConfig);
             const messaging = firebase.messaging();

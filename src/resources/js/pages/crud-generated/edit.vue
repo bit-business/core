@@ -8,7 +8,7 @@
             <div slot="header">
               <h3>
                 {{
-                  $t("crudGenerated.edit.title", {
+                  $t("Izmjena", {
                     tableName: dataType.displayNameSingular,
                   })
                 }}
@@ -16,7 +16,7 @@
             </div>
             <vs-row>
               <vs-col vs-lg="12" v-if="!isValid">
-                <p class="is-error">No fields have been filled</p>
+                <p class="is-error">Polja nisu popunjena. Molimo popunite!</p>
               </vs-col>
               <vs-col
                 v-for="(dataRow, rowIndex) in dataType.dataRows"
@@ -340,7 +340,7 @@
               <vs-col vs-lg="12">
                 <vs-button color="primary" type="relief" @click="submitForm">
                   <vs-icon icon="save"></vs-icon>
-                  {{ $t("crudGenerated.edit.button") }}
+                  {{ $t("Spremi") }}
                 </vs-button>
                 <vs-button
                   :to="{
@@ -445,7 +445,7 @@ export default {
         .then((response) => {
           this.$closeLoader();
           this.$router.push({
-            name: "CrudGeneratedBrowse",
+            name: "CrudGeneratedRead",
             params: {
               slug: this.$route.params.slug,
             },
@@ -517,7 +517,7 @@ export default {
                     this.$caseConvert.stringSnakeToCamel(data.field)
                   ].replace(" ", "T")
                 : null;
-              data.value = new Date(dateValue);
+                data.value = dateValue ? new Date(dateValue) : null;
             } else if (data.value == undefined && data.type == "hidden") {
               data.value = data.details.value ? data.details.value : "";
             } else if (

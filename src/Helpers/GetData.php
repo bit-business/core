@@ -90,16 +90,23 @@ class GetData
             }
         }
         // end
+// ... [Previous Code]
 
-        if ($filter_value) {
-            foreach ($fields as $index => $field) {
-                if ($index == 0) {
-                    $query->where($field, 'LIKE', "%{$filter_value}%");
-                } else {
-                    $query->orWhere($field, 'LIKE', "%{$filter_value}%");
-                }
+// If there's a filter value, adjust the query
+if ($filter_value) {
+    $searchTerms = explode(' ', $filter_value);  // Split the filter_value into individual terms
+    
+    foreach ($searchTerms as $term) {
+        $query->where(function($query) use ($term, $fields) {
+            foreach ($fields as $field) {
+                $query->orWhere($field, 'LIKE', "%{$term}%");
             }
-        }
+        });
+    }
+}
+
+// ... [Rest of the Code]
+
         if ($order_field) {
             $query->orderBy($order_field, $order_direction);
         }
@@ -328,15 +335,23 @@ class GetData
         }
         // end
 
-        if ($filter_value) {
-            foreach ($fields as $index => $field) {
-                if ($index == 0) {
-                    $query->where($field, 'LIKE', "%{$filter_value}%");
-                } else {
-                    $query->orWhere($field, 'LIKE', "%{$filter_value}%");
-                }
+ // ... [Previous Code]
+
+// If there's a filter value, adjust the query
+if ($filter_value) {
+    $searchTerms = explode(' ', $filter_value);  // Split the filter_value into individual terms
+    
+    foreach ($searchTerms as $term) {
+        $query->where(function($query) use ($term, $fields) {
+            foreach ($fields as $field) {
+                $query->orWhere($field, 'LIKE', "%{$term}%");
             }
-        }
+        });
+    }
+}
+
+// ... [Rest of the Code]
+
         $paginate = $query;
         $total = $query->count();
 

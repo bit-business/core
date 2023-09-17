@@ -102,4 +102,11 @@ delete(data) {
 },
 
 
+zadnjimaticni() {
+  const ep = apiPrefix + "/v1/entities/su-clanoviedukacijskipodaci" + "/zadnjimaticni";
+  const url = ep;
+  return resource.get(url);
+},
+
+
 };

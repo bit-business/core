@@ -244,13 +244,29 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf);
             ->header('Content-Type', 'application/pdf');
 }
     
+
+
+
+public function zadnjimaticni() {
+    // Retrieve the latest non-null maticni number from your database
+    $lastMaticni = DB::table('su_clanoviedukacijskipodaci')
+                     ->whereNotNull('maticnibroj')
+                     ->orderBy('id', 'desc')
+                     ->first()
+                     ->maticnibroj;
+    \Log::info('Last maticnibroj retrieved:', ['maticnibroj' => $lastMaticni]);
+
+    return response()->json(['maticnibroj' => $lastMaticni]);
+}
+
+
+
     
 
 
     public function generatepdff(Request $request)
 {
-
-   
+  
 
         $request->validate([
             'id' => 'required',

@@ -249,6 +249,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.generatepdffid');
 
 
+                        Route::get($data_type->slug.'/zadnjimaticni', $crud_data_controller.'@zadnjimaticni')
+                        ->name($data_type->slug.'.zadnjimaticni');
+
 
 
                     Route::post($data_type->slug.'/maintenance', $crud_data_controller.'@setMaintenanceState')

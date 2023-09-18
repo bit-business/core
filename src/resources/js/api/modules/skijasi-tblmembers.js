@@ -7,7 +7,7 @@ const apiPrefix = process.env.MIX_API_ROUTE_PREFIX
 
 export default {
   browse(data = {}) {
-    const ep = apiPrefix + "/v1/entities/tbl-members";
+    const ep = apiPrefix + "/v1/entities/hzuts-clanovi";
     const qs = QueryString(data);
     const url = ep + qs;
     return resource.get(url);

@@ -54,8 +54,9 @@ class SkijasiUserController extends Controller
             $request->validate([
                 'id'        => 'required|exists:NadzorServera\Skijasi\Models\User,id',
                 'email'     => "required|email|unique:NadzorServera\Skijasi\Models\User,email,{$request->id}",
-                'username'  => "required|string|max:255|alpha_num|unique:NadzorServera\Skijasi\Models\User,username,{$request->id}",
-                'name'      => 'required',
+               // 'username'  => "required|string|max:255|alpha_num|unique:NadzorServera\Skijasi\Models\User,username,{$request->id}",
+               'username'  => "required|string|max:255|alpha_num",
+               'name'      => 'required',
                 'avatar'    => 'nullable',
 
        
@@ -222,7 +223,8 @@ public function declineAvatar(Request $request)
             $request->validate([
                 'email'     => 'required|email|unique:NadzorServera\Skijasi\Models\User',
                 'name'      => 'required|string|max:255',
-                'username'  => 'required|string|max:255|alpha_num|unique:NadzorServera\Skijasi\Models\User,username',
+               // 'username'  => 'required|string|max:255|alpha_num|unique:NadzorServera\Skijasi\Models\User,username',
+                'username'  => 'required|string|max:255|alpha_num',
                 'avatar'    => 'nullable',
             ]);
 
@@ -244,7 +246,7 @@ public function declineAvatar(Request $request)
                 ->withProperties(['attributes' => $user])
                 ->performedOn($user)
                 ->event('created')
-                ->log('User '.$user->name.' has been created');
+                ->log('Novi korisnik '.$user->name.' je dodan u bazu.');
 
             return ApiResponse::success($user);
         } catch (Exception $e) {
@@ -275,7 +277,7 @@ public function declineAvatar(Request $request)
                 ->causedBy(auth()->user() ?? null)
                 ->performedOn($user)
                 ->event('deleted')
-                ->log('Korisnike '.$user->name.' je obrisan');
+                ->log('Korisnik '.$user->name.' je obrisan');
 
             return ApiResponse::success();
         } catch (Exception $e) {

@@ -28,7 +28,7 @@ return [
     |
      */
 
-    'allow_private_folder' => true,
+    'allow_private_folder' => false,
 
     // Flexible way to customize client folders accessibility
     // If you want to customize client folders, publish tag="lfm_handler"
@@ -124,7 +124,7 @@ return [
     // behavior on files with identical name
     // setting it to true cause old file replace with new one
     // setting it to false show `error-file-exist` error and stop upload
-    'over_write_on_duplicate' => false,
+    'over_write_on_duplicate' => true,
 
     /*
     |--------------------------------------------------------------------------

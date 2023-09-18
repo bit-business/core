@@ -79,6 +79,11 @@ class GetData
         $records = [];
         $query = $model::query()->select($fields);
 
+        // Check for specific table (e.g., 'skijasi_users') before applying user_type filter
+if ($data_type->name == 'skijasi_users') {
+    $query->where('user_type', 'Hzuts član'); 
+}
+
         if (! $is_roles) {
             if ($is_field) {
                 $query = $model::query()->select($fields)->where($field_identify_related_user, auth()->user()->id);
@@ -183,6 +188,11 @@ if ($filter_value) {
                 }
             }
         }
+
+           // Check for specific table (e.g., 'skijasi_users') before applying user_type filter
+if ($data_type->name == 'skijasi_users') {
+    $query->where('user_type', 'Hzuts član'); 
+}
 
         $is_field = in_array($field_identify_related_user, array_merge($fields, $fields_data_identifier));
 

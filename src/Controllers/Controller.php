@@ -210,7 +210,13 @@ abstract class Controller extends BaseController
             'filter_key'      => isset($request['filter_key']) ? $request['filter_key'] : null,
             'filter_operator' => isset($request['filter_operator']) ? $request['filter_operator'] : 'containts',
             'filter_value'    => isset($request['filter_value']) ? $request['filter_value'] : '',
+
+            //dodano za kraj clanstva filter
+            'filter_dateendmember' => isset($request['filter_dateendmember']) ? $request['filter_dateendmember'] : false,
+
         ];
+
+
 
         if ($data_type->model_name) {
             if ($data_type->server_side) {

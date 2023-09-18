@@ -218,7 +218,7 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf);
     $data = DB::table('su_clanovi')->where('id', $request->id)->first();
     
 
-    $birthdateFormatted =  $this->formatDate($data->birthdate);
+    $birthdateFormatted =  $this->formatDate($data->datumrodjenja);
 
     setlocale(LC_TIME, 'hr_HR.UTF-8'); // Set the locale to Croatian
     $today = new \DateTime();
@@ -324,7 +324,7 @@ public function zadnjimaticni() {
     $data = DB::table('su_clanovi')->where('id', $request->id)->first();
     
 
-    $birthdateFormatted =  $this->formatDate($data->birthdate);
+    $birthdateFormatted =  $this->formatDate($data->datumrodjenja);
 
     setlocale(LC_TIME, 'hr_HR.UTF-8'); // Set the locale to Croatian
     $today = new \DateTime();
@@ -479,11 +479,11 @@ $base64Image = base64_encode($imageData);
 
 
   <div class="label" style="top: 18.0%; left:35%; ">
-  '.$data["firstname"].'
+  '.$data["name"].'
 </div>
 
  <div class="label" style="top: 33.0%; left:35%; ">
-  '.$data["lastname"].'
+  '.$data["username"].'
 </div>
 
  <div class="label" style="top: 48.0%; left:35%;  ">
@@ -592,7 +592,7 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
   <div class="text-box" style="top: 14.4%; left: 78.7%; text-align: center; width: 10%;">' . $programMaticniBroj . '</div>
 
   <div class="label" style="top: 23.7%; left:25%; text-align: center; width: 50%;">
-  '.$data["firstname"].' '.$data["lastname"].'
+  '.$data["name"].' '.$data["username"].'
 </div>
 
 
@@ -652,8 +652,8 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
 
 ';
 
-if (isset($data["gender"]) && $data["gender"] !== "") {
-  if ($data["gender"] === "Žensko") {
+if (isset($data["spol"]) && $data["spol"] !== "") {
+  if ($data["spol"] === "Žensko") {
 
     $html .= '<div class="text-box" style="top: 24.65%; left:85.9%;">X</div>';
 
@@ -665,7 +665,7 @@ if (isset($data["gender"]) && $data["gender"] !== "") {
 
       $html .= '<div class="text-box" style="top: 38.20%; left:20.30%;">x</div>';
   }
-  else if ($data["gender"] === "Muško") {
+  else if ($data["spol"] === "Muško") {
     $html .= '<div class="text-box" style="top: 24.65%; left:89.1%;">X</div>';
 
     $html .= '<div class="text-box" style="top: 76.61%; left:16.1%;">x</div>';
@@ -770,7 +770,7 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
   <div class="text-box" style="top: 14.4%; left: 78.7%; text-align: center; width: 10%;">' . $programMaticniBroj . '</div>
 
   <div class="label" style="top: 23.7%; left:25%; text-align: center; width: 50%;">
-  '.$data["firstname"].' '.$data["lastname"].'
+  '.$data["name"].' '.$data["username"].'
 </div>
 
 
@@ -830,8 +830,8 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
 
 ';
 
-if (isset($data["gender"]) && $data["gender"] !== "") {
-  if ($data["gender"] === "Žensko") {
+if (isset($data["spol"]) && $data["spol"] !== "") {
+  if ($data["spol"] === "Žensko") {
 
     $html .= '<div class="text-box" style="top: 24.65%; left:85.9%;">X</div>';
 
@@ -843,7 +843,7 @@ if (isset($data["gender"]) && $data["gender"] !== "") {
 
       $html .= '<div class="text-box" style="top: 38.20%; left:20.30%;">x</div>';
   }
-  else if ($data["gender"] === "Muško") {
+  else if ($data["spol"] === "Muško") {
     $html .= '<div class="text-box" style="top: 24.65%; left:89.1%;">X</div>';
 
     $html .= '<div class="text-box" style="top: 76.61%; left:16.1%;">x</div>';

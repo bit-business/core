@@ -39,7 +39,7 @@ export default {
     subtitle: "Molimo popunite formular ispod.",
     field: {
       name: "Ime",
-      username: "Korisničko ime",
+      username: "Prezime",
       phone: "Telefon",
       email: "Email",
       password: "Lozinka",
@@ -115,7 +115,7 @@ export default {
 
   myProfile: {
     title: "Moj Profil",
-    username: "Korisničko ime",
+    username: "Prezime",
     logout: "Odjava",
     profile: "Profil",
     email: "Email",

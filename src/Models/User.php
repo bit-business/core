@@ -55,11 +55,6 @@ class User extends Authenticatable implements JWTSubject
         'urlfacebook',
         'urltwitter',
         'urllinkedin',
-
-        'prikazi_fb',
-        'prikazi_ig',
-        'prikazi_tw',
-        'prikazi_lnk',
         
         'new_avatar',
         'avatar_approved',

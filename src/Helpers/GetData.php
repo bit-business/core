@@ -28,6 +28,9 @@ class GetData
         $filter_value = $builder_params['filter_value'];
         $field_other_relation = [];
 
+        $filter_dateendmember = $builder_params['filter_dateendmember'];
+
+
         $is_roles = false;
         $field_identify_related_user = null;
         $is_public = 0;
@@ -69,6 +72,8 @@ class GetData
             }
         }
 
+        
+
         $fields = array_diff(array_merge($fields, $ids, $fields_data_identifier), $field_other_relation);
 
         $records = [];
@@ -91,6 +96,9 @@ class GetData
         }
         // end
 // ... [Previous Code]
+if ($filter_dateendmember) {
+    $query->whereNull('dateendmember');
+}
 
 // If there's a filter value, adjust the query
 if ($filter_value) {
@@ -104,6 +112,9 @@ if ($filter_value) {
         });
     }
 }
+
+
+
 
 // ... [Rest of the Code]
 
@@ -275,6 +286,10 @@ if ($filter_value) {
         $filter_operator = $builder_params['filter_operator'];
         $filter_value = $builder_params['filter_value'];
 
+        // za filter kraja clanstva
+        $filter_dateendmember = $builder_params['filter_dateendmember'];
+
+
         $is_roles = false;
         $field_identify_related_user = null;
         $is_public = 0;
@@ -337,6 +352,12 @@ if ($filter_value) {
 
  // ... [Previous Code]
 
+
+if ($filter_dateendmember) {
+    $query->whereNull('dateendmember');
+}
+
+
 // If there's a filter value, adjust the query
 if ($filter_value) {
     $searchTerms = explode(' ', $filter_value);  // Split the filter_value into individual terms
@@ -349,6 +370,8 @@ if ($filter_value) {
         });
     }
 }
+
+
 
 // ... [Rest of the Code]
 

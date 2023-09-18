@@ -121,7 +121,7 @@ class SkijasiBaseController extends Controller
     
 
     // Query the database to get the data
-    $data = DB::table('tbl_members')->where('id', $request->id)->first();
+    $data = DB::table('skijasi_users')->where('id', $request->id)->first();
     
 
 

@@ -193,7 +193,7 @@ export default {
           this.$closeLoader();
           this.$vs.notify({
             title: this.$t("alert.success"),
-            text: "Profile updated",
+            text: "Profil je ažuriran",
             color: "success",
           });
         })

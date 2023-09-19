@@ -156,7 +156,7 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf);
 
     public function generatepdffprint(Request $request)
     {
-     
+        try {
 
         $request->validate([
             'id' => 'required',
@@ -242,10 +242,10 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf);
     // Return the PDF as a response
     return response($output, 200)
             ->header('Content-Type', 'application/pdf');
-}
-    
-
-
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
 public function zadnjimaticni() {
     // Retrieve the latest non-null maticni number from your database

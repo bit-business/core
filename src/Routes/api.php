@@ -124,7 +124,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::put('/approve-avatar', 'SkijasiUserController@approveAvatar');
             Route::put('/decline-avatar', 'SkijasiUserController@declineAvatar');
 
-          
+            Route::get('/zadnjiidmember', 'SkijasiUserController@zadnjiidmember');
+
+        
 
         });
 
@@ -251,6 +253,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
                         Route::get($data_type->slug.'/zadnjimaticni', $crud_data_controller.'@zadnjimaticni')
                         ->name($data_type->slug.'.zadnjimaticni');
+
+                
 
 
 

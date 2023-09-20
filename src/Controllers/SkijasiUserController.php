@@ -211,6 +211,19 @@ public function declineAvatar(Request $request)
 }
 
 
+public function zadnjiidmember() {
+    // Retrieve the latest non-null maticni number from your database
+    $lastRecord = DB::table('skijasi_users')
+                     ->whereNotNull('idmember')
+                     ->orderBy('id', 'desc')
+                     ->first();
+
+    $lastIdmember = $lastRecord ? $lastRecord->idmember : "";
+
+    return response()->json(['idmember' => $lastIdmember]);
+}
+
+
 
 
 

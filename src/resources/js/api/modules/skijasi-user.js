@@ -71,4 +71,10 @@ totalUsers() {
   return resource.get(url);
 },
 
+zadnjiidmember() {
+  const ep = apiPrefix + "/v1/users/zadnjiidmember";
+  const url = ep;
+  return resource.get(url);
+},
+
 };

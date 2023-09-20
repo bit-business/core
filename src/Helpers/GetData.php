@@ -102,8 +102,13 @@ if ($data_type->name == 'skijasi_users') {
         // end
 // ... [Previous Code]
 if ($filter_dateendmember) {
-    $query->whereNull('dateendmember');
+    $query->where(function ($query) {
+        $query->whereNull('dateendmember')
+              ->orWhere('dateendmember', '');
+    })->where('user_type', 'Hzuts član');
 }
+
+
 
 // If there's a filter value, adjust the query
 if ($filter_value) {
@@ -362,10 +367,14 @@ if ($data_type->name == 'skijasi_users') {
 
  // ... [Previous Code]
 
-
-if ($filter_dateendmember) {
-    $query->whereNull('dateendmember');
+ if ($filter_dateendmember) {
+    $query->where(function ($query) {
+        $query->whereNull('dateendmember')
+              ->orWhere('dateendmember', '');
+    })->where('user_type', 'Hzuts član');
 }
+
+
 
 
 // If there's a filter value, adjust the query

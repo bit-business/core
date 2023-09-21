@@ -20,9 +20,9 @@ class UserWidget implements WidgetInterface
     public function run($params = null)
     {
         return [
-            'label' => 'Broj članova HZUTS-a',
+            'label' => 'Broj aktivnih članova HZUTS-a',
             'icon' => 'person',
-            'value' => User::count(),
+            'value' => User::where('user_type', 'Hzuts član')->whereNotNull('dateendmember')->count(),
             'prefix_value' => '',
             'delimiter' => '.',
         ];

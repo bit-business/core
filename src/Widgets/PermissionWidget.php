@@ -3,7 +3,7 @@
 namespace NadzorServera\Skijasi\Widgets;
 
 use NadzorServera\Skijasi\Interfaces\WidgetInterface;
-use NadzorServera\Skijasi\Models\Permission;
+use NadzorServera\Skijasi\Module\Commerce\Models\Order;
 
 class PermissionWidget implements WidgetInterface
 {
@@ -22,7 +22,7 @@ class PermissionWidget implements WidgetInterface
         return [
             'label' => 'Neplaćeni računi',
             'icon' => 'lock',
-            'value' => Permission::count(),
+            'value' => Order::count(),
             'prefix_value' => '',
             'delimiter' => '.',
         ];

@@ -3,7 +3,7 @@
 namespace NadzorServera\Skijasi\Widgets;
 
 use NadzorServera\Skijasi\Interfaces\WidgetInterface;
-use NadzorServera\Skijasi\Models\Role;
+use NadzorServera\Skijasi\Models\User;
 
 class RoleWidget implements WidgetInterface
 {
@@ -20,9 +20,9 @@ class RoleWidget implements WidgetInterface
     public function run($params = null)
     {
         return [
-            'label' => 'Broj novih prijava za HZUTS',
+            'label' => 'Ukupan broj svih korisnika',
             'icon' => 'accessibility',
-            'value' => Role::count(),
+            'value' => User::count(),
             'prefix_value' => '',
             'delimiter' => '.',
         ];

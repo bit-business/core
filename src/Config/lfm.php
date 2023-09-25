@@ -55,6 +55,11 @@ return [
             'valid_mime' => [
                 'application/pdf',
                 'text/plain',
+                'video/mp4',
+                'video/mov',
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
             ],
         ],
         'image' => [
@@ -68,6 +73,8 @@ return [
                 'image/png',
                 'image/gif',
                 'image/svg+xml',
+                'video/mp4',
+                'video/mov',
             ],
         ],
 

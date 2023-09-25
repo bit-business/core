@@ -103,8 +103,8 @@ if ($data_type->name == 'skijasi_users') {
 // ... [Previous Code]
 if ($filter_dateendmember) {
     $query->where(function ($query) {
-        $query->whereNull('dateendmember')
-              ->orWhere('dateendmember', '');
+        $query->whereNull('dateendmember');
+            //  ->orWhere('dateendmember', '');
     })->where('user_type', 'Hzuts član');
 }
 
@@ -369,8 +369,8 @@ if ($data_type->name == 'skijasi_users') {
 
  if ($filter_dateendmember) {
     $query->where(function ($query) {
-        $query->whereNull('dateendmember')
-              ->orWhere('dateendmember', '');
+        $query->whereNull('dateendmember');
+            //  ->orWhere('dateendmember', '');
     })->where('user_type', 'Hzuts član');
 }
 

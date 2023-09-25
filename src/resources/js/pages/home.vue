@@ -37,9 +37,9 @@
       <img :src="fullscreenImage" class="fullscreen-image"/>
     </div>
 
-<!-- poruka -->
+<!-- poruka 
 <br><button class="btn-approve" @click="sendFirebaseMessage">Send Firebase Message</button>
-
+-->
 
 </div>
 </template>

@@ -585,9 +585,9 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
     Maksimirska 51, Zagreb
   </div>
 
-  <div class="text-box" style="top: 14.4%; left: 13.1%;">' . $brojclanskiidurbrojtekst . '</div>
+  <div class="text-box" style="top: 14.4%; left: 13.1%;">' . $programClanklasabrojtekst . '</div>
 
-  <div class="text-box" style="top: 14.4%; left: 44.3%;">' . $programClanklasabrojtekst . '</div>
+  <div class="text-box" style="top: 14.4%; left: 44.3%;">' . $brojclanskiidurbrojtekst . '</div>
 
   <div class="text-box" style="top: 14.4%; left: 78.7%; text-align: center; width: 10%;">' . $programMaticniBroj . '</div>
 
@@ -763,9 +763,9 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
     Maksimirska 51, Zagreb
   </div>
 
-  <div class="text-box" style="top: 14.4%; left: 13.1%;">' . $brojclanskiidurbrojtekst . '</div>
+  <div class="text-box" style="top: 14.4%; left: 13.1%;">' . $programClanklasabrojtekst . '</div>
 
-  <div class="text-box" style="top: 14.4%; left: 44.3%;">' . $programClanklasabrojtekst . '</div>
+  <div class="text-box" style="top: 14.4%; left: 44.3%;">' . $brojclanskiidurbrojtekst . '</div>
 
   <div class="text-box" style="top: 14.4%; left: 78.7%; text-align: center; width: 10%;">' . $programMaticniBroj . '</div>
 

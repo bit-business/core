@@ -14,9 +14,12 @@ import lang from "./lang/";
 import excludedRouter from "./router/excludeRouter";
 
 import App from "./apps/App.vue";
+console.log("app.js is being executed.");
 
 import firebase from "firebase/app";
 import "firebase/firebase-messaging";
+import 'firebase/storage';
+
 import { notificationMessageReceiveHandle } from "./utils/firebase";
 import { broadcastMessageHandle } from "./utils/broadcast-messages";
 import { checkConnection } from "./utils/check-connection";
@@ -31,6 +34,9 @@ Vue.use(Datetime);
 // eslint-disable-next-line vue/multi-word-component-names
 Vue.component("datetime", Datetime);
 Vue.use(Vuelidate);
+
+
+// rest of your app.js code...
 
 // IDENTIFIED VARIABLE BROADCAST CHANNEL
 const broadcastChannelName = "sw-skijasi-messages";
@@ -275,7 +281,6 @@ Vue.prototype.$syncLoader = function (statusSyncLoader) {
     console.log("Sync Loader", error);
   }
 };
-
 // ADD FIREBASE MESSAGE
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -312,11 +317,18 @@ if ("serviceWorker" in navigator) {
 
 if (statusActiveFeatureFirebase) {
   if (!firebase.apps.length) {
+    console.log("Firebase Initialized:", firebase);
     firebase.initializeApp(firebaseConfig);
+
   } else {
     firebase.app();
-  }
+    console.log("Firebase Retrieved:", firebase);
 
+  }
+  console.log("AKTIVIRALO3 SE FIREBASE");
+
+  Vue.prototype.$firebase = firebase;
+  Vue.prototype.$storage = firebase.storage();
   Vue.prototype.$messaging = firebase.messaging();
   Vue.prototype.$messagingToken = firebase
     .messaging()

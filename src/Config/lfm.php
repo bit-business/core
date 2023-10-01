@@ -60,6 +60,7 @@ return [
                 'image/jpeg',
                 'image/jpg',
                 'image/png',
+                'video/webm',
             ],
         ],
         'image' => [
@@ -75,6 +76,7 @@ return [
                 'image/svg+xml',
                 'video/mp4',
                 'video/mov',
+                'video/webm',
             ],
         ],
 
@@ -88,6 +90,7 @@ return [
                 'image/png',
                 'video/mp4',
                 'video/mov',
+                'video/webm',
             ],
         ],
     ],

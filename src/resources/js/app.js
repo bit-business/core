@@ -283,13 +283,13 @@ Vue.prototype.$syncLoader = function (statusSyncLoader) {
 };
 // ADD FIREBASE MESSAGE
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGE_SEENDER,
-  appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+  apiKey: process.env.MIX_FIREBASE_API_KEY,
+  authDomain: process.env.MIX_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.MIX_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.MIX_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.MIX_FIREBASE_MESSAGE_SEENDER,
+  appId: process.env.MIX_FIREBASE_APP_ID,
+  measurementId: process.env.MIX_FIREBASE_MEASUREMENT_ID,
 };
 
 let statusActiveFeatureFirebase = true;

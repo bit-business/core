@@ -8,13 +8,13 @@ class FirebasePublishFile
 {
     public function getContentFirebaseMessagingSwJs()
     {
-        $FIREBASE_API_KEY = \env('FIREBASE_API_KEY');
-        $FIREBASE_AUTH_DOMAIN = \env('FIREBASE_AUTH_DOMAIN');
-        $FIREBASE_PROJECT_ID = \env('FIREBASE_PROJECT_ID');
-        $FIREBASE_STORAGE_BUCKET = \env('FIREBASE_STORAGE_BUCKET');
-        $FIREBASE_MESSAGE_SEENDER = \env('FIREBASE_MESSAGE_SEENDER');
-        $FIREBASE_APP_ID = \env('FIREBASE_APP_ID');
-        $FIREBASE_MEASUREMENT_ID = \env('FIREBASE_MEASUREMENT_ID');
+        $FIREBASE_API_KEY = \env('MIX_FIREBASE_API_KEY');
+        $FIREBASE_AUTH_DOMAIN = \env('MIX_FIREBASE_AUTH_DOMAIN');
+        $FIREBASE_PROJECT_ID = \env('MIX_FIREBASE_PROJECT_ID');
+        $FIREBASE_STORAGE_BUCKET = \env('MIX_FIREBASE_STORAGE_BUCKET');
+        $FIREBASE_MESSAGE_SEENDER = \env('MIX_FIREBASE_MESSAGE_SEENDER');
+        $FIREBASE_APP_ID = \env('MIX_FIREBASE_APP_ID');
+        $FIREBASE_MEASUREMENT_ID = \env('MIX_FIREBASE_MEASUREMENT_ID');
 
         $script_content = <<<JAVASCRIPT
         let cacheName = "app-skijasi-cache";

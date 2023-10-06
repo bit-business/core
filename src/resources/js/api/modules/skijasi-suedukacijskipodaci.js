@@ -33,6 +33,7 @@ read(data) {
     const url = ep + qs;
     return resource.get(url);
   },
+  
 
   all(data = {}) {
     const ep = apiPrefix + "/v1/entities/su-clanoviedukacijskipodaci" + "/all";
@@ -72,6 +73,8 @@ read(data) {
 },
 
 
+
+
 add(data) {
 
   console.log('DATUM TEST PROBLEM data API: ', data);
@@ -89,6 +92,10 @@ add(data) {
 
 
   return resource.post(apiPrefix + "/v1/entities/su-clanoviedukacijskipodaci/add", { data: data.data });
+},
+
+sort(data) {
+  return resource.put(entityPrefix + "/" + data.slug + "/sort", data);
 },
 
 

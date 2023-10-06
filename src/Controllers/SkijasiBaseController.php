@@ -523,7 +523,7 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
    $listHtml .= '</ul>';
    $listHtml .= '</div>';
 
-\Log::info('Generated listHtml:', (array)$listHtml);
+
 
     $html = '<html><head><meta charset="UTF-8"><style>
     @page {
@@ -562,7 +562,7 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
         bottom: 0;
         width: 100%;
         height: 100%;
-        background-image: url("https://appevent4.apps-machine.com/event1/uvjerenje-template.jpg");
+        background-image: url("https://firebasestorage.googleapis.com/v0/b/hzuts-47aa0.appspot.com/o/uvjerenje-template-2.jpg?alt=media&token=e5eecf05-4c25-4c25-938d-484d53f819d2&_gl=1*qv3qut*_ga*OTY2NzAxMjczLjE2OTYyNjk2OTk.*_ga_CW55HF8NVT*MTY5NjMzODg3My4yLjEuMTY5NjMzODkzOC42MC4wLjA.");
         background-repeat: no-repeat;
         background-size: contain;
         z-index: 1;

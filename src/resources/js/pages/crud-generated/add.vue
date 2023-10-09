@@ -458,7 +458,7 @@ export default {
         .then((response) => {
           this.$closeLoader();
           this.$router.push({
-            name: "CrudGeneratedRead",
+            name: "CrudGeneratedBrowse",
             params: {
               slug: this.$route.params.slug,
             },

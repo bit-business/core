@@ -90,6 +90,16 @@ export default {
     return {
       init: {
         height: 500,
+        font_formats: 'Arial=arial,helvetica,sans-serif;' +
+                      'Courier New=courier new,courier,monospace;' +
+                      'Wingdings=wingdings,zapf dingbats' +
+                      'Inter=inter, sans-serif',  // Add Inter here
+        // Include CSS where 'Inter' is available to TinyMCE's iframe.
+        content_css: [
+            '//fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+
+            // If you have other CSS files to style content, include them as well
+        ],
         plugins: [
           "lists advlist",
           "image imagetools",

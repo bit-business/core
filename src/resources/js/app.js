@@ -16,11 +16,11 @@ import excludedRouter from "./router/excludeRouter";
 import App from "./apps/App.vue";
 console.log("app.js is being executed.");
 
-import firebase from "firebase/app";
+//import firebase from "firebase/app";
 import "firebase/firebase-messaging";
 import 'firebase/storage';
 
-import { notificationMessageReceiveHandle } from "./utils/firebase";
+//import { notificationMessageReceiveHandle } from "./utils/firebase";
 import { broadcastMessageHandle } from "./utils/broadcast-messages";
 import { checkConnection } from "./utils/check-connection";
 import { readObjectStore, setObjectStore } from "./utils/indexed-db";
@@ -282,6 +282,7 @@ Vue.prototype.$syncLoader = function (statusSyncLoader) {
   }
 };
 // ADD FIREBASE MESSAGE
+/*
 const firebaseConfig = {
   apiKey: process.env.MIX_FIREBASE_API_KEY,
   authDomain: process.env.MIX_FIREBASE_AUTH_DOMAIN,
@@ -335,6 +336,7 @@ if (statusActiveFeatureFirebase) {
     .getToken({ vapidKey: process.env.FIREBASE_WEB_PUSH_CERTIFICATES });
 }
 // END ADD FIREBASE
+*/
 
 // IDENTIFIED BROADCAST CHANNEL
 Vue.prototype.$broadcastChannelName = broadcastChannelName;
@@ -367,11 +369,12 @@ const app = new Vue({
   render: (h) => h(App),
 }).$mount("#app");
 
+
 // HANDLE FIREBASE MESSAGE
-if (statusActiveFeatureFirebase) notificationMessageReceiveHandle(app);
+//if (statusActiveFeatureFirebase) notificationMessageReceiveHandle(app);
 
 // HANDLE BROADCAST MESSAGE FROM SERVICE WORKER
-broadcastMessageHandle(app);
+//broadcastMessageHandle(app);
 
 // HANDLE OFFLINE MODE
-checkConnection(app);
+//checkConnection(app);

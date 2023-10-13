@@ -28,7 +28,7 @@ class GetData
         $filter_value = $builder_params['filter_value'];
         $field_other_relation = [];
 
-        $filter_dateendmember = $builder_params['filter_dateendmember'];
+       // $filter_dateendmember = $builder_params['filter_dateendmember'];
 
 
         $is_roles = false;
@@ -101,12 +101,12 @@ if ($data_type->name == 'skijasi_users') {
         }
         // end
 // ... [Previous Code]
-if ($filter_dateendmember) {
+//if ($filter_dateendmember) {
     $query->where(function ($query) {
        // $query->whereNull('dateendmember');
             //  ->orWhere('dateendmember', '');
     })->where('user_type', 'Hzuts član');
-}
+//}
 
 
 
@@ -302,7 +302,7 @@ if ($data_type->name == 'skijasi_users') {
         $filter_value = $builder_params['filter_value'];
 
         // za filter kraja clanstva
-        $filter_dateendmember = $builder_params['filter_dateendmember'];
+       // $filter_dateendmember = $builder_params['filter_dateendmember'];
 
 
         $is_roles = false;
@@ -367,12 +367,12 @@ if ($data_type->name == 'skijasi_users') {
 
  // ... [Previous Code]
 
- if ($filter_dateendmember) {
+ //if ($filter_dateendmember) {
     $query->where(function ($query) {
        // $query->whereNull('dateendmember');
             //  ->orWhere('dateendmember', '');
     })->where('user_type', 'Hzuts član');
-}
+//}
 
 
 

@@ -539,7 +539,7 @@ class SkijasiAuthController extends Controller
             
     
             Mail::send('emails.contact', $data, function ($message) use ($data) {
-                $message->to('nadzorservera@gmail.com'); // promijenit prije live todo Set your email where you want to receive the contact form data
+                $message->to('info@hzuts.hr'); // promijenit prije live todo Set your email where you want to receive the contact form data
                 $message->subject($data['subject']);
                 $message->from($data['email']);
             });

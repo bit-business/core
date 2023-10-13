@@ -203,7 +203,7 @@ abstract class Controller extends BaseController
         $data = [];
         $records = [];
         $builder_params = [
-            'limit'           => isset($request['limit']) ? $request['limit'] : 10,
+            'limit'           => isset($request['limit']) ? $request['limit'] : 1000,
             'page'            => isset($request['page']) ? $request['page'] : null,
             'order_field'     => isset($request['order_field']) ? $request['order_field'] : $data_type->order_column,
             'order_direction' => isset($request['order_direction']) ? $request['order_direction'] : $data_type->order_direction,
@@ -212,7 +212,7 @@ abstract class Controller extends BaseController
             'filter_value'    => isset($request['filter_value']) ? $request['filter_value'] : '',
 
             //dodano za kraj clanstva filter
-            'filter_dateendmember' => isset($request['filter_dateendmember']) ? $request['filter_dateendmember'] : false,
+         //   'filter_dateendmember' => isset($request['filter_dateendmember']) ? $request['filter_dateendmember'] : false,
 
         ];
 

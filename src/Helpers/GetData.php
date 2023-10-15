@@ -102,10 +102,14 @@ if ($data_type->name == 'skijasi_users') {
         // end
 // ... [Previous Code]
 //if ($filter_dateendmember) {
-    $query->where(function ($query) {
-       // $query->whereNull('dateendmember');
+    if ($data_type->name == 'skijasi_users') {
+        // if the 'user_type' column exists, then apply the condition
+        $query->where(function ($query) {
+            // Your existing constraints inside the closure
+            // $query->whereNull('dateendmember');
             //  ->orWhere('dateendmember', '');
-    })->where('user_type', 'Hzuts član');
+        })->where('user_type', 'Hzuts član');
+    }
 //}
 
 
@@ -368,10 +372,14 @@ if ($data_type->name == 'skijasi_users') {
  // ... [Previous Code]
 
  //if ($filter_dateendmember) {
-    $query->where(function ($query) {
-       // $query->whereNull('dateendmember');
+    if ($data_type->name == 'skijasi_users') {
+        // if the 'user_type' column exists, then apply the condition
+        $query->where(function ($query) {
+            // Your existing constraints inside the closure
+            // $query->whereNull('dateendmember');
             //  ->orWhere('dateendmember', '');
-    })->where('user_type', 'Hzuts član');
+        })->where('user_type', 'Hzuts član');
+    }
 //}
 
 

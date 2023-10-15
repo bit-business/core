@@ -66,6 +66,13 @@ export default {
     return resource.delete(apiPrefix + "/v1/entities/tbl-isia-member/delete", { data: paramData });
   },
   
+
+
+
+  generateisiagodinu(data) {
+    return resource.post(apiPrefix + "/v1/entities/tbl-isia-member/generateisiagodinu", data);
+  },
   
+
   };
   

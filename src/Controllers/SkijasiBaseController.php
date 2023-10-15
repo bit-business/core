@@ -261,7 +261,49 @@ public function zadnjimaticni() {
 
 
 
-    
+public function generateisiagodinu(Request $request)
+{
+    // Receive numbers and isiayear from the request
+    $numbers = $request->input('numbers'); // This should be an array
+    $isiayear = $request->input('isiayear');
+
+    $yearToCheck = $isiayear - 1; // Define the year you want to check against
+
+    // Retrieve 'idmember' values where 'dateendmember' is NULL and 'isiayear' is the specified year
+    $validMembers = DB::table('skijasi_users')
+        ->join('tbl_isia_member', 'skijasi_users.idmember', '=', 'tbl_isia_member.idmember')
+        ->whereNull('skijasi_users.dateendmember')
+        ->where('tbl_isia_member.isiayear', $yearToCheck)
+        ->select('skijasi_users.idmember')
+        ->distinct() // Ensure you're only getting distinct 'idmember's
+        ->get();
+
+    // Check if there are any valid members
+    if ($validMembers->isEmpty()) {
+        // Handle case where no valid members are found
+        return; // Return or handle this case as per your requirement
+    }
+
+    // Check if the counts match
+    if (count($numbers) !== count($validMembers)) {
+        // Handle error: The number of members doesn't match the number of provided numbers
+        return; // Return or handle this case as per your requirement
+    }
+
+    // Assign a number to each member
+    for ($i = 0; $i < count($validMembers); $i++) {
+        DB::table('tbl_isia_member')->insert([
+            'idisia' => $numbers[$i], // Assigns a unique number to a member
+            'idmember' => $validMembers[$i]->idmember,
+            'isiayear' => $isiayear,
+        ]);
+    }
+
+    // Return a response or carry out any subsequent logic
+}
+
+
+
 
 
     public function generatepdff(Request $request)

@@ -250,6 +250,11 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         Route::get($data_type->slug.'/generatepdffid', $crud_data_controller.'@generatepdffid')
                         ->name($data_type->slug.'.generatepdffid');
 
+                        Route::get($data_type->slug.'/generatepdffpotvrdaisia', $crud_data_controller.'@generatepdffpotvrdaisia')
+                        ->name($data_type->slug.'.generatepdffpotvrdaisia');
+                        Route::get($data_type->slug.'/generatepdffpotvrdaivsi', $crud_data_controller.'@generatepdffpotvrdaivsi')
+                        ->name($data_type->slug.'.generatepdffpotvrdaivsi');
+
 
                         Route::get($data_type->slug.'/zadnjimaticni', $crud_data_controller.'@zadnjimaticni')
                         ->name($data_type->slug.'.zadnjimaticni');

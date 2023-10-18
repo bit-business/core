@@ -76,6 +76,69 @@ class SkijasiBaseController extends Controller
         }
     }
 
+
+    public function generatepdffpotvrdaisia(Request $request)
+{
+        $request->validate([
+            'id' => 'required',
+        ]);
+        $slug = $this->getSlug($request);
+        $data_type = $this->getDataType($slug);
+        $request->validate([
+            'id' => 'exists:'.$data_type->name,
+        ]);
+
+   
+//primanje podataka iz vue
+        $statuspdf = $request->input('statuspdf');
+        $gradovipdf = $request->input('gradovipdf');
+        $isiapdf = $request->input('isiapdf');
+        $isiayear = $request->input('isiayear');
+        $todaydate = $request->input('todaydate');
+        $postanskibrojpdf = $request->input('postanskibrojpdf');
+
+      $options = new \Dompdf\Options();
+      
+      $options->set('isHtml5ParserEnabled', true);
+      $options->set('isRemoteEnabled', true);
+      $options->set('dpi', 75);
+   
+      $options->set('margin_left', 0);
+      $options->set('margin_right', 0);
+      $options->set('margin_top', 0);
+      $options->set('margin_bottom', 0);
+   
+        $options->set('tempDir', '/var/www/nadzornaploca/storage/');
+
+      $dompdf = new \Dompdf\Dompdf($options);
+    //  $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
+
+    // Load your template.pdf file
+    $dompdf->set_paper('A4', 'portrait');
+    // Query the database to get the data
+    $data = DB::table('skijasi_users')->where('id', $request->id)->first();
+
+// Convert the data to HTML and add it to the PDF
+$html = $this->convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate, $gradovipdf, $postanskibrojpdf);
+
+    $dompdf->loadHtml($html);
+
+    // Render the PDF
+    $dompdf->render();
+
+    $dompdf->stream();
+ 
+    // Output the generated PDF
+    $output = $dompdf->output();
+
+    // Return the PDF as a response
+    return response($output, 200)
+            ->header('Content-Type', 'application/pdf');
+}
+
+
+
+
     public function generatepdffid(Request $request)
 {
 
@@ -269,35 +332,116 @@ public function generateisiagodinu(Request $request)
 
     $yearToCheck = $isiayear - 1; // Define the year you want to check against
 
-    // Retrieve 'idmember' values where 'dateendmember' is NULL and 'isiayear' is the specified year
-    $validMembers = DB::table('skijasi_users')
-        ->join('tbl_isia_member', 'skijasi_users.idmember', '=', 'tbl_isia_member.idmember')
-        ->whereNull('skijasi_users.dateendmember')
-        ->where('tbl_isia_member.isiayear', $yearToCheck)
-        ->select('skijasi_users.idmember')
-        ->distinct() // Ensure you're only getting distinct 'idmember's
-        ->get();
+    $opendate = new \DateTime('2024-10-01 00:00:00');
 
-    // Check if there are any valid members
-    if ($validMembers->isEmpty()) {
-        // Handle case where no valid members are found
-        return; // Return or handle this case as per your requirement
-    }
+    // Start a database transaction
+    DB::beginTransaction();
 
-    // Check if the counts match
-    if (count($numbers) !== count($validMembers)) {
-        // Handle error: The number of members doesn't match the number of provided numbers
-        return; // Return or handle this case as per your requirement
-    }
+    try {
+        // Retrieve 'idmember' values where 'dateendmember' is NULL and 'isiayear' is the specified year
+        $validMembers = DB::table('skijasi_users')
+            ->join('tbl_isia_member', 'skijasi_users.idmember', '=', 'tbl_isia_member.idmember')
+            ->whereNull('skijasi_users.dateendmember')
+            ->where('tbl_isia_member.isiayear', $yearToCheck)
+            ->where('skijasi_users.user_type', 'Hzuts član') 
+            ->select('skijasi_users.idmember')
+            ->distinct() // Ensure you're only getting distinct 'idmember's
+            ->get();
 
-    // Assign a number to each member
-    for ($i = 0; $i < count($validMembers); $i++) {
-        DB::table('tbl_isia_member')->insert([
-            'idisia' => $numbers[$i], // Assigns a unique number to a member
-            'idmember' => $validMembers[$i]->idmember,
-            'isiayear' => $isiayear,
-        ]);
+        // Fetch members who didn't have the specified isiayear
+        $otherMembers = DB::table('skijasi_users')
+            ->join('tbl_isia_member', 'skijasi_users.idmember', '=', 'tbl_isia_member.idmember')
+            ->whereNull('skijasi_users.dateendmember')
+            ->where('tbl_isia_member.isiayear', '!=', $yearToCheck)
+            ->where('skijasi_users.user_type', 'Hzuts član')
+            ->select('skijasi_users.idmember')
+            ->distinct()
+            ->get();
+
+        // Check if there are any valid members
+        if ($validMembers->isEmpty() && $otherMembers->isEmpty()) {
+            // No valid members found
+            DB::rollback();
+            return; // Return or handle this case as per your requirement
+        }
+
+        // Check if the counts match
+        if (count($numbers) !== count($validMembers)) {
+            // Handle error: The number of members doesn't match the number of provided numbers
+            DB::rollback();
+            return; // Return or handle this case as per your requirement
+        }
+
+        // Process members with specified isiayear
+        for ($i = 0; $i < count($validMembers); $i++) {
+
+            
+            // Insert into tbl_isia_member
+            DB::table('tbl_isia_member')->insert([
+                'idisia' => $numbers[$i], // Assigns a unique number to a member
+                'idmember' => $validMembers[$i]->idmember,
+                'isiayear' => $isiayear,
+            ]);
+
+            // Insert into tbl_payments
+            DB::table('tbl_payments')->insert([
+                'idmember' => $validMembers[$i]->idmember, // the same idmember
+                'paymenttitle' => 'ISIA članarina - ' . $isiayear, // e.g., "ISIA članarina - 2024"
+                'idpaygroup' => 2,
+                'idpaysubgroup' => 135,
+                'price' => 27,
+                'opendate' => $opendate->format('Y-m-d H:i:s'), // '2024-10-01 00:00:00'
+                // ... any other necessary fields
+            ]);
+
+
+  // Construct callnumber with the inserted ID and idmember
+  $paymentId = DB::getPdo()->lastInsertId();
+  $callnumber = $paymentId . '-' . $validMembers[$i]->idmember;
+
+  // Update the payment entry with the callnumber
+  DB::table('tbl_payments')
+      ->where('id', $paymentId) // assuming 'id' is the primary key of tbl_payments
+      ->update(['callnumber' => $callnumber]);
+
+
+        }
+
+
+// godisnja clanarina
+        // Process members without specified isiayear
+        foreach ($otherMembers as $member) {
+            // Perform necessary actions for these members, for example:
+            DB::table('tbl_payments')->insert([
+                'idmember' => $member->idmember, // the same idmember
+                'paymenttitle' => 'Godišnja članarina - ' . $isiayear, // e.g., "ISIA članarina - 2024"
+                'idpaygroup' => 1, // or any other appropriate value
+                'idpaysubgroup' => 133, // or any other appropriate value
+                'price' => 27,
+                'opendate' => $opendate->format('Y-m-d H:i:s'), // '2024-10-01 00:00:00'
+                // ... any other necessary fields
+            ]);
+
+    $paymentId = DB::getPdo()->lastInsertId();
+   // Construct callnumber with the inserted ID and idmember
+   $callnumber = $paymentId . '-' . $member->idmember;
+
+   // Update the payment entry with the callnumber
+   DB::table('tbl_payments')
+       ->where('id', $paymentId) // assuming 'id' is the primary key of tbl_payments
+       ->update(['callnumber' => $callnumber]);
+
+        }
+
+        // Commit the transaction
+        DB::commit();
+    } catch (\Exception $e) {
+        // Log the error message for debugging
+        \Log::error($e->getMessage());
+        DB::rollback();
+        return; // Replace with your error handling
     }
+    
 
     // Return a response or carry out any subsequent logic
 }
@@ -399,6 +543,331 @@ private function formatDate($dateString) {
 
 
 
+
+private function convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate, $gradovipdf, $postanskibrojpdf)
+{
+    $data = (array) $data; // Convert object to array
+
+    $imagePath = 'storage/slike/baza/bg1.png';
+
+    // Read the image content
+    $imageData = file_get_contents($imagePath);
+    
+    // Encode the image data to base64
+    $base64Image = base64_encode($imageData);
+
+
+
+$html = '
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Avenir Next:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+    />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap" />
+
+   
+    <style>
+    @page {
+        margin: 0px;
+    }
+      body {
+        margin: 0;
+        line-height: normal;
+      }
+
+      .bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://firebasestorage.googleapis.com/v0/b/hzuts-47aa0.appspot.com/o/logowatermark.png?alt=media&token=9595ae3f-fd0e-4384-b007-b567401190ea&_gl=1*52xatq*_ga*MTIwOTgzOTkyNy4xNjk2NTUzMTA5*_ga_CW55HF8NVT*MTY5NzYzNDQ5MS42LjEuMTY5NzYzNDUwNC40Ny4wLjA.");
+        background-repeat: no-repeat;
+        background-size: contain;
+        z-index: 1;
+      
+        /* Hide the image when printing */
+        @media print {
+          visibility: hidden;
+        }
+      }
+    </style>
+  </head>
+  <body>
+  <div class="bg"></div>
+    <div
+      style="
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        text-align: left;
+        font-size: 11.13px;
+        color: #000;
+        font-family: "Tinos", serif; 
+      "
+    >
+      <div
+        style="
+          position: relative;
+          width: 595px;
+          height: 842px;
+          overflow: hidden;
+          flex-shrink: 0;
+        "
+      >
+        <img
+          style="
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 595px;
+            height: 842px;
+            overflow: hidden;
+            object-fit: cover;
+          "
+          alt=""
+          src="data:image/jpeg;base64,' . $base64Image . '"
+        />
+
+        <div
+          style="
+            position: absolute;
+            top: 779.95px;
+            left: 120.22px;
+            font-size: 10px;
+            font-family: \'Avenir Next\';
+            color: #31bdec;
+          "
+        >
+          www.hzuts.hr  info@hzuts.hr  OIB: 31990276348  IBAN HR7423600001101359833
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 763.15px;
+            left: 383.39px;
+            font-size: 10px;
+            font-family: \'Avenir Next\';
+            color: #31bdec;
+          "
+        > f.+38512399955
+        </div>
+        <div
+        style="
+          position: absolute;
+          top: 763.15px;
+          left: 305.39px;
+          font-size: 10px;
+          font-family: \'Avenir Next\';
+          color: #31bdec;
+        "
+      >   t.+38512399950
+      </div>
+        <div
+          style="
+            position: absolute;
+            top: 763.15px;
+            left: 120.15px;
+            font-size: 10px;
+            font-family: \'Avenir Next\';
+            color: #31bdec;
+          "
+        >
+          Maksimirska 51a,   10000 Zagreb, Hrvatska  
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 661.59px;
+            left: 417.9px;
+            font-size: 12.69px;
+          "
+        >
+        '.$todaydate.'
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 661.59px;
+            left: 311.7px;
+            font-size: 11.44px;
+          "
+        >
+          Zagabria li,
+        </div>
+        <b
+          style="
+            position: absolute;
+            top: 602.59px;
+            left: 70.9px;
+            font-size: 10.88px;
+          "
+          >Dag Modrić</b
+        >
+        <div
+          style="
+            position: absolute;
+            top: 588.59px;
+            left: 70.9px;
+            font-size: 10.31px;
+          "
+        >
+          Il Presidente
+        </div>
+        <b
+          style="
+            position: absolute;
+            top: 568.1px;
+            left: 70.9px;
+            font-size: 11.63px;
+          "
+          >HZUTS</b
+        >
+        <div
+          style="
+            position: absolute;
+            top: 432.1px;
+            left: 70.9px;
+            font-size: 10.31px;
+          "
+        >
+          territorio Croato.
+        </div>
+        <div style="position: absolute; top: 417.1px; left: 70.9px">
+          E’ abilitato/ta a svolgere la professione di Maestro di Sci senza
+          nessuna limitazione nel
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 387.15px;
+            left: 227.15px;
+            font-size: 11.44px;
+          "
+        >
+          per '.$isiayear.'.
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 385.1px;
+            left: 70.9px;
+            font-size: 11.44px;
+          "
+        >
+          <span>con certificato </span>
+          <b>ISIA</b>
+        
+        </div>
+        <div
+        style="
+          position: absolute;
+          top: 385.1px;
+          left: 176.9px;
+          font-size: 11.44px;
+        "
+      >
+        <span>'.$isiapdf.'</span>
+      </div>
+        <div style="position: absolute; top: 372.1px; left: 70.9px">
+          In possesso del titolo Croato di Maestro di Sci
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 341.1px;
+            left: 70.9px;
+            font-size: 10.69px;
+          "
+        >
+          residente in Croazia: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 324.1px;
+            left: 424.9px;
+            font-size: 12px;
+          "
+        >
+        '.$data["idmember"].'
+        </div>
+        <div style="position: absolute; top: 327.1px; left: 354.1px">
+          tessera No
+        </div>
+        <div style="position: absolute; top: 325px; left: 247.9px">
+        '.$data["name"].' '.$data["username"].'
+        </div>
+        <div
+          style="
+            position: absolute;
+            top: 326.1px;
+            left: 70.9px;
+            font-size: 10.88px;
+          "
+        >
+          Si dichiara che il Sig/ra:
+        </div>
+        <b
+          style="
+            position: absolute;
+            top: 236.1px;
+            left: 267.85px;
+            font-size: 11.5px;
+          "
+          >Certificato</b
+        >
+        <div
+        style="
+          position: absolute;
+          top: 100.1px;
+          left: 70.9px;
+          font-size: 10.69px;
+        "
+      > '.$data["name"].' '.$data["username"].'
+      </div>
+
+     <div></div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+
+
+';
+
+
+
+
+
+
+return $html;
+}
+
+
+
+
+
 private function convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf)
 {
     $data = (array) $data; // Convert object to array
@@ -417,6 +886,25 @@ $base64Image = base64_encode($imageData);
     @page {
         margin: 0px;
     }
+
+    .bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://firebasestorage.googleapis.com/v0/b/hzuts-47aa0.appspot.com/o/uvjerenje-template-2.jpg?alt=media&token=e5eecf05-4c25-4c25-938d-484d53f819d2&_gl=1*qv3qut*_ga*OTY2NzAxMjczLjE2OTYyNjk2OTk.*_ga_CW55HF8NVT*MTY5NjMzODg3My4yLjEuMTY5NjMzODkzOC42MC4wLjA.");
+        background-repeat: no-repeat;
+        background-size: contain;
+        z-index: 1;
+      
+        /* Hide the image when printing */
+        @media print {
+          visibility: hidden;
+        }
+      }
 
     .image-container {
         position: absolute;

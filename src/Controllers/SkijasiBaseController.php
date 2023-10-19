@@ -103,14 +103,11 @@ class SkijasiBaseController extends Controller
       
       $options->set('isHtml5ParserEnabled', true);
       $options->set('isRemoteEnabled', true);
-      $options->set('dpi', 75);
+      $options->set('dpi', 220);
       $options->set('defaultFont', 'Times-Roman');
       $options->set('isFontSubsettingEnabled', true);
 
-      $options->set('margin_left', 0);
-      $options->set('margin_right', 0);
-      $options->set('margin_top', 0);
-      $options->set('margin_bottom', 0);
+
    
         $options->set('tempDir', '/var/www/nadzornaploca/storage/');
 
@@ -122,44 +119,86 @@ class SkijasiBaseController extends Controller
     // Query the database to get the data
     $data = DB::table('skijasi_users')->where('id', $request->id)->first();
 
-// Convert the data to HTML and add it to the PDF
-$html = $this->convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate, $gradovipdf, $postanskibrojpdf);
+      // Convert the data to HTML and add it to the PDF
+      $html = $this->convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate, $gradovipdf, $postanskibrojpdf);
 
 
-   // Use Browsershot to convert the HTML to an image
-   $imagePath = public_path('storage/slike/baza/pdfimagetemp.png');
-   Browsershot::html($html)
-       ->noSandbox() // Depending on your server, you might need to use the noSandbox option
-       ->save($imagePath);
-          // Create HTML for the PDF embedding the image
-    $pdfHtml = '<!DOCTYPE html>
+ 
+    // Use Browsershot to convert the HTML to a high-resolution PNG
+    $imagePath = 'storage/slike/baza/pdfimagetemp.png';
+
+    Browsershot::html($html)
+    ->windowSize(595, 842) 
+        ->deviceScaleFactor(3)  // Increase resolution by increasing device scale factor
+        ->save($imagePath);
+
+    if (!file_exists($imagePath)) {
+        die("Image not created properly, check Browsershot configuration.");
+    }
+
+    // Read the image file's contents
+    $imageData = file_get_contents($imagePath);
+    // Encode the image data to base64
+    $base64Image = base64_encode($imageData);
+
+    // Create HTML for the PDF embedding the image
+    $pdfHtml = '
+    <!DOCTYPE html>
     <html>
-    <body>
-        <img src="' . $imagePath . '" style="width: 100%; height: auto;">
-    </body>
-    </html>';
+      <head>
+        <meta charset="utf-8" />
+    
+      
+        <style>
+        @page {
+            margin: 0px;
+        }
+        
+   
+          
+          .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+    
+            z-index: 1;
+          
+          }
+        </style>
+      </head>
+      <body>
+      <div class="bg">
+      <img src="data:image/png;base64,' . $base64Image . '" alt="Background Image">
+  </div>
+        
+      </body>
+    </html>
+    ';
 
 
     $dompdf->loadHtml($pdfHtml, 'UTF-8');
 
-    // Render the PDF
-    $dompdf->render();
 
-    $dompdf->stream();
- 
-    // Output the generated PDF
+    $dompdf->render();
     $output = $dompdf->output();
 
-
-        // Optionally, delete the image file after the PDF is generated
-        if (file_exists($imagePath)) {
-            unlink($imagePath);
-        }
+    // Optionally, delete the image file after the PDF is generated
+    if (file_exists($imagePath)) {
+        unlink($imagePath);
+    }
 
     // Return the PDF as a response
     return response($output, 200)
-            ->header('Content-Type', 'application/pdf');
+        ->header('Content-Type', 'application/pdf');
 }
+
+
+
+
 
 public function generatepdffpotvrdaivsi(Request $request)
 {
@@ -184,8 +223,7 @@ public function generatepdffpotvrdaivsi(Request $request)
       
       $options->set('isHtml5ParserEnabled', true);
       $options->set('isRemoteEnabled', true);
-      $options->set('dpi', 75);
-      $options->set('defaultFont', 'Times-Roman');
+      $options->set('dpi', 220);
       $options->set('isFontSubsettingEnabled', true);
 
       $options->set('margin_left', 0);
@@ -196,30 +234,89 @@ public function generatepdffpotvrdaivsi(Request $request)
         $options->set('tempDir', '/var/www/nadzornaploca/storage/');
 
       $dompdf = new \Dompdf\Dompdf($options);
-    //  $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
-
-    // Load your template.pdf file
-    $dompdf->set_paper('A4', 'portrait');
+      $dompdf->set_paper('A4', 'portrait');
     // Query the database to get the data
     $data = DB::table('skijasi_users')->where('id', $request->id)->first();
 
 // Convert the data to HTML and add it to the PDF
 $html = $this->convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovipdf, $postanskibrojpdf);
 
-$dompdf->loadHtml($html, 'UTF-8');
 
-    // Render the PDF
-    $dompdf->render();
-
-    $dompdf->stream();
  
-    // Output the generated PDF
+    // Use Browsershot to convert the HTML to a high-resolution PNG
+    $imagePath = 'storage/slike/baza/pdfimagetemp.png';
+
+    Browsershot::html($html)
+    ->windowSize(595, 842) 
+        ->deviceScaleFactor(3)  
+     
+        ->save($imagePath);
+
+    if (!file_exists($imagePath)) {
+        die("Image not created properly, check Browsershot configuration.");
+    }
+
+    // Read the image file's contents
+    $imageData = file_get_contents($imagePath);
+    // Encode the image data to base64
+    $base64Image = base64_encode($imageData);
+
+    // Create HTML for the PDF embedding the image
+    $pdfHtml = '
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+    
+      
+        <style>
+        @page {
+            margin: 0px;
+        }
+        
+     
+          
+          .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/png;base64,' . $base64Image . '");
+          
+            background-size: cover;
+            z-index: 1;
+          
+          }
+        </style>
+      </head>
+      <body>
+      <div class="bg">
+  </div>
+        
+      </body>
+    </html>
+    ';
+
+
+    $dompdf->loadHtml($pdfHtml, 'UTF-8');
+
+
+    $dompdf->render();
     $output = $dompdf->output();
+
+    // Optionally, delete the image file after the PDF is generated
+    if (file_exists($imagePath)) {
+        unlink($imagePath);
+    }
 
     // Return the PDF as a response
     return response($output, 200)
-            ->header('Content-Type', 'application/pdf');
+        ->header('Content-Type', 'application/pdf');
 }
+
 
 
 
@@ -262,7 +359,7 @@ $dompdf->loadHtml($html, 'UTF-8');
       $dompdf = new \Dompdf\Dompdf($options);
     //  $dompdf->setBasePath($_SERVER['DOCUMENT_ROOT']); 
 
-    // Load your template.pdf file
+
    // $dompdf->set_paper('A4', 'portrait');
    $dompdf->set_paper(array(0, 0, 158.7, 248.6), 'landscape');
 
@@ -641,6 +738,12 @@ private function convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $today
     // Encode the image data to base64
     $base64Image = base64_encode($imageData);
 
+        $imagePath2 = 'storage/slike/baza/logowatermark.png';
+    // Read the image content
+    $imageData2 = file_get_contents($imagePath2);
+    // Encode the image data to base64
+    $base64Image2 = base64_encode($imageData2);
+
 
 
 $html = '
@@ -648,7 +751,7 @@ $html = '
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1, width=device-width" />
+    <meta name="viewport" content="initial-scale=1" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
@@ -683,16 +786,13 @@ $html = '
         right: 0;
         bottom: 0;
         width: 100%;
-        height: 98%;
-        background-image: url("https://firebasestorage.googleapis.com/v0/b/hzuts-47aa0.appspot.com/o/logowatermark.png?alt=media&token=9595ae3f-fd0e-4384-b007-b567401190ea&_gl=1*52xatq*_ga*MTIwOTgzOTkyNy4xNjk2NTUzMTA5*_ga_CW55HF8NVT*MTY5NzYzNDQ5MS42LjEuMTY5NzYzNDUwNC40Ny4wLjA.");
+        height: 100%;
+        background-image: url("data:image/png;base64,' . $base64Image2 . '");
         background-repeat: no-repeat;
         background-size: contain;
         z-index: 1;
       
-        /* Hide the image when printing */
-        @media print {
-          visibility: hidden;
-        }
+    
       }
     </style>
   </head>
@@ -726,7 +826,7 @@ $html = '
           style="
             position: absolute;
             top: 0px;
-            left: 0px;
+            left: -3px;
             width: 595px;
             height: 848px;
             overflow: hidden;
@@ -752,7 +852,7 @@ $html = '
           style="
             position: absolute;
             top: 763.15px;
-            left: 383.39px;
+            left: 408.39px;
             font-size: 10px;
             font-family: \'Avenir Next\';
             color: #31bdec;
@@ -763,7 +863,7 @@ $html = '
         style="
           position: absolute;
           top: 763.15px;
-          left: 305.39px;
+          left: 320.39px;
           font-size: 10px;
           font-family: \'Avenir Next\';
           color: #31bdec;
@@ -785,8 +885,8 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 662.59px;
-            left: 417.9px;
+            top: 664.59px;
+            left: 410.9px;
             font-size: 12.69px;
           "
         >
@@ -795,8 +895,8 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 661.59px;
-            left: 311.7px;
+            top: 663.59px;
+            left: 307.7px;
             font-size: 11.44px;
           "
         >
@@ -833,9 +933,9 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 432.1px;
+            top: 436.1px;
             left: 70.9px;
-            font-size: 10.31px;
+            font-size: 11.44px;
           "
         >
           territorio Croato.
@@ -847,8 +947,8 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 387.15px;
-            left: 227.15px;
+            top: 391.15px;
+            left: 217.15px;
             font-size: 11.44px;
           "
         >
@@ -857,7 +957,7 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 387.15px;
+            top: 391.15px;
             left: 70.9px;
             font-size: 11.44px;
           "
@@ -869,8 +969,8 @@ $html = '
         <div
         style="
           position: absolute;
-          top: 387.15px;
-          left: 176.9px;
+          top: 389.15px;
+          left: 175.9px;
           font-size: 11.44px;
         "
       >
@@ -882,9 +982,9 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 341.1px;
+            top: 345.1px;
             left: 70.9px;
-            font-size: 10.69px;
+            font-size: 11.44px;
           "
         >
           residente in Croazia: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
@@ -892,25 +992,25 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 324.1px;
-            left: 424.9px;
+            top: 328.1px;
+            left: 414.9px;
             font-size: 12px;
           "
         >
         '.$data["idmember"].'
         </div>
-        <div style="position: absolute; top: 327.1px; left: 354.1px">
+        <div style="position: absolute; top: 331.1px; left: 354.1px;">
           tessera No
         </div>
-        <div style="position: absolute; top: 325px; left: 247.9px">
+        <div style="position: absolute; top: 327px; left: 230.9px; font-size: 12px;">
         '.$data["name"].' '.$data["username"].'
         </div>
         <div
           style="
             position: absolute;
-            top: 326.1px;
+            top: 330.1px;
             left: 70.9px;
-            font-size: 10.88px;
+            font-size: 11.44px;
           "
         >
           Si dichiara che il Sig/ra:
@@ -918,18 +1018,18 @@ $html = '
         <b
           style="
             position: absolute;
-            top: 236.1px;
-            left: 267.85px;
-            font-size: 11.5px;
+            top: 240.1px;
+            left: 263.85px;
+            font-size: 12.4px;
           "
           >Certificato</b
         >
         <div
         style="
           position: absolute;
-          top: 100.1px;
+          top: 104.1px;
           left: 70.9px;
-          font-size: 10.69px;
+          font-size: 12px;
         "
       > '.$data["name"].' '.$data["username"].'
       </div>
@@ -962,13 +1062,19 @@ private function convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovi
     $base64Image = base64_encode($imageData);
 
 
+    $imagePath2 = 'storage/slike/baza/logowatermark.png';
+    // Read the image content
+    $imageData2 = file_get_contents($imagePath2);
+    // Encode the image data to base64
+    $base64Image2 = base64_encode($imageData2);
+
 
 $html = '
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
@@ -1003,16 +1109,13 @@ $html = '
         right: 0;
         bottom: 0;
         width: 100%;
-        height: 98%;
-        background-image: url("https://firebasestorage.googleapis.com/v0/b/hzuts-47aa0.appspot.com/o/logowatermark.png?alt=media&token=9595ae3f-fd0e-4384-b007-b567401190ea&_gl=1*52xatq*_ga*MTIwOTgzOTkyNy4xNjk2NTUzMTA5*_ga_CW55HF8NVT*MTY5NzYzNDQ5MS42LjEuMTY5NzYzNDUwNC40Ny4wLjA.");
+        height: 100%;
+        background-image: url("data:image/png;base64,' . $base64Image2 . '");
         background-repeat: no-repeat;
         background-size: contain;
         z-index: 1;
       
-        /* Hide the image when printing */
-        @media print {
-          visibility: hidden;
-        }
+  
       }
     </style>
   </head>
@@ -1046,14 +1149,14 @@ $html = '
           style="
             position: absolute;
             top: 0px;
-            left: 0px;
+            left: -3px;
             width: 595px;
             height: 848px;
             overflow: hidden;
             object-fit: cover;
           "
           alt=""
-          src="data:image/jpeg;base64,' . $base64Image . '"
+          src="data:image/png;base64,' . $base64Image . '"
         />
 
         <div
@@ -1072,7 +1175,7 @@ $html = '
           style="
             position: absolute;
             top: 763.15px;
-            left: 383.39px;
+            left: 408.39px;
             font-size: 10px;
             font-family: \'Avenir Next\';
             color: #31bdec;
@@ -1083,7 +1186,7 @@ $html = '
         style="
           position: absolute;
           top: 763.15px;
-          left: 305.39px;
+          left: 320.39px;
           font-size: 10px;
           font-family: \'Avenir Next\';
           color: #31bdec;
@@ -1105,8 +1208,8 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 662.59px;
-            left: 417.9px;
+            top: 664.59px;
+            left: 410.9px;
             font-size: 12.69px;
           "
         >
@@ -1115,8 +1218,8 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 661.59px;
-            left: 311.7px;
+            top: 663.59px;
+            left: 307.7px;
             font-size: 11.44px;
           "
         >
@@ -1153,9 +1256,9 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 432.1px;
+            top: 436.1px;
             left: 70.9px;
-            font-size: 10.31px;
+            font-size: 11.44px;
           "
         >
           territorio Croato.
@@ -1167,8 +1270,8 @@ $html = '
        <div
           style="
             position: absolute;
-            top: 387.15px;
-            left: 170.15px;
+            top: 391.15px;
+            left: 168.15px;
             font-size: 11.44px;
           "
         >
@@ -1177,7 +1280,7 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 387.15px;
+            top: 391.15px;
             left: 70.9px;
             font-size: 11.44px;
           "
@@ -1187,15 +1290,15 @@ $html = '
         
         </div>
     
-        <div style="position: absolute; top: 372.1px; left: 70.9px">
+        <div style="position: absolute; top: 376.1px; left: 70.9px">
           In possesso del titolo Croato di Maestro di Sci
         </div>
         <div
           style="
             position: absolute;
-            top: 341.1px;
+            top: 345.1px;
             left: 70.9px;
-            font-size: 10.69px;
+            font-size: 11.44px;
           "
         >
           residente in Croazia: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
@@ -1203,25 +1306,25 @@ $html = '
         <div
           style="
             position: absolute;
-            top: 324.1px;
-            left: 424.9px;
+            top: 328.1px;
+            left: 414.9px;
             font-size: 12px;
           "
         >
         '.$data["idmember"].'
         </div>
-        <div style="position: absolute; top: 327.1px; left: 354.1px">
+        <div style="position: absolute; top: 331.1px; left: 354.1px">
           tessera No
         </div>
-        <div style="position: absolute; top: 325px; left: 247.9px">
+        <div style="position: absolute; top: 327px; left: 230.9px">
         '.$data["name"].' '.$data["username"].'
         </div>
         <div
           style="
             position: absolute;
-            top: 326.1px;
+            top: 330.1px;
             left: 70.9px;
-            font-size: 10.88px;
+            font-size: 11.44px;
           "
         >
           Si dichiara che il Sig/ra:
@@ -1229,18 +1332,18 @@ $html = '
         <b
           style="
             position: absolute;
-            top: 236.1px;
-            left: 267.85px;
-            font-size: 11.5px;
+            top: 240.1px;
+            left: 263.85px;
+            font-size: 12.4px;
           "
           >Certificato</b
         >
         <div
         style="
           position: absolute;
-          top: 100.1px;
+          top: 104.1px;
           left: 70.9px;
-          font-size: 10.69px;
+          font-size: 12px;
         "
       > '.$data["name"].' '.$data["username"].'
       </div>
@@ -1252,13 +1355,7 @@ $html = '
 </html>
 
 
-
-
-
 ';
-
-
-
 
 
 

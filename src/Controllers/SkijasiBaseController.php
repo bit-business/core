@@ -128,6 +128,8 @@ class SkijasiBaseController extends Controller
     $imagePath = 'storage/slike/baza/pdfimagetemp.png';
 
     Browsershot::html($html)
+    ->setChromePath('/usr/bin/google-chrome') 
+
     ->windowSize(595, 842) 
         ->deviceScaleFactor(3)  // Increase resolution by increasing device scale factor
         ->save($imagePath);
@@ -247,6 +249,10 @@ $html = $this->convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovipd
     $imagePath = 'storage/slike/baza/pdfimagetemp.png';
 
     Browsershot::html($html)
+    
+
+    ->setChromePath('/usr/bin/google-chrome') 
+
     ->windowSize(595, 842) 
         ->deviceScaleFactor(3)  
      
@@ -987,7 +993,7 @@ $html = '
             font-size: 11.44px;
           "
         >
-          residente in Croazia: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
+          residente in: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
         </div>
         <div
           style="
@@ -1301,7 +1307,7 @@ $html = '
             font-size: 11.44px;
           "
         >
-          residente in Croazia: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
+          residente in: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
         </div>
         <div
           style="

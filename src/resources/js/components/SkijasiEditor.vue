@@ -4,7 +4,8 @@
       label
     }}</label>
     <editor
-      id="tinymce"
+
+      :id="editorId"
       :value="value"
       @input="handleInput($event)"
       :init="init"
@@ -92,7 +93,7 @@ export default {
         height: 500,
         font_formats: 'Arial=arial,helvetica,sans-serif;' +
                       'Courier New=courier new,courier,monospace;' +
-                      'Wingdings=wingdings,zapf dingbats' +
+                      'Wingdings=wingdings,zapf dingbats;' +
                       'Inter=inter, sans-serif',  // Add Inter here
         // Include CSS where 'Inter' is available to TinyMCE's iframe.
         content_css: [
@@ -153,6 +154,10 @@ export default {
     };
   },
   props: {
+    editorId: {
+    type: String,
+    required: true
+  },
     size: {
       type: String,
       default: "12",

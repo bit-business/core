@@ -57,6 +57,10 @@ export default {
     return resource.get(url);
   },
 
+  customuploadfile(files) {
+    return resource.post(apiPrefix + "/v1/file/upload/custom", files);
+  },
+
 
 
 

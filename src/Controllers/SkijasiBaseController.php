@@ -93,11 +93,11 @@ class SkijasiBaseController extends Controller
    
 //primanje podataka iz vue
         $statuspdf = $request->input('statuspdf');
-        $gradovipdf = $request->input('gradovipdf');
+      
         $isiapdf = $request->input('isiapdf');
         $isiayear = $request->input('isiayear');
         $todaydate = $request->input('todaydate');
-        $postanskibrojpdf = $request->input('postanskibrojpdf');
+    
 
       $options = new \Dompdf\Options();
       
@@ -120,7 +120,7 @@ class SkijasiBaseController extends Controller
     $data = DB::table('skijasi_users')->where('id', $request->id)->first();
 
       // Convert the data to HTML and add it to the PDF
-      $html = $this->convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate, $gradovipdf, $postanskibrojpdf);
+      $html = $this->convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate);
 
 
  
@@ -216,10 +216,10 @@ public function generatepdffpotvrdaivsi(Request $request)
    
 //primanje podataka iz vue
         $statuspdf = $request->input('statuspdf');
-        $gradovipdf = $request->input('gradovipdf');
+     
         $todaydate = $request->input('todaydate');
         $year = $request->input('year');
-        $postanskibrojpdf = $request->input('postanskibrojpdf');
+
 
       $options = new \Dompdf\Options();
       
@@ -241,7 +241,7 @@ public function generatepdffpotvrdaivsi(Request $request)
     $data = DB::table('skijasi_users')->where('id', $request->id)->first();
 
 // Convert the data to HTML and add it to the PDF
-$html = $this->convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovipdf, $postanskibrojpdf);
+$html = $this->convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year);
 
 
  
@@ -346,7 +346,7 @@ $html = $this->convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovipd
         $statuspdf = $request->input('statuspdf');
         $cardseng = $request->input('cardseng');
         $cardscro = $request->input('cardscro');
-        $gradovipdf = $request->input('gradovipdf');
+  
 
 
       $options = new \Dompdf\Options();
@@ -380,7 +380,7 @@ $html = $this->convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovipd
 
 
 // Convert the data to HTML and add it to the PDF
-$html = $this->convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf);
+$html = $this->convertDataToHtmlID($data, $cardscro, $cardseng);
 
  
 
@@ -732,7 +732,7 @@ private function formatDate($dateString) {
 
 
 
-private function convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate, $gradovipdf, $postanskibrojpdf)
+private function convertDataToHtmlPOTVRDAISIA($data, $isiapdf, $isiayear, $todaydate)
 {
     $data = (array) $data; // Convert object to array
 
@@ -993,7 +993,7 @@ $html = '
             font-size: 11.44px;
           "
         >
-          residente in: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
+          residente in: '.$data["adresa"].', '.$data["postanskibroj"].' '.$data["grad"].'
         </div>
         <div
           style="
@@ -1055,7 +1055,7 @@ return $html;
 }
 
 
-private function convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year, $gradovipdf, $postanskibrojpdf)
+private function convertDataToHtmlPOTVRDAIVSI($data, $todaydate, $year)
 {
     $data = (array) $data; // Convert object to array
 
@@ -1307,7 +1307,7 @@ $html = '
             font-size: 11.44px;
           "
         >
-          residente in: '.$data["adresa"].', '.$postanskibrojpdf.' '.$gradovipdf.'
+          residente in: '.$data["adresa"].', '.$data["postanskibroj"].' '.$data["grad"].'
         </div>
         <div
           style="
@@ -1370,7 +1370,7 @@ return $html;
 
 
 
-private function convertDataToHtmlID($data, $cardscro, $cardseng, $gradovipdf)
+private function convertDataToHtmlID($data, $cardscro, $cardseng)
 {
     $data = (array) $data; // Convert object to array
 
@@ -1519,7 +1519,7 @@ $base64Image = base64_encode($imageData);
 </div>
 
  <div class="label" style="top: 48.0%; left:35%;  ">
-  '.$gradovipdf.'
+ '.$data["grad"].'
 </div>
 
 <div class="label" style="top: 63.0%; left: 35%; ">

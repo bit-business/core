@@ -69,6 +69,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::get('/mimetypes', 'SkijasiFileController@availableMimetype');
 
 
+            Route::post('/upload/custom', 'SkijasiFileController@customuploadfile');
             Route::get('/getfolders', 'SkijasiFileController@getFolders');
 
             Route::get('/get-images-from-slike', 'SkijasiFileController@getImagesFromSlike');

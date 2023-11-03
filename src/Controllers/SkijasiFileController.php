@@ -128,4 +128,35 @@ public function getImagesFromSlike()
     return ApiResponse::success($images);
 }
 
+
+
+public function customUploadFile(Request $request)
+{
+
+
+    $file = $request->file('file');
+    $nameusr = $request->input('nameusr');
+    $prezimeusr = $request->input('prezimeusr');
+    $idmember = $request->input('idmember');
+
+    // Create the filename
+    $filename = $nameusr . '_' . $prezimeusr . '_' . $idmember . '.' . $file->getClientOriginalExtension();
+
+    // Define the path where the file will be stored
+    $path = 'profilephoto';
+
+    // Store the file
+    $storagePath = Storage::putFileAs($path, $file, $filename);
+
+    // Check if the file has been saved successfully
+    if ($storagePath) {
+        return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $storagePath]);
+    } else {
+        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+    }
+}
+
+
+
+
 }

@@ -210,7 +210,7 @@ class SkijasiAuthController extends Controller
                 ]);
 
                 if ($request->hasFile('avatar')) {
-                    $avatarPath = UploadImage::createImage($request->file('avatar')->get(), 'profilephoto/'); // Modify the path as needed
+                    $avatarPath = UploadImage::createImage($request->file('avatar')->get(), 'profilephoto/'); // spremanje avatara
                     $existingUser->avatar = $avatarPath;
                 }
                 
@@ -542,6 +542,7 @@ class SkijasiAuthController extends Controller
                 $message->to('info@hzuts.hr'); // promijenit prije live todo Set your email where you want to receive the contact form data
                 $message->subject($data['subject']);
                 $message->from($data['email']);
+                $message->replyTo($data['email']);
             });
     
             return ApiResponse::success();

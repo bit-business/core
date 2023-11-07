@@ -173,8 +173,8 @@ export default {
   },
 
   alert: {
-    success: "Uspješno",
-    update_success: "pohranjeno",
+    success: "Spremljeno",
+    update_success: "Uspješno spremljeno!",
     danger: "Opasnost",
     error: "Greška",
   },

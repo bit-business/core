@@ -1,6 +1,7 @@
 .skijasi-breadcrumb-row {
   &__container {
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
+    font-size: small;
     &--right {
       float: right;
     }
@@ -9,7 +10,7 @@
   &__icon {
     cursor: pointer;
     float: left;
-    padding-top: 0.6rem;
+    padding-top: 0.9rem;
   }
 
   &__separator {

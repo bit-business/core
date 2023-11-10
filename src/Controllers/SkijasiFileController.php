@@ -158,5 +158,35 @@ public function customUploadFile(Request $request)
 
 
 
+public function customUploadFileVijesti(Request $request)
+{
+    $file = $request->file('file');
+
+    // Get the number of existing files in the directory
+    $existingFilesCount = count(Storage::files('vijestislike'));
+
+    // Increment the count to get the next number for the new file
+    $nextFileNumber = $existingFilesCount + 1;
+
+    // Create the filename
+    $filename = 'slika' . $nextFileNumber . '.' . $file->getClientOriginalExtension();
+
+    // Define the path where the file will be stored
+    $path = 'vijestislike';
+
+    // Store the file
+    $storagePath = Storage::putFileAs($path, $file, $filename);
+
+    // Check if the file has been saved successfully
+    if ($storagePath) {
+        return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $storagePath]);
+    } else {
+        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+    }
+}
+
+
+
+
 
 }

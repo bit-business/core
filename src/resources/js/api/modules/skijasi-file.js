@@ -60,6 +60,9 @@ export default {
   customuploadfile(files) {
     return resource.post(apiPrefix + "/v1/file/upload/custom", files);
   },
+  customuploadfilevijesti(files) {
+    return resource.post(apiPrefix + "/v1/file/upload/customvijesti", files);
+  },
 
 
 

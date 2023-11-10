@@ -70,6 +70,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
 
             Route::post('/upload/custom', 'SkijasiFileController@customuploadfile');
+            Route::post('/upload/customvijesti', 'SkijasiFileController@customuploadfilevijesti');
             Route::get('/getfolders', 'SkijasiFileController@getFolders');
 
             Route::get('/get-images-from-slike', 'SkijasiFileController@getImagesFromSlike');

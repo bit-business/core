@@ -422,12 +422,10 @@ export default {
       // init data row
       const dataRows = {};
       for (const row of this.dataType.dataRows) {
-        if ((row && row.value) || (row && row.type == "textarea")) {
-          dataRows[row.field] = row.value;
-        }
-        if ((row && row.value) || (row && row.type == "switch")) {
-          dataRows[row.field] = row.value;
-        }
+        if (row && (row.value || row.value === 0 || row.type === "textarea" || row.type === "text" || row.type === "number" || row.type === "switch")) {
+    dataRows[row.field] = row.value;
+  }
+  
       }
 
       // validate values in data rows must not equals 0
@@ -500,11 +498,17 @@ export default {
                 data.value = val.split(",");
               }
             } else if (data.type == "switch") {
-              data.value = this.record[
+
+              const val = this.record[this.$caseConvert.stringSnakeToCamel(data.field)];
+               data.value = val > 0 ? true : false;
+
+         /* stari kod prije bugfixa, nisam siguran da li rjesava ista, ako se pojavi novi bug vratit   i obrisat dvije linije iznad 
+           data.value = this.record[
                 this.$caseConvert.stringSnakeToCamel(data.field)
               ]
                 ? this.record[this.$caseConvert.stringSnakeToCamel(data.field)]
                 : false;
+                */
             } else if (data.type == "slider") {
               data.value = parseInt(
                 this.record[this.$caseConvert.stringSnakeToCamel(data.field)]

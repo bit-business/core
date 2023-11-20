@@ -288,6 +288,13 @@ if ($data_type->name == 'skijasi_users') {
         return $entities;
     }
 
+
+
+
+
+
+
+
     public static function serverSideWithQueryBuilder($data_type, $builder_params, $only_data_soft_delete = false)
     {
         $fields_data_identifier = collect($data_type->dataRows)->where('type', 'data_identifier')->pluck('field')->all();
@@ -306,7 +313,7 @@ if ($data_type->name == 'skijasi_users') {
         $filter_value = $builder_params['filter_value'];
 
         // za filter kraja clanstva
-       // $filter_dateendmember = $builder_params['filter_dateendmember'];
+        $filter_dateendmember = $builder_params['filter_dateendmember'];
 
 
         $is_roles = false;
@@ -373,15 +380,17 @@ if ($data_type->name == 'skijasi_users') {
 
  //if ($filter_dateendmember) {
     if ($data_type->name == 'skijasi_users') {
-        // if the 'user_type' column exists, then apply the condition
-        $query->where(function ($query) {
-            // Your existing constraints inside the closure
-            // $query->whereNull('dateendmember');
-            //  ->orWhere('dateendmember', '');
-        })->where('user_type', 'Hzuts član');
+        // Apply the common 'user_type' condition
+        $query->where('user_type', 'Hzuts član');
+    
+        // Adjust query based on the value of 'filter_dateendmember'
+      //  if ($filter_dateendmember) {
+           
+            $query->whereNull('dateendmember');
+       // }
+        // No need for else part; if 'filter_dateendmember' is false, it doesn't apply any additional conditions
     }
 //}
-
 
 
 
@@ -423,6 +432,26 @@ if ($filter_value) {
             $records[] = self::getRelationData($data_type, $row);
         }
 
+
+        if ($data_type->name == 'skijasi_users') {
+        $trainerStatusLabels = self::getTrainerStatusLabels();
+
+        foreach ($records as $key => $record) {
+            // Fetch and calculate payment status
+            $paymentData = self::fetchPaymentDataForMember($record->idmember);
+            $statusPlacanja = self::calculatePaymentStatus($paymentData);
+            $records[$key]->statusPlacanja = $statusPlacanja;
+        
+            // Fetch and calculate status data for 'statusString' and 'statusAktivan'
+            $statusData = self::fetchStatusDataForMember($record->idmember); // Fetch status data for the member
+            $records[$key]->statusString = self::calculateStatusString($statusData, $trainerStatusLabels);
+
+            $records[$key]->statusAktivan = self::calculateStatusAktivan($statusData);
+        }  
+     }
+        
+
+
         $data = collect($records);
 
         $entities['data'] = $data;
@@ -433,8 +462,125 @@ if ($filter_value) {
         }
         $entities['total'] = $total;
 
+
+        
+
         return $entities;
     }
+
+    private static function fetchStatusDataForMember($idMember) {
+        // Fetch the status data for the given member ID from your database
+        $statusData = DB::table('tbl_member_status')
+                         ->where('idmember', $idMember)
+                         ->get();
+    
+        return $statusData;
+    }
+    
+    private static function calculateStatusString($statusData, $trainerStatusLabels) {
+        $statusLabels = collect($statusData)
+                        ->filter(function ($item) {
+                            return $item->statusdefault === 1;
+                        })
+                        ->map(function ($item) use ($trainerStatusLabels) {
+                            return $trainerStatusLabels[$item->trainerstsid] ?? null;
+                        })
+                        ->filter()
+                        ->implode(', ');
+    
+        return $statusLabels;
+    }
+// Example of fetching trainer status labels
+private static function getTrainerStatusLabels() {
+    $trainerStatuses = DB::table('trainersts')->get(); // Adjust with your actual table name
+    $labels = [];
+    foreach ($trainerStatuses as $status) {
+        $labels[$status->id] = $status->statusname ?? 'statusname'; // Adjust 'id' and 'label' according to your table structure
+    }
+    return $labels;
+}
+    
+    
+private static function calculateStatusAktivan($statusData) {
+    // Logic to calculate if status is active
+    $today = new \DateTime(); // Use \DateTime for global namespace
+    $today->setTime(0, 0, 0); // Set to start of day
+
+    $isActive = false;
+    foreach ($statusData as $item) {
+        if (isset($item->endstatusdate)) {
+            $endDate = new \DateTime($item->endstatusdate); // Use \DateTime here as well
+            $endDate->setTime(0, 0, 0); // Set to start of day
+
+            if ($endDate >= $today) {
+                $isActive = true;
+                break; // If one active status is found, no need to check further
+            }
+        }
+    }
+
+    return $isActive ? 'Aktivan' : 'Istekla licenca';
+}
+
+
+
+    
+
+    private static function fetchPaymentDataForMember($idMember) {
+        // Fetch the payment data for the given member ID from your database
+        $paymentData = DB::table('tbl_payments')
+                         ->where('idmember', $idMember)
+                         ->get();
+        return $paymentData;
+    }
+    
+
+    private static function calculatePaymentStatus($paymentData) {
+        // Initialize status variables
+        $anyPaid = false;
+        $anyPartialPaid = false;
+        $allUnpaid = true;
+    
+        // Check if there are no payments
+        if (empty($paymentData)) {
+            return "Nema plaćanja";
+        }
+    
+        // Iterate over each payment record to determine the status
+        foreach ($paymentData as $payment) {
+            if ($payment->paidstatus || $payment->paymentdiscard || $payment->paymentforgive) {
+                $anyPaid = true;
+            }
+            if ($payment->partialpaid) {
+                $anyPartialPaid = true;
+            }
+            if (!$payment->paidstatus && !$payment->partialpaid && !$payment->paymentdiscard && !$payment->paymentforgive) {
+                $allUnpaid = false;
+            }
+        }
+    
+        // Determine final status based on the flags
+        if ($anyPartialPaid) {
+            return "Djelomično plaćeno";
+        }
+        if ($anyPaid && $allUnpaid) {
+            return "Sve plaćeno";
+        }
+        if (!$anyPaid && !$allUnpaid) {
+            return "Nije plaćeno";
+        }
+        if ($anyPaid) {
+            return "Djelomično plaćeno";
+        }
+        if ($allUnpaid) {
+            return "Nema plaćanja";
+        }
+        return "Greska";
+    }
+    
+
+
+
 
     public static function clientSideWithQueryBuilder($data_type, $builder_params, $only_data_soft_delete = false)
     {

@@ -212,7 +212,7 @@ abstract class Controller extends BaseController
             'filter_value'    => isset($request['filter_value']) ? $request['filter_value'] : '',
 
             //dodano za kraj clanstva filter
-         //   'filter_dateendmember' => isset($request['filter_dateendmember']) ? $request['filter_dateendmember'] : false,
+            'filter_dateendmember' => isset($request['filter_dateendmember']) ? $request['filter_dateendmember'] : false,
 
         ];
 
@@ -910,4 +910,13 @@ abstract class Controller extends BaseController
 
         return $data_rows;
     }
+
+
+
+
+
+
+   
+    
+
 }

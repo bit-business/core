@@ -16,6 +16,11 @@ use Spatie\Browsershot\Browsershot;
 
 class SkijasiBaseController extends Controller
 {
+  
+
+
+
+
     public function browse(Request $request)
     {
         try {

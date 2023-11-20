@@ -55,10 +55,10 @@ export default {
       type: String,
       default: "Checkbox",
     },
-    value: {
-      type: Array,
-      required: true,
-    },
+   value: {
+    type: Boolean,
+    required: true,
+  },
     items: {
       type: Array,
       required: true,

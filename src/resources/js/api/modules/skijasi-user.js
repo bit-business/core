@@ -77,4 +77,12 @@ zadnjiidmember() {
   return resource.get(url);
 },
 
+
+  browsenasiclanovi(data = {}) {
+    const ep = apiPrefix + "/v1/users/browsenasiclanovi";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+  },
+
 };

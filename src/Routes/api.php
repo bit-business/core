@@ -128,6 +128,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
             Route::get('/zadnjiidmember', 'SkijasiUserController@zadnjiidmember');
 
+            Route::get('/browsenasiclanovi', 'SkijasiUserController@browsenasiclanovi');
         
 
         });

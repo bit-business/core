@@ -4,6 +4,7 @@ namespace NadzorServera\Skijasi\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use NadzorServera\Skijasi\Helpers\ApiResponse;
@@ -26,6 +27,75 @@ class SkijasiUserController extends Controller
             return ApiResponse::failed($e);
         }
     }
+
+    public function browsenasiclanovi(Request $request)
+    {
+            try {
+                // Retrieve query parameters
+                $search = $request->query('search');
+                $sort = $request->query('sort', 'id'); // Default sorting field
+                $order = $request->query('order', 'asc'); // Default sorting order
+                $page = $request->query('page', 1); // Default page
+                $perPage = $request->query('perPage', 32); // Default items per page
+                
+            
+
+                // Build the query
+                $query = User::query();
+
+                $query->where('skijasi_users.user_type', 'Hzuts član');
+    
+                // Apply search if it's provided
+                if (!empty($search)) {
+                    $searchTerms = explode(' ', $search);
+                    $query->where(function (Builder $q) use ($searchTerms) {
+                        foreach ($searchTerms as $term) {
+                            $q->where(function (Builder $q) use ($term) {
+                                $q->where('name', 'like', "%{$term}%")
+                                  ->orWhere('username', 'like', "%{$term}%");
+                            });
+                        }
+                    });
+                }
+                
+                $zborovi = $request->query('zborovi');
+                if (!empty($zborovi)) {
+                    $zboroviArray = explode(',', $zborovi);
+                    $query->whereIn('department', $zboroviArray);
+                }
+        
+
+
+                // Apply sorting
+                $query->orderBy($sort, $order);
+    
+                // Paginate results
+                $users = $query->paginate($perPage, ['*'], 'page', $page);
+
+
+                
+    
+                // Properly format the response for the frontend
+                return ApiResponse::success([
+                    'users' => $users->items(),
+                    'total' => $users->total(),
+                    'currentPage' => $users->currentPage(),
+                    'lastPage' => $users->lastPage(),
+                    'perPage' => $users->perPage(),
+                    'from' => $users->firstItem(),
+                    'to' => $users->lastItem(),
+                ]);
+            } catch (Exception $e) {
+                return ApiResponse::failed($e->getMessage());
+            }
+        }
+    
+    
+    
+    
+
+
+    
 
     public function read(Request $request)
     {

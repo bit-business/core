@@ -445,8 +445,13 @@ if ($filter_value) {
             // Fetch and calculate status data for 'statusString' and 'statusAktivan'
             $statusData = self::fetchStatusDataForMember($record->idmember); // Fetch status data for the member
             $records[$key]->statusString = self::calculateStatusString($statusData, $trainerStatusLabels);
+           
+         
 
-            $records[$key]->statusAktivan = self::calculateStatusAktivan($statusData);
+            $statusAktivanData = self::calculateStatusAktivan($statusData);
+            $records[$key]->statusAktivan = $statusAktivanData['status'];
+            $records[$key]->endstatusdate = $statusAktivanData['endstatusdate'];
+          
         }  
      }
         
@@ -502,25 +507,29 @@ private static function getTrainerStatusLabels() {
     
     
 private static function calculateStatusAktivan($statusData) {
-    // Logic to calculate if status is active
     $today = new \DateTime(); // Use \DateTime for global namespace
     $today->setTime(0, 0, 0); // Set to start of day
 
-    $isActive = false;
+    $statusAktivan = 'Istekla licenca';
+    $latestEndDate = null;
+
     foreach ($statusData as $item) {
         if (isset($item->endstatusdate)) {
             $endDate = new \DateTime($item->endstatusdate); // Use \DateTime here as well
             $endDate->setTime(0, 0, 0); // Set to start of day
 
             if ($endDate >= $today) {
-                $isActive = true;
+                $statusAktivan = 'Aktivan';
+                $latestEndDate = $item->endstatusdate;
                 break; // If one active status is found, no need to check further
             }
         }
     }
 
-    return $isActive ? 'Aktivan' : 'Istekla licenca';
+    return ['status' => $statusAktivan, 'endstatusdate' => $latestEndDate];
 }
+
+
 
 
 

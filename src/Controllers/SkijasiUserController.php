@@ -46,6 +46,7 @@ class SkijasiUserController extends Controller
                 $query = User::query();
 
                 $query->where('skijasi_users.user_type', 'Hzuts član');
+                $query->whereNull('dateendmember');
     
                 // Apply search if it's provided
                 if (!empty($search)) {
@@ -69,53 +70,39 @@ class SkijasiUserController extends Controller
                     $zboroviArray = explode(',', $zborovi);
                     $query->whereIn('department', $zboroviArray);
                 }
-         // Apply payment status filter
-         if (!empty($payments)) {
-            $paymentsArray = explode(',', $payments);
-            // Adjust this query to match your database structure
-            $query->where(function($q) use ($paymentsArray) {
-                foreach ($paymentsArray as $paymentStatus) {
-                    // Example condition, adjust based on your actual database structure
-                    $q->orWhere('statusPlacanja', $paymentStatus);
+ 
+                $statusFilter = $request->query('status');
+                if (!empty($statusFilter)) {
+                    $query->whereIn('statusString', explode(',', $statusFilter));
                 }
-            });
-        }
         
-// Apply licence filter
-if (!empty($licence)) {
-$licenceArray = explode(',', $licence);
-// Adjust this query to match your database structure
-$query->whereHas('licences', function ($q) use ($licenceArray) {
-    $q->whereIn('licenceData', $licenceArray);
-});
-}
-             
-        
-              
+                // Apply payments filter if provided
+                $paymentsFilter = $request->query('payments');
+                if (!empty($paymentsFilter)) {
+                    $query->whereIn('statusPlacanja', explode(',', $paymentsFilter));
+                }
+
 
                 // Apply sorting
                 $query->orderBy($sort, $order);
-    
-             
 
 
-                $users = $query->paginate($perPage, ['*'], 'page', $page);
+                $users = $query->orderBy($sort, $order)->paginate($perPage, ['*'], 'page', $page);
 
-                if (!empty($status)) {
-                    $statusArray = explode(',', $status);
+                if (!empty($licence)) {
+                    $licenceArray = explode(',', $licence);
             
                     // Convert the paginated items to a collection and then filter
-                    $filteredUsers = collect($users->items())->filter(function ($user) use ($statusArray) {
+                    $filteredUsers = collect($users->items())->filter(function ($user) use ($licenceArray) {
                         $statusData = GetData::fetchStatusDataForMember($user->id);
                         $statusAktivanData = GetData::calculateStatusAktivan($statusData);
             
-                        return in_array($statusAktivanData['status'], $statusArray);
+                        return in_array($statusAktivanData['status'], $licenceArray);
                     });
             
                     // Update the items in the paginator
                     $users->setCollection($filteredUsers);
                 }
-
 
 
 
@@ -147,8 +134,7 @@ $query->whereHas('licences', function ($q) use ($licenceArray) {
                 }
         
    
-
-                
+         
     
                 // Properly format the response for the frontend
                 return ApiResponse::success([

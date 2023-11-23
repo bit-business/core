@@ -386,7 +386,7 @@ if ($data_type->name == 'skijasi_users') {
         // Adjust query based on the value of 'filter_dateendmember'
       //  if ($filter_dateendmember) {
            
-            $query->whereNull('dateendmember');
+         //   $query->whereNull('dateendmember');
        // }
         // No need for else part; if 'filter_dateendmember' is false, it doesn't apply any additional conditions
     }
@@ -446,14 +446,22 @@ if ($filter_value) {
             $statusData = self::fetchStatusDataForMember($record->idmember); // Fetch status data for the member
             $records[$key]->statusString = self::calculateStatusString($statusData, $trainerStatusLabels);
            
-         
+            // Fetch licence data
+    $licenceData = self::fetchLicenceDataForMember($record->idmember);
+    $records[$key]->licenceData = $licenceData;
 
             $statusAktivanData = self::calculateStatusAktivan($statusData);
             $records[$key]->statusAktivan = $statusAktivanData['status'];
             $records[$key]->endstatusdate = $statusAktivanData['endstatusdate'];
           
         }  
-     }
+    
+    
+    
+    
+    
+    
+    }
         
 
 
@@ -473,7 +481,18 @@ if ($filter_value) {
         return $entities;
     }
 
-    private static function fetchStatusDataForMember($idMember) {
+
+    public static function fetchLicenceDataForMember($idMember) {
+        $licenceData = DB::table('tbl_licence')
+                         ->where('idmember', $idMember)
+                         ->where('aktivna', 1)
+                         ->get(['nazivlicence']);
+        return $licenceData;
+    }
+    
+
+
+    public static function fetchStatusDataForMember($idMember) {
         // Fetch the status data for the given member ID from your database
         $statusData = DB::table('tbl_member_status')
                          ->where('idmember', $idMember)
@@ -482,7 +501,7 @@ if ($filter_value) {
         return $statusData;
     }
     
-    private static function calculateStatusString($statusData, $trainerStatusLabels) {
+    public static function calculateStatusString($statusData, $trainerStatusLabels) {
         $statusLabels = collect($statusData)
                         ->filter(function ($item) {
                             return $item->statusdefault === 1;
@@ -496,22 +515,24 @@ if ($filter_value) {
         return $statusLabels;
     }
 // Example of fetching trainer status labels
-private static function getTrainerStatusLabels() {
+public static function getTrainerStatusLabels() {
     $trainerStatuses = DB::table('trainersts')->get(); // Adjust with your actual table name
     $labels = [];
     foreach ($trainerStatuses as $status) {
-        $labels[$status->id] = $status->statusname ?? 'statusname'; // Adjust 'id' and 'label' according to your table structure
+        $labels[$status->id] = $status->cardscro ?? 'cardscro'; 
+        
     }
     return $labels;
 }
     
     
-private static function calculateStatusAktivan($statusData) {
+public static function calculateStatusAktivan($statusData) {
     $today = new \DateTime(); // Use \DateTime for global namespace
     $today->setTime(0, 0, 0); // Set to start of day
 
     $statusAktivan = 'Istekla licenca';
     $latestEndDate = null;
+    $idevent = null;
 
     foreach ($statusData as $item) {
         if (isset($item->endstatusdate)) {
@@ -521,12 +542,14 @@ private static function calculateStatusAktivan($statusData) {
             if ($endDate >= $today) {
                 $statusAktivan = 'Aktivan';
                 $latestEndDate = $item->endstatusdate;
+                $idevent = $item->idevent; 
                 break; // If one active status is found, no need to check further
             }
+       
         }
     }
 
-    return ['status' => $statusAktivan, 'endstatusdate' => $latestEndDate];
+    return ['status' => $statusAktivan, 'endstatusdate' => $latestEndDate,  'idevent' => $idevent];
 }
 
 
@@ -535,7 +558,7 @@ private static function calculateStatusAktivan($statusData) {
 
     
 
-    private static function fetchPaymentDataForMember($idMember) {
+public static function fetchPaymentDataForMember($idMember) {
         // Fetch the payment data for the given member ID from your database
         $paymentData = DB::table('tbl_payments')
                          ->where('idmember', $idMember)
@@ -544,7 +567,7 @@ private static function calculateStatusAktivan($statusData) {
     }
     
 
-    private static function calculatePaymentStatus($paymentData) {
+    public static function calculatePaymentStatus($paymentData) {
         // Initialize status variables
         $anyPaid = false;
         $anyPartialPaid = false;
@@ -566,11 +589,12 @@ private static function calculateStatusAktivan($statusData) {
             if (!$payment->paidstatus && !$payment->partialpaid && !$payment->paymentdiscard && !$payment->paymentforgive) {
                 $allUnpaid = false;
             }
+            
         }
     
         // Determine final status based on the flags
         if ($anyPartialPaid) {
-            return "Djelomično plaćeno";
+            return "Nije plaćeno";
         }
         if ($anyPaid && $allUnpaid) {
             return "Sve plaćeno";
@@ -579,7 +603,7 @@ private static function calculateStatusAktivan($statusData) {
             return "Nije plaćeno";
         }
         if ($anyPaid) {
-            return "Djelomično plaćeno";
+            return "Nije plaćeno";
         }
         if ($allUnpaid) {
             return "Nema plaćanja";

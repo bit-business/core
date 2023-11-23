@@ -63,5 +63,15 @@ export default {
 
 
 
+  citanjenasiclanovi(params = {}) {
+    console.log("TEST params licence:  ", params);
+
+    const ep = apiPrefix + "/v1/entities/tbl-licence/citanjenasiclanovi";
+    const qs = QueryString(params);
+    const url = ep + qs;
+    console.log("URL LICENCE: " + url);
+    return resource.get(url);
+  },
+
   };
   

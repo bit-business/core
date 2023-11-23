@@ -60,6 +60,13 @@ export default {
     return resource.delete(apiPrefix + "/v1/entities/tbl-events/delete", { data: paramData });
   },
   
+
+  allnasiclanovi(data = {}) {
+    const ep = apiPrefix + "/v1/entities/tbl-events" + "/allnasiclanovi";
+    const url = ep;
+    return resource.get(url);
+  },
+
   
   };
   

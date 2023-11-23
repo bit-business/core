@@ -11,6 +11,8 @@ use NadzorServera\Skijasi\Helpers\ApiResponse;
 use NadzorServera\Skijasi\Models\User;
 use NadzorServera\Skijasi\Traits\FileHandler;
 
+use NadzorServera\Skijasi\Helpers\GetData;
+
 class SkijasiUserController extends Controller
 {
     use FileHandler;
@@ -59,19 +61,92 @@ class SkijasiUserController extends Controller
                 }
                 
                 $zborovi = $request->query('zborovi');
+                $status = $request->query('status');
+                $payments = $request->query('payments');
+                $licence = $request->query('licence');
+
                 if (!empty($zborovi)) {
                     $zboroviArray = explode(',', $zborovi);
                     $query->whereIn('department', $zboroviArray);
                 }
+         // Apply payment status filter
+         if (!empty($payments)) {
+            $paymentsArray = explode(',', $payments);
+            // Adjust this query to match your database structure
+            $query->where(function($q) use ($paymentsArray) {
+                foreach ($paymentsArray as $paymentStatus) {
+                    // Example condition, adjust based on your actual database structure
+                    $q->orWhere('statusPlacanja', $paymentStatus);
+                }
+            });
+        }
         
-
+// Apply licence filter
+if (!empty($licence)) {
+$licenceArray = explode(',', $licence);
+// Adjust this query to match your database structure
+$query->whereHas('licences', function ($q) use ($licenceArray) {
+    $q->whereIn('licenceData', $licenceArray);
+});
+}
+             
+        
+              
 
                 // Apply sorting
                 $query->orderBy($sort, $order);
     
-                // Paginate results
+             
+
+
                 $users = $query->paginate($perPage, ['*'], 'page', $page);
 
+                if (!empty($status)) {
+                    $statusArray = explode(',', $status);
+            
+                    // Convert the paginated items to a collection and then filter
+                    $filteredUsers = collect($users->items())->filter(function ($user) use ($statusArray) {
+                        $statusData = GetData::fetchStatusDataForMember($user->id);
+                        $statusAktivanData = GetData::calculateStatusAktivan($statusData);
+            
+                        return in_array($statusAktivanData['status'], $statusArray);
+                    });
+            
+                    // Update the items in the paginator
+                    $users->setCollection($filteredUsers);
+                }
+
+
+
+
+
+
+                foreach ($users->items() as $user) {
+                    // Use methods from UserDataService for each user
+                    $paymentData = GetData::fetchPaymentDataForMember($user->id);
+                    $user->statusPlacanja = GetData::calculatePaymentStatus($paymentData);
+                    
+                    // ... other code ...
+
+            // Fetch and calculate status data
+            $statusData = GetData::fetchStatusDataForMember($user->id);
+            $trainerStatusLabels = GetData::getTrainerStatusLabels();
+            $user->statusString = GetData::calculateStatusString($statusData, $trainerStatusLabels);
+            
+
+            $licenceData = GetData::fetchLicenceDataForMember($user->idmember);
+            $user->licenceData = $licenceData;
+
+
+            $statusAktivanData = GetData::calculateStatusAktivan($statusData);
+            $user->statusAktivan = $statusAktivanData['status'];
+            $user->endstatusdate = $statusAktivanData['endstatusdate'];
+            $user->idevent = $statusAktivanData['idevent'];
+
+      
+                }
+        
+   
 
                 
     
@@ -93,6 +168,9 @@ class SkijasiUserController extends Controller
     
     
     
+
+
+
 
 
     

@@ -209,6 +209,14 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.citanje')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',read');
 
+                        
+                        Route::get($data_type->slug.'/citanjenasiclanovi', $crud_data_controller.'@citanje')
+                        ->name($data_type->slug.'.citanjenasiclanovi');
+
+                        Route::get($data_type->slug.'/allnasiclanovi', $crud_data_controller.'@all')
+                        ->name($data_type->slug.'.allnasiclanovi');
+                    
+
 
                         Route::get($data_type->slug.'/citanjeispiti', $crud_data_controller.'@citanjeispiti')
                         ->name($data_type->slug.'.citanjeispiti')

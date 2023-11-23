@@ -121,4 +121,14 @@ delete(data) {
 },
 
 
+citanjenasiclanovi(params = {}) {
+
+  const ep = apiPrefix + "/v1/entities/tbl-payments/citanjenasiclanovi";
+  const qs = QueryString(params);
+  const url = ep + qs;
+  console.log("URL: " + url);
+  return resource.get(url);
+},
+
+
 };

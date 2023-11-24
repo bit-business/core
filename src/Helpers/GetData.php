@@ -534,7 +534,7 @@ if ($filter_value) {
     }
 // Example of fetching trainer status labels
 public static function getTrainerStatusLabels() {
-    $trainerStatuses = DB::table('trainersts')->get(); // Adjust with your actual table name
+    $trainerStatuses = DB::table('trainersts')->get(); 
     $labels = [];
     foreach ($trainerStatuses as $status) {
         $labels[$status->id] = $status->cardscro ?? 'cardscro'; 

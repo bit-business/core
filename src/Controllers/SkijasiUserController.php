@@ -71,16 +71,8 @@ class SkijasiUserController extends Controller
                     $query->whereIn('department', $zboroviArray);
                 }
  
-                $statusFilter = $request->query('status');
-                if (!empty($statusFilter)) {
-                    $query->whereIn('statusString', explode(',', $statusFilter));
-                }
-        
-                // Apply payments filter if provided
-                $paymentsFilter = $request->query('payments');
-                if (!empty($paymentsFilter)) {
-                    $query->whereIn('statusPlacanja', explode(',', $paymentsFilter));
-                }
+              
+             
 
 
                 // Apply sorting
@@ -103,7 +95,6 @@ class SkijasiUserController extends Controller
                     // Update the items in the paginator
                     $users->setCollection($filteredUsers);
                 }
-
 
 
 
@@ -136,7 +127,34 @@ class SkijasiUserController extends Controller
                 }
         
    
-         
+                $payments = $request->query('payments');
+                if (!empty($payments)) {
+                    $paymentsArray = explode(',', $payments);
+                    
+                    // Apply the filter after fetching data
+                    $filteredUsers = collect($users->items())->filter(function ($user) use ($paymentsArray) {
+                        return in_array($user->statusPlacanja, $paymentsArray);
+                    });
+            
+                    // Update the items in the paginator
+                    $users->setCollection($filteredUsers);
+                }
+
+          // Filter users based on statusString if a filter is provided
+   $status = $request->query('status');
+   if (!empty($status)) {
+       $statusArray = explode(',', $status);
+       $filteredUsers = collect($users->items())->filter(function ($user) use ($statusArray) {
+           return in_array($user->statusString, $statusArray);
+       });
+
+       // Update the items in the paginator
+       $users->setCollection($filteredUsers);
+   }
+
+
+            
+      
     
                 // Properly format the response for the frontend
                 return ApiResponse::success([

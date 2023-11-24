@@ -453,6 +453,10 @@ if ($filter_value) {
             $statusAktivanData = self::calculateStatusAktivan($statusData);
             $records[$key]->statusAktivan = $statusAktivanData['status'];
             $records[$key]->endstatusdate = $statusAktivanData['endstatusdate'];
+
+
+            $isiaData = self::fetchISIAbroj($record->idmember);
+            $records[$key]->isiaBroj = $isiaData;
           
         }  
     
@@ -500,6 +504,20 @@ if ($filter_value) {
     
         return $statusData;
     }
+
+    public static function fetchISIAbroj($idMember) {
+        $currentYear = date('Y');
+        $nextYear = $currentYear + 1;
+    
+        $latestIsiaRecord = DB::table('tbl_isia_member')
+                              ->where('idmember', $idMember)
+                              ->whereIn('isiayear', [$currentYear, $nextYear])
+                              ->orderBy('isiayear', 'desc')
+                              ->first();
+    
+        return $latestIsiaRecord;
+    }
+    
     
     public static function calculateStatusString($statusData, $trainerStatusLabels) {
         $statusLabels = collect($statusData)
@@ -558,10 +576,13 @@ public static function calculateStatusAktivan($statusData) {
 
     
 
-public static function fetchPaymentDataForMember($idMember) {
-        // Fetch the payment data for the given member ID from your database
+
+    public static function fetchPaymentDataForMember($idMember) {
+        // Fetch the payment data along with trainerstsid for the given member ID
         $paymentData = DB::table('tbl_payments')
-                         ->where('idmember', $idMember)
+                         ->join('tbl_member_status', 'tbl_payments.idmember', '=', 'tbl_member_status.idmember')
+                         ->where('tbl_payments.idmember', $idMember)
+                         ->select('tbl_payments.*', 'tbl_member_status.trainerstsid')
                          ->get();
         return $paymentData;
     }
@@ -572,11 +593,21 @@ public static function fetchPaymentDataForMember($idMember) {
         $anyPaid = false;
         $anyPartialPaid = false;
         $allUnpaid = true;
+
+              // Special condition for trainerstsid = 10
+    $specialStatus = collect($paymentData)->contains('trainerstsid', 10);
+
+        if ($specialStatus) {
+            return "Sve plaćeno";
+        }
     
         // Check if there are no payments
         if (empty($paymentData)) {
             return "Nema plaćanja";
         }
+
+    
+
     
         // Iterate over each payment record to determine the status
         foreach ($paymentData as $payment) {

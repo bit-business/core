@@ -130,6 +130,8 @@ class SkijasiUserController extends Controller
             $user->endstatusdate = $statusAktivanData['endstatusdate'];
             $user->idevent = $statusAktivanData['idevent'];
 
+            $isiaData = GetData::fetchISIAbroj($user->idmember);
+            $user->isiaBroj = $isiaData;
       
                 }
         

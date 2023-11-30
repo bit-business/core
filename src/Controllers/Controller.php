@@ -134,16 +134,26 @@ abstract class Controller extends BaseController
                 $time = explode('T', $z_removed)[1];
                 $return_value = $time;
                 break;
-            case 'date':
-                $z_removed = explode('.', $value)[0];
-                $date = explode('T', $z_removed)[0];
-                $return_value = $date;
-                break;
-            case 'datetime':
+             case 'date':
+                if ($value == null) {
+                    $return_value = $value;
+                } else {
+                    $z_removed = explode('.', $value)[0];
+                    $date = explode('T', $z_removed)[0];
+                    $return_value = $date;
+                }
+
+            break;
+
+        case 'datetime':
+            if ($value == null) {
+                $return_value = $value;
+            } else {
                 $z_removed = explode('.', $value)[0];
                 $date_time = str_replace('T', ' ', $z_removed);
                 $return_value = $date_time;
-                break;
+            }
+            break;
             case 'select':
                 $return_value = $value;
                 break;
@@ -567,6 +577,7 @@ abstract class Controller extends BaseController
     public function updateData($data, $data_type)
     {
         $data_rows = collect($data_type->dataRows)->where('edit', 1)->all();
+
         $model = null;
         $id = $data['id'];
         $data = collect($data)->forget('id')->all();
@@ -578,7 +589,7 @@ abstract class Controller extends BaseController
             foreach ($data as $key => $value) {
                 $data_row = collect($data_rows)->where('field', $key)->first();
                 if (is_null($data_row)) {
-                    // $model->{$key} = $value;
+                 //    $model->{$key} = $value;
                 } else {
                     if (in_array($data_row->type, [
                         'upload_image',
@@ -732,7 +743,7 @@ abstract class Controller extends BaseController
                     }
 
                     if (in_array($data_row->type, [
-                        'number',
+                        'number', 'datetime', 'date',
                     ])) {
                         $new_data[$key] = $this->getContentByType($data_type, $data_row, $value) !== null ? $this->getContentByType($data_type, $data_row, $value) : null;
                     } else {

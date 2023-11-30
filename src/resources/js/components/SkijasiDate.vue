@@ -1,19 +1,14 @@
 <template>
   <vs-col :vs-lg="size" vs-xs="12" class="skijasi-date__container">
-    <label v-if="label != ''" for="" class="skijasi-date__label">{{
-      label
-    }}</label>
+    <label v-if="label != ''" for="" class="skijasi-date__label">{{ label }}</label>
     <div class="skijasi-date__date-container">
-      <datetime
-        :label="label"
-        type="date"
-        :value="value"
+      <datepicker
+      v-model="innerValue"
+        :format="dateFormat"
+        :placeholder="placeholder"
+        @input="handleInput"
         class="skijasi-date__input"
-        @input="handleInput($event)"
-      ></datetime>
-      <div class="skijasi-date__date-icon-box">
-        <vs-icon icon="calendar_today" class="skijasi-date__date-icon"></vs-icon>
-      </div>
+      ></datepicker>
     </div>
     <div v-if="additionalInfo" v-html="additionalInfo"></div>
     <div v-if="alert">
@@ -34,10 +29,18 @@
 </template>
 
 <script>
+import Datepicker from 'vue2-datepicker';
+import 'vue2-datepicker/index.css';
+
 export default {
   name: "SkijasiDate",
-  components: {},
-  data: () => ({}),
+  components: {
+    Datepicker,
+  },
+  data: () => ({
+
+    dateFormat: 'DD-MM-YYYY' // Adjust the format as per your requirement
+  }),
   props: {
     size: {
       type: String,
@@ -53,7 +56,6 @@ export default {
     },
     value: {
       type: String,
-      required: true,
       default: "",
     },
     additionalInfo: {
@@ -65,10 +67,35 @@ export default {
       default: "",
     },
   },
+  computed: {
+    innerValue: {
+      get() {
+        return this.value ? new Date(this.value) : null;
+      },
+      set(val) {
+        if (!val) {
+          this.$emit("input", null);
+        } else {
+          const utcDate = new Date(val.getTime() - (val.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+          this.$emit("input", utcDate);
+        }
+      }
+    }
+  },
   methods: {
-    handleInput(val) {
-      this.$emit("input", val);
-    },
+    handleInput(date) {
+  if (date == null || date == '') {
+    this.$emit("input", null);
+  } else {
+    const utcDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    this.$emit("input", utcDate);
+  }
+},
   },
 };
 </script>
+
+
+
+
+

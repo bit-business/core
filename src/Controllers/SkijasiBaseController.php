@@ -1544,18 +1544,48 @@ $html .= '</body></html>';
 private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $programVoditeljEdukacijskeGrupe, $programDuljinaPrograma, $programDuljinaProgramaTekst, $programKlasaGodina, $profesijaClana, $programRjdatum, $programRjKlasa, $programRjurbr, $birthdateFormatted, $programClanklasabrojtekst, $datumprijabe, $zavrsenaedukacija, $brojclanskiidurbrojtekst, $formattedTodayDate, $formattedTodayDateYear, $listaArray, $programMaticniBroj )
 {
     $data = (array) $data; // Convert object to array
-    $listaArray = (array) $listaArray;
+   // Convert listaArray to an array if it's not already
+   $listaArray = (array) $listaArray;
+   $listHtml = '';
 
-   // Split the string into individual items
-   $segments = explode(',', $listaArray[0]);
+   if (!empty($listaArray) && isset($listaArray[0])) {
+       // Split the string into individual items
+       $segments = explode(',', $listaArray[0]);
 
-   $listHtml = '<div class="text-box-lista">';
-   $listHtml .= '<ul style="list-style-type: none; padding-left: 0;">';
+       // Here goes the new code for splitting the list into two columns
+       $firstColumn = array_slice($segments, 0, 12); // First 12 items
+       $secondColumn = array_slice($segments, 12);   // Remaining items
 
-   foreach ($segments as $index => $segmentName) {
-       $number = str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT); // This will ensure numbers are 01, 02, 03, etc.
-       $listHtml .= "<li>{$number}.&nbsp;&nbsp;{$segmentName}</li>";
+       $listHtml = '<div class="text-box-lista">';
+       $listHtml .= '<div class="list-column" style="float: left; width: 150%;">';
+       $listHtml .= '<ul style="list-style-type: none; padding-left: 0;">';
+
+       foreach ($firstColumn as $index => $segmentName) {
+           $number = str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT);
+           $listHtml .= "<li>{$number}.&nbsp;&nbsp;{$segmentName}</li>";
+       }
+
+       $listHtml .= '</ul>';
+       $listHtml .= '</div>'; // Close first column
+
+       if (!empty($secondColumn)) {
+           $listHtml .= '<div class="list-column" style="float: left; width: 150%;">';
+           $listHtml .= '<ul style="list-style-type: none; padding-left: 0;">';
+
+           foreach ($secondColumn as $index => $segmentName) {
+               $number = str_pad((string)($index + 13), 2, '0', STR_PAD_LEFT); // Start from 13
+               $listHtml .= "<li>{$number}.&nbsp;&nbsp;{$segmentName}</li>";
+           }
+
+           $listHtml .= '</ul>';
+           $listHtml .= '</div>'; // Close second column
+       }
+
+       $listHtml .= '</div>'; // Close text-box-lista
    }
+
+
+
 
    $listHtml .= '</ul>';
    $listHtml .= '</div>';
@@ -1576,6 +1606,7 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
         font-weight: lighter;
          font-size: 22.7px;
          z-index: 2;
+         width: 80%;
        }
 
     .text-box-small {
@@ -1672,7 +1703,7 @@ private function convertDataToHtml($data, $programNaziv, $programRavnatelj, $pro
 <div class="text-box" style="top: 82.00%; left: 20.00%;">
  Zagrebu </div>
 
- <div class="text-box" style="top: 82.00%; left: 66.00%;">' . $formattedTodayDate . '</div>
+ <div class="text-box" style="top: 82.00%; left: 65.00%;">' . $formattedTodayDate . '</div>
 
  <div class="text-box" style="top: 82.00%; left: 80.54%;">' . $formattedTodayDateYear . '</div>
 
@@ -1729,8 +1760,13 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
     $data = (array) $data; // Convert object to array
     $listaArray = (array) $listaArray;
 
-   // Split the string into individual items
-   $segments = explode(',', $listaArray[0]);
+
+    $listHtml = '';
+
+    // Split the string into individual items
+    if (!empty($listaArray) && isset($listaArray[0])) {
+     // Split the string into individual items
+     $segments = explode(',', $listaArray[0]);
 
    $listHtml = '<div class="text-box-lista">';
    $listHtml .= '<ul style="list-style-type: none; padding-left: 0;">';
@@ -1739,11 +1775,18 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
        $number = str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT); // This will ensure numbers are 01, 02, 03, etc.
        $listHtml .= "<li>{$number}.&nbsp;&nbsp;{$segmentName}</li>";
    }
+ 
+ 
+ }
+
+
+   // Split the string into individual items
+ 
 
    $listHtml .= '</ul>';
    $listHtml .= '</div>';
 
-\Log::info('Generated listHtml:', (array)$listHtml);
+
 
     $html = '<html><head><meta charset="UTF-8"><style>
     @page {
@@ -1759,6 +1802,7 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
         font-weight: lighter;
          font-size: 22.7px;
          z-index: 2;
+    
        }
 
     .text-box-small {
@@ -1850,7 +1894,7 @@ private function convertDataToHtmlPrint($data, $programNaziv, $programRavnatelj,
 <div class="text-box" style="top: 82.00%; left: 20.00%;">
  Zagrebu </div>
 
- <div class="text-box" style="top: 82.00%; left: 66.00%;">' . $formattedTodayDate . '</div>
+ <div class="text-box" style="top: 82.00%; left: 65.00%;">' . $formattedTodayDate . '</div>
 
  <div class="text-box" style="top: 82.00%; left: 80.54%;">' . $formattedTodayDateYear . '</div>
 
@@ -1904,13 +1948,12 @@ $html .= '</body></html>';
   public function citanjeispiti(Request $request)
   {
       try {
-          $request->validate([
-              'idedukacijskogsegmentaclana' => 'required',
-          ]);
+         
           $slug = $this->getSlug($request);
           $data_type = $this->getDataType($slug);
+     
           $request->validate([
-              'idedukacijskogsegmentaclana' => 'exists:'.$data_type->name,
+              'idedukacijskogsegmentaclana' => 'required|exists:'.$data_type->name,
           ]);
 
           $data = $this->getDataDetail3($slug, $request->idedukacijskogsegmentaclana);
@@ -1928,9 +1971,7 @@ $html .= '</body></html>';
     public function citanje(Request $request)
     {
         try {
-            $request->validate([
-                'idmember' => 'required',
-            ]);
+      
             $slug = $this->getSlug($request);
             $data_type = $this->getDataType($slug);
             $request->validate([

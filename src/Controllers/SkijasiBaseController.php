@@ -1387,6 +1387,11 @@ $imageData = file_get_contents($imagePath);
 // Encode the image data to base64
 $base64Image = base64_encode($imageData);
 
+if (empty($cardseng)) {
+  $cardscroStyle = "width: 100%; left: 0%; text-align: center;";
+} else {
+  $cardscroStyle = "width: 54%; left: 0%; text-align: right;";
+}
 
 
  $html = '<html><head><meta charset="UTF-8"><style>
@@ -1507,7 +1512,7 @@ $base64Image = base64_encode($imageData);
     <img src="data:image/jpeg;base64,' . $base64Image . '" alt="NEMA SLIKE" />
   </div>
 
-  <div class="labeltop1" style="top: 2.0%; left:0%; text-align: right; width: 54%;">
+  <div class="labeltop1" style="top: 2.0%; ' . $cardscroStyle . '">
   '.$cardscro.'
 </div>
   <div class="labeltop2" style="top: 2.0%; left:56%; text-align: left; width: 40%; ">

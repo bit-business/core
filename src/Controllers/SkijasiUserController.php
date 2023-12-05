@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Hash;
 use NadzorServera\Skijasi\Helpers\ApiResponse;
 use NadzorServera\Skijasi\Models\User;
 use NadzorServera\Skijasi\Traits\FileHandler;
+use Illuminate\Support\Facades\Log;
+
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+
 
 use NadzorServera\Skijasi\Helpers\GetData;
 
@@ -203,15 +208,14 @@ class SkijasiUserController extends Controller
     public function edit(Request $request)
     {
         DB::beginTransaction();
-
+     
         try {
             $request->validate([
                 'id'        => 'required|exists:NadzorServera\Skijasi\Models\User,id',
-                'email'     => "required|email|unique:NadzorServera\Skijasi\Models\User,email,{$request->id}",
+                'email'     => 'required|email|unique:NadzorServera\Skijasi\Models\User',
                // 'username'  => "required|string|max:255|alpha_num|unique:NadzorServera\Skijasi\Models\User,username,{$request->id}",
-               'username'  => "required|string|max:255|alpha_num",
                'name'      => 'required',
-                'avatar'    => 'nullable',
+              
 
        
             ]);
@@ -232,15 +236,15 @@ class SkijasiUserController extends Controller
             $user->adresa = $request->adresa;
             $user->oib = $request->oib;
             $user->spol = $request->spol;
-            $user->urlfacebook = $request->urlfacebook;
-            $user->urltwitter = $request->urltwitter;
-            $user->urlinstagram = $request->urlinstagram;
-            $user->urllinkedin = $request->urllinkedin;
+          //  $user->urlfacebook = $request->urlfacebook;
+           // $user->urltwitter = $request->urltwitter;
+           // $user->urlinstagram = $request->urlinstagram;
+          //  $user->urllinkedin = $request->urllinkedin;
 
-            $user->prikazi_fb = $request->prikazi_fb;
-            $user->prikazi_ig = $request->prikazi_ig;
-            $user->prikazi_tw = $request->prikazi_tw;
-            $user->prikazi_lnk = $request->prikazi_lnk;
+           // $user->prikazi_fb = $request->prikazi_fb;
+           // $user->prikazi_ig = $request->prikazi_ig;
+          //  $user->prikazi_tw = $request->prikazi_tw;
+          //  $user->prikazi_lnk = $request->prikazi_lnk;
 
            
            // $user->avatar = $request->avatar;
@@ -301,10 +305,14 @@ class SkijasiUserController extends Controller
     DB::beginTransaction();
 
     try {
-        // Replace old avatar with new_avatar
-        $user->avatar = $user->new_avatar;
-        $user->new_avatar = null;
-        $user->avatar_approved = false;
+    
+    // Remove 'odobrenje/' from new_avatar
+    $updatedAvatar = str_replace('odobrenja/', '', $user->new_avatar);
+
+    // Replace old avatar with the updated new_avatar
+    $user->avatar = $updatedAvatar;
+    $user->new_avatar = null;
+    $user->avatar_approved = false;
         
         $user->save();
 
@@ -317,7 +325,7 @@ class SkijasiUserController extends Controller
             ->event('avatar_approved')
             ->log('Odobrena je nova profilna slika za: '.$user->name.'');
 
-        return ApiResponse::success('Avatar approved successfully');
+        return ApiResponse::success('Novi avatar je odobren!');
     } catch (Exception $e) {
         DB::rollBack();
 

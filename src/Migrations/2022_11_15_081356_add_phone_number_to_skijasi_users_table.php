@@ -14,7 +14,7 @@ class AddPhoneNumberToSkijasiUsersTable extends Migration
     public function up()
     {
         Schema::table(config('skijasi.database.prefix').'users', function (Blueprint $table) {
-            $table->string('phone', 20)->nullable()->after('avatar');
+            $table->string('brojmobitela', 20)->nullable()->after('avatar');
         });
     }
 
@@ -26,7 +26,7 @@ class AddPhoneNumberToSkijasiUsersTable extends Migration
     public function down()
     {
         Schema::table(config('skijasi.database.prefix').'users', function (Blueprint $table) {
-            $table->dropColumn('phone');
+            $table->dropColumn('brojmobitela');
         });
     }
 }

@@ -183,6 +183,7 @@ class SkijasiAuthController extends Controller
             $existingUser = User::where('name', $request->get('name'))
             ->where('username', $request->get('username'))
             ->where('user_type', 'Hzuts član')
+            ->whereNull('email_verified_at')
             ->first();
 
             if ($existingUser) {
@@ -202,10 +203,10 @@ class SkijasiAuthController extends Controller
                     'datumrodjenja'    => $request->get('datumrodjenja'),
                    // 'avatar'    => $request->get('avatar'),
 
-                    'urlinstagram'    => $request->get('urlinstagram'),
-                    'urlfacebook'    => $request->get('urlfacebook'),
-                    'urltwitter'    => $request->get('urltwitter'),
-                    'urllinkedin'    => $request->get('urllinkedin'),
+                  //  'urlinstagram'    => $request->get('urlinstagram'),
+                  //  'urlfacebook'    => $request->get('urlfacebook'),
+                  //  'urltwitter'    => $request->get('urltwitter'),
+                  //  'urllinkedin'    => $request->get('urllinkedin'),
             
                 ]);
 
@@ -237,7 +238,7 @@ class SkijasiAuthController extends Controller
                         ]])
                         ->performedOn($user)
                         ->event('created')
-                        ->log('Stvorena je izmjena');
+                        ->log('Stvorena je izmjena za postojećeg člana');
     
                     return $this->createNewToken($token, auth()->user());
                 } else {
@@ -274,7 +275,7 @@ class SkijasiAuthController extends Controller
                    
                     $filename = UploadImage::createImage($request->avatar, 'profilephoto/');
                    
-                    \Log::info("Avatar Filename: $filename");
+                    \Log::info("Novi običan korisnik dodan: $filename");
        
                 
 
@@ -295,10 +296,10 @@ class SkijasiAuthController extends Controller
              
                 'avatar' => $filename,
 
-                'urlinstagram'    => $request->get('urlinstagram'),
-                'urlfacebook'    => $request->get('urlfacebook'),
-                'urltwitter'    => $request->get('urltwitter'),
-                'urllinkedin'    => $request->get('urllinkedin'),   
+             //   'urlinstagram'    => $request->get('urlinstagram'),
+             //   'urlfacebook'    => $request->get('urlfacebook'),
+             //   'urltwitter'    => $request->get('urltwitter'),
+             //   'urllinkedin'    => $request->get('urllinkedin'),   
 
 
                 'user_type'    => 'Običan Korisnik',
@@ -335,7 +336,7 @@ class SkijasiAuthController extends Controller
                     ]])
                     ->performedOn($user)
                     ->event('created')
-                    ->log('Stvorena je izmjena');
+                    ->log('Stvorena je izmjena za običnog korisnika');
 
                 return $this->createNewToken($token, auth()->user());
               } else {
@@ -487,7 +488,7 @@ class SkijasiAuthController extends Controller
                 ->withProperties(['attributes' => $request->all()])
                 ->performedOn($user)
                 ->event('updated')
-                ->log('Promijenjena je šifra');
+                ->log('Promijenjena je šifra korisnika');
 
             return ApiResponse::success($user);
         } catch (Exception $e) {

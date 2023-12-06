@@ -173,10 +173,10 @@ class SkijasiAuthController extends Controller
         try {
             DB::beginTransaction();
             $request->validate([
-                'name'     => 'required|string|max:255',
-                'username' => 'required|string|max:255|alpha_num',
+                'name'     => 'required|string|max:55',
+                'username' => 'required|string|max:55|alpha_num',
                 'brojmobitela'    => 'required|numeric|min:6',
-                'email'    => 'required|string|email|max:255|unique:NadzorServera\Skijasi\Models\User',
+                'email'    => 'required|string|email|max:55|unique:NadzorServera\Skijasi\Models\User',
                 'password' => 'required|string|min:5|confirmed',
             ]);
 
@@ -219,24 +219,24 @@ class SkijasiAuthController extends Controller
                 $role = $this->getCustomerRole();
 
                 $user_role = new UserRole();
-                $user_role->user_id = $user->id;
+                $user_role->user_id = $existingUser->id; // Use $existingUser->id instead of $user->id
                 $user_role->role_id = $role->id;
                 $user_role->save();
     
                 $should_verify_email = Config::get('adminPanelVerifyEmail') == '1' ? true : false;
                 if (! $should_verify_email) {
                     $ttl = $this->getTTL();
-                    $token = auth()->setTTL($ttl)->login($user);
+                    $token = auth()->setTTL($ttl)->login($existingUser);
     
                     DB::commit();
     
                     activity('Authentication')
                         ->causedBy(auth()->user() ?? null)
                         ->withProperties(['attributes' => [
-                            'user' => $user,
+                            'user' => $existingUser,
                             'role' => $user_role,
                         ]])
-                        ->performedOn($user)
+                        ->performedOn($existingUser)
                         ->event('created')
                         ->log('Stvorena je izmjena za postojećeg člana');
     
@@ -249,7 +249,7 @@ class SkijasiAuthController extends Controller
                     $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
                     $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                     $data = [
-                        'user_id'            => $user->id,
+                        'user_id'            => $existingUser->id,
                         'verification_token' => $token,
                         'expired_at'         => $expired_token,
                         'count_incorrect'    => 0,
@@ -257,7 +257,7 @@ class SkijasiAuthController extends Controller
     
                     UserVerification::firstOrCreate($data);
     
-                    $this->sendVerificationToken(['user' => $user, 'token' => $token]);
+                    $this->sendVerificationToken(['user' => $existingUser, 'token' => $token]);
     
                     DB::commit();
     

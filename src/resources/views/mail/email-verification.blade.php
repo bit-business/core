@@ -180,7 +180,7 @@
 
                       <h1>{{$token}}</h1>
 
-                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga <a href="{{ \URL::to(\config('skijasi.admin_panel_route_prefix').'/verify') }}?email={{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
+                      <p>Sve što trebate učiniti je kopirati kontrolni kod i zalijepiti ga <a href="{{ \URL::to(\config('skijasi.MIX_COMMERCE_WEB_ROUTE_PREFIX').'/auth/verify') }}/{{$user->email}}">ovdje</a> kako biste dovršili postupak provjere e-pošte.</p>
 
                       <p>Srdačno,<br />{{ config('app.name') }}</p>
                     </td>

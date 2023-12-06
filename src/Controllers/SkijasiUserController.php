@@ -178,15 +178,7 @@ class SkijasiUserController extends Controller
     
     
     
-    
-
-
-
-
-
-    
-
-    public function read(Request $request)
+        public function read(Request $request)
     {
         try {
             $request->validate([
@@ -196,6 +188,62 @@ class SkijasiUserController extends Controller
             $user = User::find($request->id);
 
             $user->email_verified = ! is_null($user->email_verified_at);
+
+
+      
+
+ 
+
+
+            $data['user'] = $user;
+
+            return ApiResponse::success($data);
+        } catch (Exception $e) {
+            return ApiResponse::failed($e);
+        }
+    }
+
+
+
+
+
+    
+
+    public function readmojstatus(Request $request)
+    {
+        try {
+            $request->validate([
+                'id' => 'required|exists:NadzorServera\Skijasi\Models\User,id',
+            ]);
+
+            $user = User::find($request->id);
+
+            $user->email_verified = ! is_null($user->email_verified_at);
+
+
+            $paymentData = GetData::fetchPaymentDataForMember($user->id);
+            $user->statusPlacanja = GetData::calculatePaymentStatus($paymentData);
+            
+            // ... other code ...
+
+    // Fetch and calculate status data
+    $statusData = GetData::fetchStatusDataForMember($user->id);
+    $trainerStatusLabels = GetData::getTrainerStatusLabels();
+    $user->statusString = GetData::calculateStatusString($statusData, $trainerStatusLabels);
+    
+
+    $licenceData = GetData::fetchLicenceDataForMember($user->idmember);
+    $user->licenceData = $licenceData;
+
+
+    $statusAktivanData = GetData::calculateStatusAktivan($statusData);
+    $user->statusAktivan = $statusAktivanData['status'];
+    $user->endstatusdate = $statusAktivanData['endstatusdate'];
+    $user->idevent = $statusAktivanData['idevent'];
+
+    $isiaData = GetData::fetchISIAbroj($user->idmember);
+    $user->isiaBroj = $isiaData;
+
 
             $data['user'] = $user;
 
@@ -226,16 +274,39 @@ class SkijasiUserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
 
-            $user->additional_info = $request->additional_info;
 
-            $user->datumrodjenja = $request->datumrodjenja;
-            $user->brojmobitela = $request->brojmobitela;
-            $user->drzava = $request->drzava;
-            $user->grad = $request->grad;
-            $user->postanskibroj = $request->postanskibroj;
-            $user->adresa = $request->adresa;
-            $user->oib = $request->oib;
-            $user->spol = $request->spol;
+            if ($request->has('additional_info')) {
+                $user->additional_info = $request->additional_info;
+            }
+    
+            if ($request->has('datumrodjenja')) {
+                $user->datumrodjenja = $request->datumrodjenja;
+            }
+            if ($request->has('brojmobitela')) {
+                $user->brojmobitela = $request->brojmobitela;
+            }
+            if ($request->has('drzava')) {
+                $user->drzava = $request->drzava;
+            }
+            if ($request->has('grad')) {
+                $user->grad = $request->grad;
+            }
+            if ($request->has('postanskibroj')) {
+                $user->postanskibroj = $request->postanskibroj;
+            }
+            if ($request->has('adresa')) {
+                $user->adresa = $request->adresa;
+            }
+            if ($request->has('oib')) {
+                $user->oib = $request->oib;
+            }
+         
+            if ($request->has('spol')) {
+                $user->spol = $request->spol;
+            }
+         
+          
+     
           //  $user->urlfacebook = $request->urlfacebook;
            // $user->urltwitter = $request->urltwitter;
            // $user->urlinstagram = $request->urlinstagram;
@@ -295,22 +366,33 @@ class SkijasiUserController extends Controller
     $user = User::find($request->id);
 
     if (!$user) {
-        return ApiResponse::failed('User not found');
+        return ApiResponse::failed('Korisnik nije nađen');
     }
 
     if (!$user->new_avatar) {
-        return ApiResponse::failed('No new avatar to approve');
+        return ApiResponse::failed('Nema novih slika za odobrenje');
     }
 
     DB::beginTransaction();
 
     try {
-    
-    // Remove 'odobrenje/' from new_avatar
-    $updatedAvatar = str_replace('odobrenja/', '', $user->new_avatar);
+        // Assuming new_avatar holds the path of the avatar in storage
+        $currentAvatarPath = $user->new_avatar;
+        // Define the new path (excluding 'odobrenja/' from the path)
+        $newAvatarPath = str_replace('odobrenja/', '', $currentAvatarPath);
 
-    // Replace old avatar with the updated new_avatar
-    $user->avatar = $updatedAvatar;
+        // Check if the file exists in the current location
+        if (Storage::exists($currentAvatarPath)) {
+            // Move the file to the new location
+            Storage::move($currentAvatarPath, $newAvatarPath);
+        } else {
+            // Handle the case where the file doesn't exist
+            DB::rollBack();
+            return ApiResponse::failed('Slika ne postoji na destinaciji gdje bi trebala biti. Javite se administratoru!');
+        }
+
+        // Update the user's avatar path to the new location
+        $user->avatar = $newAvatarPath;
     $user->new_avatar = null;
     $user->avatar_approved = false;
         
@@ -338,11 +420,11 @@ public function declineAvatar(Request $request)
     $user = User::find($request->id);
 
     if (!$user) {
-        return ApiResponse::failed('User not found');
+        return ApiResponse::failed('Korisnik nije nađen');
     }
 
     if (!$user->new_avatar) {
-        return ApiResponse::failed('No new avatar to decline');
+        return ApiResponse::failed('Nema novih slika za odobrenje');
     }
 
     DB::beginTransaction();
@@ -364,7 +446,7 @@ public function declineAvatar(Request $request)
             ->event('avatar_declined')
             ->log('Odbijena je nova profilna slika '.$user->name.'');
 
-        return ApiResponse::success('Avatar declined successfully');
+        return ApiResponse::success('Slike je odbijena uspješno');
     } catch (Exception $e) {
         DB::rollBack();
 

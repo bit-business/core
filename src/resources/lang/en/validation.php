@@ -21,9 +21,9 @@ return [
         'mimetype_invalid' => 'Base64 mimetype is invalid',
     ],
     'verification' => [
-        'email_sended'               => 'An verification mail has been send to your email',
-        'invalid_verification_token' => 'Invalid verification token',
-        'verification_not_found'     => 'Verification not found',
+        'email_sended'               => 'Email sa verifikacijskim tokenom Vam je poslan',
+        'invalid_verification_token' => 'Neispravan token. Provjerite email',
+        'verification_not_found'     => 'Verfikacija nije pronađena. Da li ste napravili račun?',
         'time_wait_loading'          => 'Wait until loaded finish',
     ],
     'database' => [

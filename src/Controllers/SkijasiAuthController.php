@@ -33,7 +33,7 @@ class SkijasiAuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware(config('skijasi.middleware.authenticate'), ['except' => ['secretLogin', 'login', 'register', 'forgetPassword', 'resetPassword', 'verify', 'reRequestVerification', 'validateTokenForgetPassword']]);
+        $this->middleware(config('skijasi.middleware.authenticate'), ['except' => ['secretLogin', 'login', 'loginweb',  'register', 'forgetPassword', 'resetPassword', 'verify', 'reRequestVerification', 'validateTokenForgetPassword']]);
     }
 
     public function secretLogin(Request $request)
@@ -102,6 +102,7 @@ class SkijasiAuthController extends Controller
                 'email'    => $request->email,
                 'password' => $request->password,
             ];
+            
             $request->validate([
                 'email' => [
                     'required',
@@ -109,8 +110,18 @@ class SkijasiAuthController extends Controller
                         if (! $token = auth()->attempt($credentials)) {
                             $fail(__('skijasi::validation.auth.invalid_credentials'));
                         }
-                    },
-                ],
+
+                         // Get authenticated user
+                $user = auth()->user();
+
+                // Retrieve roles (assuming a roles() relationship exists)
+                $roles = $user->roles()->pluck('name'); // Get names of the roles
+
+                // Check if user has 'customer' or 'administrator' role
+                if (!$roles->contains('customer') && !$roles->contains('administrator')) {
+                    return $fail(__('Nemate korisnička prava za prijavu. Javite se Administratoru!'));
+                }
+            }],
                 'password' => ['required'],
             ]);
 
@@ -152,6 +163,77 @@ class SkijasiAuthController extends Controller
         }
     }
 
+
+    public function loginweb(Request $request)
+    {
+        try {
+            $remember = $request->get('remember', false);
+            $credentials = [
+                'email'    => $request->email,
+                'password' => $request->password,
+            ];
+            
+            $request->validate([
+                'email' => [
+                    'required',
+                    function ($attribute, $value, $fail) use ($credentials) {
+                        if (! $token = auth()->attempt($credentials)) {
+                            $fail(__('skijasi::validation.auth.invalid_credentials'));
+                        }
+
+                         // Get authenticated user
+                $user = auth()->user();
+
+                // Retrieve roles (assuming a roles() relationship exists)
+                $roles = $user->roles()->pluck('name'); // Get names of the roles
+
+                // Check if user has 'customer' or 'administrator' role
+              //  if (!$roles->contains('customer') && !$roles->contains('administrator')) {
+              //      return $fail(__('Nemate korisnička prava za prijavu. Javite se Administratoru!'));
+              //  }
+            }],
+                'password' => ['required'],
+            ]);
+
+            $should_verify_email = Config::get('adminPanelVerifyEmail') == '1' ? true : false;
+            if ($should_verify_email) {
+                $user = auth()->user();
+                if (is_null($user->email_verified_at)) {
+                    $token = rand(111111, 999999);
+                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                    $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
+                    $data = [
+                        'user_id'            => $user->id,
+                        'verification_token' => $token,
+                        'expired_at'         => $expired_token,
+                        'count_incorrect'    => 0,
+                    ];
+
+                    UserVerification::firstOrCreate($data);
+
+                    $this->sendVerificationToken(['user' => $user, 'token' => $token]);
+
+                    return ApiResponse::success();
+                }
+            }
+
+            $ttl = $this->getTTL($remember);
+            $token = auth()->setTTL($ttl)->attempt($credentials);
+
+            activity('Authentication')
+                ->causedBy(auth()->user() ?? null)
+                ->withProperties(['attributes' => auth()->user()])
+                ->log('Korisnik se prijavio');
+
+            return $this->createNewToken($token, auth()->user(), $remember);
+        } catch (JWTException $e) {
+            return ApiResponse::failed($e);
+        } catch (Exception $e) {
+            return ApiResponse::failed($e);
+        }
+    }
+
+
     public function logout(Request $request)
     {
         try {
@@ -173,11 +255,11 @@ class SkijasiAuthController extends Controller
         try {
             DB::beginTransaction();
             $request->validate([
-                'name'     => 'required|string|max:55',
-                'username' => 'required|string|max:55|alpha_num',
-                'brojmobitela'    => 'required|numeric|min:6',
+                'name' => 'required|string|regex:/^[a-zA-Z]+$/|max:55',
+                'username' => 'required|string|regex:/^[a-zA-Z]+$/|max:55',
+                'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:6',
                 'email'    => 'required|string|email|max:55|unique:NadzorServera\Skijasi\Models\User',
-                'password' => 'required|string|min:5|confirmed',
+                'password' => 'required|string|min:5|max:55|confirmed',
             ]);
 
             $existingUser = User::where('name', $request->get('name'))
@@ -210,9 +292,11 @@ class SkijasiAuthController extends Controller
             
                 ]);
 
-                if ($request->hasFile('avatar')) {
-                    $avatarPath = UploadImage::createImage($request->file('avatar')->get(), 'profilephoto/'); // spremanje avatara
-                    $existingUser->avatar = $avatarPath;
+                if ($request->filled('avatar')) {
+
+                    $filename = UploadImage::createImageEdit($request->avatar);
+                    $existingUser->new_avatar = $filename; 
+                    $existingUser->avatar_approved = true; 
                 }
                 
     

@@ -24,7 +24,7 @@ return [
         'email_sended'               => 'Email sa verifikacijskim tokenom Vam je poslan',
         'invalid_verification_token' => 'Neispravan token. Provjerite email',
         'verification_not_found'     => 'Verfikacija nije pronađena. Da li ste napravili račun?',
-        'time_wait_loading'          => 'Wait until loaded finish',
+        'time_wait_loading'          => 'Pričekajte dok ne završi odbrojavanje',
     ],
     'database' => [
         'table_already_exists'      => 'Table :table already exists.',

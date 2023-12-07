@@ -31,6 +31,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
         Route::group(['prefix' => 'auth'], function () {
             Route::post('/login', 'SkijasiAuthController@login');
+            Route::post('/loginweb', 'SkijasiAuthController@loginweb');
+
             Route::post('/logout', 'SkijasiAuthController@logout');
             Route::post('/register', 'SkijasiAuthController@register');
             Route::post('/forgot-password', 'SkijasiAuthController@forgetPassword');

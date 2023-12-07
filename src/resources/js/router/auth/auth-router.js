@@ -17,6 +17,14 @@ export default [
     },
   },
   {
+    path: prefix + "/loginweb",
+    name: "AuthLoginWeb",
+    component: Pages,
+    meta: {
+      title: "Prijava",
+    },
+  },
+  {
     path: prefix + "/register",
     name: "AuthRegister",
     component: Pages,

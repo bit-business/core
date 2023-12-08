@@ -292,14 +292,16 @@ class SkijasiAuthController extends Controller
             
                 ]);
 
-                if ($request->filled('avatar')) {
+                if ($request->hasFile('avatar')) {
 
-                    $filename = UploadImage::createImageEdit($request->avatar);
-                    $existingUser->new_avatar = $filename; 
+                    $avatarPath = UploadImage::createImageEdit($request->avatar);
+                    $existingUser->new_avatar = $avatarPath; 
                     $existingUser->avatar_approved = true; 
+                  
                 }
                 
-    
+                $existingUser->save();
+                
                 $role = $this->getCustomerRole();
 
                 $user_role = new UserRole();

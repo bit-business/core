@@ -255,9 +255,9 @@ class SkijasiAuthController extends Controller
         try {
             DB::beginTransaction();
             $request->validate([
-                'name' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚ]+$/u|max:55',
-                'username' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚ]+$/u|max:55',
-                'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:6',
+                'name' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚäöüÄÖÜß]+$/u|max:55',
+                'username' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚäöüÄÖÜß]+$/u|max:55',
+                'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:5',
                 'email'    => 'required|string|email|max:55|unique:NadzorServera\Skijasi\Models\User',
                 'password' => 'required|string|min:5|max:55|confirmed',
             ]);
@@ -267,6 +267,8 @@ class SkijasiAuthController extends Controller
             ->where('user_type', 'Hzuts član')
             ->whereNull('email_verified_at')
             ->first();
+
+      
 
             if ($existingUser) {
                 // Update existing user's information postojeci korisnik
@@ -293,12 +295,12 @@ class SkijasiAuthController extends Controller
                 ]);
 
                 if ($request->hasFile('avatar')) {
-
-                    $avatarPath = UploadImage::createImageEdit($request->avatar);
+                    $avatarPath = UploadImage::createImageEdit($request->get('avatar'));
                     $existingUser->new_avatar = $avatarPath; 
                     $existingUser->avatar_approved = true; 
-                  
-                }
+                } 
+                
+                
                 
                 $existingUser->save();
 
@@ -357,12 +359,9 @@ class SkijasiAuthController extends Controller
                 // Create a new user obican korisnik
 
 
-           
+             
                    
-                    $filename = UploadImage::createImage($request->avatar, 'profilephoto/');
-                   
-                    \Log::info("Novi običan korisnik dodan: $filename");
-       
+              
                 
 
                 $user = User::create([
@@ -379,8 +378,9 @@ class SkijasiAuthController extends Controller
                 'oib'    => $request->get('oib'),
                 'spol'    => $request->get('spol'),
                 'datumrodjenja'    => $request->get('datumrodjenja'),
-             
-                'avatar' => $filename,
+               
+               // 'avatar' =>  $request->get('avatar'), 
+               // 'avatar' => $filename,
 
              //   'urlinstagram'    => $request->get('urlinstagram'),
              //   'urlfacebook'    => $request->get('urlfacebook'),
@@ -391,6 +391,16 @@ class SkijasiAuthController extends Controller
                 'user_type'    => 'Običan Korisnik',
               
                 ]);
+
+
+             
+                    // Save the uploaded avatar to a storage directory
+                    $filename = UploadImage::createImage($request->get('avatar'));
+            
+                    // Update the user's avatar field with the file path
+                    $user->avatar = $filename;
+                  
+                
 
 
              

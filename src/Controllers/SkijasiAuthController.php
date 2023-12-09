@@ -255,8 +255,8 @@ class SkijasiAuthController extends Controller
         try {
             DB::beginTransaction();
             $request->validate([
-                'name' => 'required|string|regex:/^[a-zA-Z]+$/|max:55',
-                'username' => 'required|string|regex:/^[a-zA-Z]+$/|max:55',
+                'name' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚ]+$/u|max:55',
+                'username' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚ]+$/u|max:55',
                 'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:6',
                 'email'    => 'required|string|email|max:55|unique:NadzorServera\Skijasi\Models\User',
                 'password' => 'required|string|min:5|max:55|confirmed',
@@ -301,7 +301,7 @@ class SkijasiAuthController extends Controller
                 }
                 
                 $existingUser->save();
-                
+
                 $role = $this->getCustomerRole();
 
                 $user_role = new UserRole();

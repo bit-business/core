@@ -294,11 +294,17 @@ class SkijasiAuthController extends Controller
             
                 ]);
 
-                if ($request->hasFile('avatar')) {
-                    $avatarPath = UploadImage::createImageEdit($request->get('avatar'));
-                    $existingUser->new_avatar = $avatarPath; 
+      
+
+
+                if ($request->has('avatar')) {
+                    $avatarBase64 = $request->input('avatar');
+                    $avatarPath = UploadImage::createImageEdit($avatarBase64, $existingUser->name, $existingUser->username, $existingUser->id);
+                    $existingUser->new_avatar = $avatarPath;
                     $existingUser->avatar_approved = true; 
-                } 
+                  
+                }
+                
                 
                 
                 
@@ -358,11 +364,9 @@ class SkijasiAuthController extends Controller
               } else {
                 // Create a new user obican korisnik
 
+       
+                $filename = UploadImage::createImage($request->avatar, $request->get('name'), $request->get('username'));
 
-             
-                   
-              
-                
 
                 $user = User::create([
                 'name'     => $request->get('name'),
@@ -380,7 +384,7 @@ class SkijasiAuthController extends Controller
                 'datumrodjenja'    => $request->get('datumrodjenja'),
                
                // 'avatar' =>  $request->get('avatar'), 
-               // 'avatar' => $filename,
+                'avatar' => $filename,
 
              //   'urlinstagram'    => $request->get('urlinstagram'),
              //   'urlfacebook'    => $request->get('urlfacebook'),
@@ -393,19 +397,15 @@ class SkijasiAuthController extends Controller
                 ]);
 
 
-             
-                    // Save the uploaded avatar to a storage directory
-                    $filename = UploadImage::createImage($request->get('avatar'));
-            
-                    // Update the user's avatar field with the file path
-                    $user->avatar = $filename;
-                  
+        
                 
-
-
-             
+                // Save the user with the updated avatar field
                 $user->save();
-                \Log::info("User Avatar: {$user->avatar}");
+                
+             
+                
+            
+             
 
 
 

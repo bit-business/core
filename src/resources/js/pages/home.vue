@@ -97,8 +97,12 @@ export default {
 
 
     getAvatarUrl(avatarPath) {
-        return `http://localhost:8000/storage/${avatarPath}`;
-    },
+    // Base URL from the window location
+    let baseUrl = window.location.origin;
+
+    // Append the specific storage directory and the avatar path
+    return `${baseUrl}/storage/${avatarPath}`;
+  },
 
       showFullscreenImage(avatarPath) {  
         this.fullscreenImage = this.getAvatarUrl(avatarPath);

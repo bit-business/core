@@ -255,18 +255,19 @@ class SkijasiAuthController extends Controller
         try {
             DB::beginTransaction();
             $request->validate([
-                'name' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚäöüÄÖÜß]+$/u|max:55',
-                'username' => 'required|string|regex:/^[a-zA-ZčćžšđČĆŽŠĐàèéìíîòóùúÀÈÉÌÍÎÒÓÙÚäöüÄÖÜß]+$/u|max:55',
+                'name' => 'required|string|max:55',
+                'username' => 'required|string|max:55',
                 'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:5',
                 'email'    => 'required|string|email|max:55|unique:NadzorServera\Skijasi\Models\User',
                 'password' => 'required|string|min:5|max:55|confirmed',
             ]);
 
-            $existingUser = User::where('name', $request->get('name'))
-            ->where('username', $request->get('username'))
+            $existingUser = User::where('name', trim($request->input('name')))
+            ->where('username', trim($request->input('username')))
             ->where('user_type', 'Hzuts član')
             ->whereNull('email_verified_at')
             ->first();
+
 
       
 
@@ -297,8 +298,8 @@ class SkijasiAuthController extends Controller
       
 
 
-                if ($request->has('avatar')) {
-                    $avatarBase64 = $request->input('avatar');
+                if ($request->has('new_avatar')) {
+                    $avatarBase64 = $request->input('new_avatar');
                     $avatarPath = UploadImage::createImageEdit($avatarBase64, $existingUser->name, $existingUser->username, $existingUser->id);
                     $existingUser->new_avatar = $avatarPath;
                     $existingUser->avatar_approved = true; 
@@ -365,7 +366,7 @@ class SkijasiAuthController extends Controller
                 // Create a new user obican korisnik
 
        
-                $filename = UploadImage::createImage($request->avatar, $request->get('name'), $request->get('username'));
+                $filename = UploadImage::createImage($request->new_avatar, $request->get('name'), $request->get('username'));
 
 
                 $user = User::create([

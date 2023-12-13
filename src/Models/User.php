@@ -54,7 +54,7 @@ class User extends Authenticatable implements JWTSubject
         'urlinstagram',
         'urlfacebook',
         'urltwitter',
-        'urllinkedin',
+        'noviprofil',
         
         'new_avatar',
         'avatar_approved',

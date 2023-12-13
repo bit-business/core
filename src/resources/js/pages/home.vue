@@ -98,7 +98,9 @@ export default {
 
     getAvatarUrl(avatarPath) {
     // Base URL from the window location
-    let baseUrl = window.location.origin;
+   // let baseUrl = window.location.origin;
+    let baseUrl = `https://hzuts.hr`;
+
 
     // Append the specific storage directory and the avatar path
     return `${baseUrl}/storage/${avatarPath}`;

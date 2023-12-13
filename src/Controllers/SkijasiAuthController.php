@@ -303,11 +303,12 @@ class SkijasiAuthController extends Controller
                     $avatarPath = UploadImage::createImageEdit($avatarBase64, $existingUser->name, $existingUser->username, $existingUser->id);
                     $existingUser->new_avatar = $avatarPath;
                     $existingUser->avatar_approved = true; 
+                 
                   
                 }
                 
                 
-                
+                $existingUser->noviprofil = true; 
                 
                 $existingUser->save();
 
@@ -398,7 +399,7 @@ class SkijasiAuthController extends Controller
                 ]);
 
 
-        
+                $user->noviprofil = true; 
                 
                 // Save the user with the updated avatar field
                 $user->save();

@@ -27,6 +27,8 @@ use NadzorServera\Skijasi\Traits\FileHandler;
 use NadzorServera\Skijasi\Module\Commerce\Helper\UploadImage;
 use Illuminate\Support\Facades\Log;
 
+use Illuminate\Validation\Rule;
+
 class SkijasiAuthController extends Controller
 {
     use FileHandler;
@@ -254,19 +256,36 @@ class SkijasiAuthController extends Controller
     {
         try {
             DB::beginTransaction();
-            $request->validate([
-                'name' => 'required|string|max:55',
-                'username' => 'required|string|max:55',
-                'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:5',
-                'email'    => 'required|string|email|max:55|unique:NadzorServera\Skijasi\Models\User',
-                'password' => 'required|string|min:5|max:55|confirmed',
-            ]);
+          
+               // Assume $existingUserId is null initially
+        $existingUserId = null;
 
-            $existingUser = User::where('name', trim($request->input('name')))
-            ->where('username', trim($request->input('username')))
-            ->where('user_type', 'Hzuts član')
-            ->whereNull('email_verified_at')
-            ->first();
+        // Determine if there's an existing user
+        $existingUser = User::where('name', trim($request->input('name')))
+                            ->where('username', trim($request->input('username')))
+                            ->where('user_type', 'Hzuts član')
+                            ->whereNull('email_verified_at')
+                            ->first();
+
+        if ($existingUser) {
+            // Set the existing user's ID
+            $existingUserId = $existingUser->id;
+        }
+
+        // Modify the email validation rule to exclude the existing user's ID
+        $request->validate([
+            'name' => 'required|string|max:55',
+            'username' => 'required|string|max:55',
+            'brojmobitela' => 'required|regex:/^[\+]?[0-9\s\-]+$/|min:5',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:55',
+                Rule::unique('NadzorServera\Skijasi\Models\User')->ignore($existingUserId),
+            ],
+            'password' => 'required|string|min:5|max:55|confirmed',
+        ]);
 
 
       

@@ -12,6 +12,8 @@ use NadzorServera\Skijasi\Models\DataType;
 use Illuminate\Support\Facades\Log;
 use Spatie\Browsershot\Browsershot;
 
+use NadzorServera\Skijasi\Module\Commerce\Helper\UploadImage;
+
 
 
 class SkijasiBaseController extends Controller
@@ -2042,6 +2044,19 @@ $html .= '</body></html>';
             return ApiResponse::failed($e);
         }
     }
+
+
+ 
+
+
+   
+
+       
+       
+  
+
+
+
 
     public function add(Request $request)
     {

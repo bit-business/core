@@ -76,6 +76,13 @@ export default {
     });
   },
 
+  editDatoteke(data) {
+    return resource.put(entityPrefix + "/" + "hzuts-clanovi"  + "/editDatoteke", {
+      data: data.data,
+    });
+  },
+
+
   add(data) {
     return resource.post(entityPrefix + "/" + data.slug + "/add", {
       data: data.data,

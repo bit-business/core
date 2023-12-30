@@ -73,9 +73,11 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
             Route::post('/upload/custom', 'SkijasiFileController@customuploadfile');
             Route::post('/upload/customvijesti', 'SkijasiFileController@customuploadfilevijesti');
+            Route::post('/upload/customdokumenti', 'SkijasiFileController@customuploadfiledokumenti');
             Route::get('/getfolders', 'SkijasiFileController@getFolders');
 
             Route::get('/get-images-from-slike', 'SkijasiFileController@getImagesFromSlike');
+
 
         });
 
@@ -229,6 +231,11 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.edit')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',edit');
 
+
+                        Route::put($data_type->slug.'/editDatoteke', $crud_data_controller.'@editDatoteke')
+                        ->name($data_type->slug.'.editDatoteke')
+                        ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',edit');
+
                     Route::post($data_type->slug.'/add', $crud_data_controller.'@add')
                         ->name($data_type->slug.'.add')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',add');
@@ -263,6 +270,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.generatepdffprint');
                         Route::get($data_type->slug.'/generatepdffid', $crud_data_controller.'@generatepdffid')
                         ->name($data_type->slug.'.generatepdffid');
+
+            
+
 
                         Route::get($data_type->slug.'/generatepdffpotvrdaisia', $crud_data_controller.'@generatepdffpotvrdaisia')
                         ->name($data_type->slug.'.generatepdffpotvrdaisia');

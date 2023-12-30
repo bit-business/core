@@ -438,16 +438,16 @@ if ($filter_value) {
 
         foreach ($records as $key => $record) {
             // Fetch and calculate payment status
-            $paymentData = self::fetchPaymentDataForMember($record->idmember);
+            $paymentData = self::fetchPaymentDataForMember($record->id);
             $statusPlacanja = self::calculatePaymentStatus($paymentData);
             $records[$key]->statusPlacanja = $statusPlacanja;
         
             // Fetch and calculate status data for 'statusString' and 'statusAktivan'
-            $statusData = self::fetchStatusDataForMember($record->idmember); // Fetch status data for the member
+            $statusData = self::fetchStatusDataForMember($record->id); // Fetch status data for the member
             $records[$key]->statusString = self::calculateStatusString($statusData, $trainerStatusLabels);
            
             // Fetch licence data
-    $licenceData = self::fetchLicenceDataForMember($record->idmember);
+    $licenceData = self::fetchLicenceDataForMember($record->id);
     $records[$key]->licenceData = $licenceData;
 
             $statusAktivanData = self::calculateStatusAktivan($statusData);
@@ -455,7 +455,7 @@ if ($filter_value) {
             $records[$key]->endstatusdate = $statusAktivanData['endstatusdate'];
 
 
-            $isiaData = self::fetchISIAbroj($record->idmember);
+            $isiaData = self::fetchISIAbroj($record->id);
             $records[$key]->isiaBroj = $isiaData;
           
         }  

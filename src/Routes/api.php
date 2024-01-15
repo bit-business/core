@@ -127,6 +127,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::delete('/delete-multiple', 'SkijasiUserController@deleteMultiple')->middleware(SkijasiCheckPermissions::class.':delete_users');
 
             Route::get('/unapproved-avatars', 'SkijasiUserController@unapprovedAvatars');
+            Route::get('/novizahtjevclanstvo', 'SkijasiUserController@novizahtjevclanstvo');
+            Route::put('/obrisizahtjev', 'SkijasiUserController@obrisizahtjev');
+
             Route::put('/approve-avatar', 'SkijasiUserController@approveAvatar');
             Route::put('/decline-avatar', 'SkijasiUserController@declineAvatar');
 
@@ -268,6 +271,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.generatepdff');
                         Route::get($data_type->slug.'/generatepdffprint', $crud_data_controller.'@generatepdffprint')
                         ->name($data_type->slug.'.generatepdffprint');
+                        Route::get($data_type->slug.'/generatepdffprintcopy', $crud_data_controller.'@generatepdffprintcopy')
+                        ->name($data_type->slug.'.generatepdffprintcopy');
+
                         Route::get($data_type->slug.'/generatepdffid', $crud_data_controller.'@generatepdffid')
                         ->name($data_type->slug.'.generatepdffid');
 

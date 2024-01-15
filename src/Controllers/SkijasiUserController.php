@@ -360,6 +360,31 @@ class SkijasiUserController extends Controller
     return response()->json($users);
 }
 
+public function novizahtjevclanstvo()
+{
+    $users = User::where('avatar_approved', 2)->get();
+    return response()->json($users);
+}
+public function obrisizahtjev(Request $request)
+{
+    $user = User::find($request->id);
+    DB::beginTransaction();
+
+    try {
+    $user->avatar_approved = false;
+        
+        $user->save();
+
+        DB::commit();
+        return ApiResponse::success('Novi avatar je odobren!');
+    } catch (Exception $e) {
+        DB::rollBack();
+
+        return ApiResponse::failed($e);
+    }
+}
+
+
 
     public function approveAvatar(Request $request)
 {
@@ -456,11 +481,12 @@ public function declineAvatar(Request $request)
 
 
 public function zadnjiidmember() {
-    // Retrieve the latest non-null maticni number from your database
-    $lastRecord = DB::table('skijasi_users')
-                     ->whereNotNull('idmember')
-                     ->orderBy('id', 'desc')
-                     ->first();
+    // Retrieve the latest non-null id number from your database
+ $lastRecord = DB::table('skijasi_users')
+                 ->whereNotNull('idmember')
+                 ->orderBy('idmember', 'desc')
+                 ->first();
+
 
     $lastIdmember = $lastRecord ? $lastRecord->idmember : "";
 

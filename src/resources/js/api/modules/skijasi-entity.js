@@ -27,6 +27,12 @@ export default {
     const url = ep + qs;
     return resource.get(url, { responseType: 'blob' }); // Add the responseType option
   },
+  generatepdffprintcopy(data) {
+    const ep = entityPrefix + "/" + data.slug + "/generatepdffprintcopy";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url, { responseType: 'blob' }); // Add the responseType option
+  },
 
     generatepdffid(data) {
     const ep = entityPrefix + "/" + data.slug + "/generatepdffid";

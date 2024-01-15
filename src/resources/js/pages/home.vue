@@ -3,7 +3,38 @@
   <vs-row>
     <skijasi-widget :col="col" :widgets="dashboardData"> </skijasi-widget>
     <div style="text-align: center; padding-left: 3%;">Napomena: U analitici su trenutno tesni podaci za testiranje. Ova stranica još nije dovršena.</div>
+ 
+    <div style="text-align: center; padding-left: 3%;">Napomena: U analitici su trenutno tesni podaci za testiranje. Ova stranica još nije dovršena.</div>
+
   </vs-row>
+
+
+  <div v-if="unapprovedZahtjevi && unapprovedZahtjevi.length" class="unapproved-container2">
+      <h3>Novi zahtjevi za članstvo:          
+</h3>
+      <div class="scrollable-list">
+        <ul>
+          <li v-for="user in unapprovedZahtjevi" :key="user.id" class="user-item">
+            <button @click="obrisizahtjev(user.id)" class="btn-decline2">Obriši zahtjev</button>
+            <img 
+            :src="getAvatarUrl(user.avatar)" 
+              alt="Odbijen Avatar" 
+              class="avatar cursor-pointer" 
+              @click="showFullscreenImage(user.avatar)">
+              <div class="user-details">
+        <!-- Display user's name and username -->
+        <div class="user-info">
+            <span>{{ user.name }} {{ user.username }}</span>  
+        </div>
+
+        <div class="btncontainer">
+            <button @click="otvoriclana(user.id)" class="btn-approve">Pokaži člana</button>
+        </div>
+    </div>
+</li>
+        </ul>
+      </div>
+    </div>
 
 
   <div v-if="unapprovedUsers && unapprovedUsers.length" class="unapproved-container">
@@ -37,6 +68,11 @@
       <img :src="fullscreenImage" class="fullscreen-image"/>
     </div>
 
+
+
+
+
+
 <!-- poruka 
 <br><button class="btn-approve" @click="sendFirebaseMessage">Send Firebase Message</button>
 -->
@@ -52,6 +88,7 @@ export default {
   components: {},
   data: () => ({
     unapprovedUsers: [],
+    unapprovedZahtjevi: [],
 
     fullscreenImage: null, 
     dashboardData: [],
@@ -79,6 +116,7 @@ export default {
     this.saveTokenFcmMessage();
 
     this.fetchUnapprovedAvatars();
+    this.fetchzahtjeve();
 
      // Set up a periodic check every 5 minutes (300000 milliseconds).
      this.intervalID = setInterval(this.fetchUnapprovedAvatars, 300000);
@@ -119,6 +157,34 @@ export default {
   
             });
     },
+
+    fetchzahtjeve() {
+        this.$api.skijasiUser.novizahtjevclanstvo()
+            .then(res => {
+                this.unapprovedZahtjevi = res;
+            })
+            .catch(err => {
+  
+            });
+    },
+
+    otvoriclana(userId) {
+      this.$router.push(`/skijasi-dashboard/general/hzuts-clanovi/${userId}`);    
+    },
+    obrisizahtjev(userId) {
+      this.$api.skijasiUser.obrisizahtjev({ id: userId })
+            .then(res => {
+                // You can refresh the unapproved avatars list after approval
+                this.fetchzahtjeve();
+            })
+            .catch(err => {
+                console.error("Error approving avatar:", err);
+            }); 
+        
+    },
+
+
+
     approveAvatar(userId) {
         this.$api.skijasiUser.approveAvatar({ id: userId })
             .then(res => {
@@ -241,6 +307,16 @@ export default {
   margin-left: 2.5%;
   margin-top: 2%;
 }
+.unapproved-container2 {
+  border: 1px solid #03a9f4;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 360px;
+  margin-left: 2.5%;
+  margin-top: 2%;
+}
 
 .scrollable-list {
   max-height: 300px; 
@@ -262,7 +338,7 @@ export default {
   background-color: #4CAF50; 
   color: white; 
   border: none; 
-  padding: 10px 25px;
+  padding: 10px 20px;
   cursor: pointer;
   border-radius: 4px;
   font-weight: 400;
@@ -278,11 +354,25 @@ export default {
   font-weight: 500;
 }
 
+.btn-decline2 {
+  background-color: #F44336; 
+  color: white; 
+  border: none; 
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 400;
+  font-size: 7px;
+}
+
 .btn-approve:hover {
   background-color: #45a049;
 }
 
 .btn-decline:hover {
+  background-color: #e43525;
+}
+.btn-decline2:hover {
   background-color: #e43525;
 }
 
@@ -310,12 +400,12 @@ export default {
   justify-content: center;
   align-items: center;
   padding-left: 6%;
-gap: 26px;
+  gap: 26px;
 }
 .user-item {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
 }
 
 .user-info {

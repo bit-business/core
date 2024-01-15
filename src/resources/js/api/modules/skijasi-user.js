@@ -57,6 +57,14 @@ export default {
     const url = ep + qs;
     return resource.get(url);
 },
+
+novizahtjevclanstvo(data = {}) {
+  const ep = apiPrefix + "/v1/users/novizahtjevclanstvo";
+  const qs = QueryString(data);
+  const url = ep + qs;
+  return resource.get(url);
+},
+
 approveAvatar(data) {
   return resource.put(apiPrefix + "/v1/users/approve-avatar", data);
 },
@@ -64,6 +72,9 @@ declineAvatar(data) {
   return resource.put(apiPrefix + "/v1/users/decline-avatar", data);
 },
 
+obrisizahtjev(data) {
+  return resource.put(apiPrefix + "/v1/users/obrisizahtjev", data);
+},
 
 
 totalUsers() {

@@ -9,6 +9,9 @@ use NadzorServera\Skijasi\Models\DataType;
 use NadzorServera\Skijasi\Models\Permission;
 use NadzorServera\Skijasi\Models\UserRole;
 
+use Illuminate\Support\Facades\Log;
+
+
 class GetData
 {
     public static function serverSideWithModel($data_type, $builder_params, $only_data_soft_delete = false)
@@ -313,7 +316,8 @@ if ($data_type->name == 'skijasi_users') {
         $filter_value = $builder_params['filter_value'];
 
         // za filter kraja clanstva
-        $filter_dateendmember = $builder_params['filter_dateendmember'];
+        $activeFilter = $builder_params['activeFilter'] ?? null;
+
 
 
         $is_roles = false;
@@ -376,21 +380,35 @@ if ($data_type->name == 'skijasi_users') {
         }
         // end
 
- // ... [Previous Code]
 
- //if ($filter_dateendmember) {
-    if ($data_type->name == 'skijasi_users') {
-        // Apply the common 'user_type' condition
-        $query->where('user_type', 'Hzuts član');
+        
+
+          if ($data_type->name == 'skijasi_users') {
     
-        // Adjust query based on the value of 'filter_dateendmember'
-      //  if ($filter_dateendmember) {
-           
-         //   $query->whereNull('dateendmember');
-       // }
-        // No need for else part; if 'filter_dateendmember' is false, it doesn't apply any additional conditions
+        
+
+
+            switch ($activeFilter) {
+                case 'hzuts':
+                    $query->where('user_type', 'Hzuts član');
+                    break;
+                case 'neaktivni':
+                    $query->whereNotNull('dateendmember');
+                    break;
+                case 'obicankorisnik':
+                    $query->where('user_type', 'Običan Korisnik');
+                    break;
+                default:
+                $query->where('user_type', 'Hzuts član');
+                break;
+            }
+        
+    
+
+
+        
     }
-//}
+
 
 
 
@@ -563,6 +581,12 @@ public static function calculateStatusAktivan($statusData) {
                 $idevent = $item->idevent; 
                 break; // If one active status is found, no need to check further
             }
+            else if ($endDate < $today) {
+                $latestEndDate = $item->endstatusdate;
+                $idevent = $item->idevent; 
+             
+            }
+
        
         }
     }

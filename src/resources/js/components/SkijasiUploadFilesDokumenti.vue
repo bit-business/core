@@ -19,15 +19,7 @@
     </vs-row>
 
 
-  <vs-input
-    :label="label"
-    :placeholder="placeholder"
-    @click.prevent="$refs.image.click()"
-    readonly
-    v-model="value"
-    icon="attach_file"
-    icon-after="true"
-  />
+
   <!-- This input will handle file selection -->
   <input
   type="file"

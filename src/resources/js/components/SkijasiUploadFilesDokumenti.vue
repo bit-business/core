@@ -7,12 +7,21 @@
 
   <!-- This input will handle file selection -->
   <input
-  type="file"
-  class="skijasi-upload-image__input"
-  ref="file"
-  accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/png, application/msword"
-  @change="onFilePicked"
-/>
+      type="file"
+      class="skijasi-upload-image__input--hidden"
+      ref="fileInput"
+      accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/png, application/msword"
+      @change="onFilePicked"
+    />
+
+    <!-- Custom button for file input -->
+    <vs-button
+      class="custom-upload-button"
+      @click="openFileDialog"
+      color="primary"
+    >
+      Odaberi Datoteku
+    </vs-button>
 
 
     <!-- Only display this row if there is a preview image or an existing value -->
@@ -169,6 +178,11 @@ export default {
     }),
   },
   methods: {
+    openFileDialog() {
+    this.$refs.fileInput.click();
+  },
+
+  
     isImageFile(filePath) {
       return /\.(jpg|jpeg|png|gif)$/i.test(filePath);
     },
@@ -411,4 +425,9 @@ onFilePicked(e) {
   border-radius: 4px;
   padding: 5px;
 }
+.custom-upload-button {
+    background-color: blue; /* Customize as needed */
+    color: white; /* Customize text color */
+    /* Add more styles as needed */
+  }
 </style>

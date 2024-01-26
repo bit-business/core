@@ -1,6 +1,20 @@
 <template>
 <!-- ... other code ... -->
+
+
+
 <vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
+
+  <!-- This input will handle file selection -->
+  <input
+  type="file"
+  class="skijasi-upload-image__input"
+  ref="file"
+  accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/png, application/msword"
+  @change="onFilePicked"
+/>
+
+
     <!-- Only display this row if there is a preview image or an existing value -->
     <vs-row v-if="previewImage || hasValue">
       <vs-col vs-lg="4" vs-sm="12">
@@ -20,20 +34,7 @@
 
 
 
-  <!-- This input will handle file selection -->
-  <input
-  type="file"
-  class="skijasi-upload-image__input--hidden"
-  ref="image"
-  accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/png, application/msword"
-  @change="onFilePicked"
-/>
 
-
-  
-  <!-- ... other code ... -->
-
-<!-- ... other code ... -->
 
    
 

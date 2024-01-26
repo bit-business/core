@@ -244,6 +244,15 @@
                               ]
                             "
                           ></span>
+
+                          <skijasi-switch
+    v-else-if="dataRow.type == 'switch'"
+    v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
+    size="6"
+    :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
+>
+</skijasi-switch>
+
                           <a
                             v-else-if="dataRow.type == 'url'"
                             :href="

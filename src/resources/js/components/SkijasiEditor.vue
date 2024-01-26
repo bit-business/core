@@ -91,11 +91,15 @@ export default {
     return {
       init: {
         height: 500,
-        font_formats: 'Arial=arial,helvetica,sans-serif;' +
-                      'Courier New=courier new,courier,monospace;' +
-                      'Wingdings=wingdings,zapf dingbats;' +
-                      'Inter=inter, sans-serif',  // Add Inter here
+        font_formats: 'Inter=inter, sans-serif;' +
+                    'Arial=arial,helvetica,sans-serif;' +
+                    'Courier New=courier new,courier,monospace;' +
+                    'Wingdings=wingdings,zapf dingbats',  // Add Inter here
         // Include CSS where 'Inter' is available to TinyMCE's iframe.
+  
+        content_style: 'body { font-family: "Inter", sans-serif; }',
+
+
         content_css: [
             '//fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
 

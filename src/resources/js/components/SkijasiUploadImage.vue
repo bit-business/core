@@ -141,6 +141,16 @@ export default {
     };
   },
   watch: {
+    nameusr(newName) {
+      this.updateProperties();
+    },
+    prezimeusr(newPrezime) {
+      this.updateProperties();
+    },
+    idmember(newIdmember) {
+      this.updateProperties();
+    },
+
     page: {
       handler() {
         this.getImages();
@@ -186,6 +196,21 @@ export default {
     }),
   },
   methods: {
+    updateUploadedImage(newValue) {
+      this.$emit('update:uploadedImage', newValue);
+    },
+
+    // Update properties and emit an event
+    updateProperties() {
+      const updatedValue = {
+        nameusr: this.nameusr,
+        prezimeusr: this.prezimeusr,
+        idmember: this.idmember,
+      };
+      this.updateUploadedImage(updatedValue);
+    },
+
+    
     removeImage() {
       // Set both value and previewImage to null
       this.$emit('input', null);

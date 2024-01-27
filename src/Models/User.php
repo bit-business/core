@@ -53,11 +53,12 @@ class User extends Authenticatable implements JWTSubject
 
         'urlinstagram',
         'urlfacebook',
-        'urltwitter',
+
         'noviprofil',
         
         'new_avatar',
         'avatar_approved',
+        'zahtjev_approved',
 
         'user_type',
     ];

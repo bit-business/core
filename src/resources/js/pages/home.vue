@@ -17,10 +17,10 @@
           <li v-for="user in unapprovedZahtjevi" :key="user.id" class="user-item">
             <button @click="obrisizahtjev(user.id)" class="btn-decline2">Obriši zahtjev</button>
             <img 
-            :src="getAvatarUrl(user.avatar)" 
+            :src="getAvatarUrl(user.new_avatar ? user.new_avatar : user.avatar)" 
               alt="Odbijen Avatar" 
               class="avatar cursor-pointer" 
-              @click="showFullscreenImage(user.avatar)">
+              @click="showFullscreenImage(user.new_avatar ? user.new_avatar : user.avatar)">
               <div class="user-details">
         <!-- Display user's name and username -->
         <div class="user-info">

@@ -362,7 +362,7 @@ class SkijasiUserController extends Controller
 
 public function novizahtjevclanstvo()
 {
-    $users = User::where('avatar_approved', 2)->get();
+    $users = User::where('zahtjev_approved', 1)->get();
     return response()->json($users);
 }
 public function obrisizahtjev(Request $request)
@@ -371,12 +371,12 @@ public function obrisizahtjev(Request $request)
     DB::beginTransaction();
 
     try {
-    $user->avatar_approved = false;
+    $user->zahtjev_approved = false;
         
         $user->save();
 
         DB::commit();
-        return ApiResponse::success('Novi avatar je odobren!');
+        return ApiResponse::success('Zahtjev za članstvo je obrisan!');
     } catch (Exception $e) {
         DB::rollBack();
 

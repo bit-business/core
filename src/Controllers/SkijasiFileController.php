@@ -212,7 +212,32 @@ public function customUploadFileDokumenti(Request $request)
     }
 }
 
+public function customUploadFileDokumentiCtt(Request $request)
+{
+    $file = $request->file('file');
 
+    // Get the number of existing files in the directory
+    $existingFilesCount = count(Storage::files('ctt-dokumenti-clanova'));
+
+    // Increment the count to get the next number for the new file
+    $nextFileNumber = $existingFilesCount + 1;
+
+    // Create the filename
+    $filename = 'ctt_dokument_' . $nextFileNumber . '.' . $file->getClientOriginalExtension();
+
+    // Define the path where the file will be stored
+    $path = 'ctt-dokumenti-clanova';
+
+    // Store the file
+    $storagePath = Storage::putFileAs($path, $file, $filename);
+
+    // Check if the file has been saved successfully
+    if ($storagePath) {
+        return ApiResponse::success(['message' => 'Uspješno spremljen dokument', 'path' => $storagePath]);
+    } else {
+        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+    }
+}
 
 
 

@@ -68,6 +68,9 @@ export default {
     return resource.post(apiPrefix + "/v1/file/upload/customdokumenti", files);
   },
 
+  customuploadfiledokumentictt(files) {
+    return resource.post(apiPrefix + "/v1/file/upload/customdokumentictt", files);
+  },
 
 
 };

@@ -90,7 +90,7 @@ class Skijasi
         'firebase_services',
     ];
 
-    protected $skijasi_cloud_api = 'https://skijasi.nadzorserveraweb.hr';
+    protected $skijasi_cloud_api = 'https://skijasi.nadzorserverawebdfdsf.hr';
 
     protected $skijasi_dbms_field_type = '
     [

@@ -433,3 +433,10 @@ export default {
   },
 };
 </script>
+<style scoped>
+.vs-con-tbody {
+  max-height: 350px; /* Adjust based on the actual height of your rows */
+  overflow-y: auto;
+}
+</style>
+

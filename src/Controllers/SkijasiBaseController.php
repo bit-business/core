@@ -1485,6 +1485,10 @@ if (empty($cardseng)) {
   $cardscroStyle = "width: 54%; left: 0%; text-align: right;";
 }
 
+    // Calculate the target dimensions while maintaining a 2:3 aspect ratio
+    $targetWidth = 247; // Set your desired width here (adjust as needed)
+    $targetHeight = $targetWidth * (3 / 2);
+
 
  $html = '<html><head><meta charset="UTF-8"><style>
     @page {
@@ -1510,26 +1514,25 @@ if (empty($cardseng)) {
         }
       }
 
-    .image-container {
+      .image-container {
         position: absolute;
         top: 18%;
         left: 7%;
-        width: 32%;
-        height: 56%; /* Adjust based on desired height */
+        width: ' . $targetWidth . 'px;
+        height: ' . $targetHeight . 'px;
         display: flex;
-        justify-content: center; /* Center image horizontally */
-        align-items: center; /* Center image vertically */
-        overflow: hidden; /* Ensure no part of the image spills out */
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
     }
-    
+
     .image-container img {
-        max-width: 100%;
-        max-height: 100%;
-        width: auto;
-        height: auto;
+        width: 100%; /* Set the image width to 100% */
+        height: 100%; /* Set the image height to 100% */
+        object-fit: contain; /* Ensure the image is contained within the dimensions */
         z-index: 2;
     }
-    
+
     /* Define the styles for the text boxes */
     .text-box {
      position: absolute;

@@ -53,8 +53,8 @@ export default {
       default: "Select",
     },
     value: {
-      type: String,
-      required: true,
+      type: [String, null],
+      required: false,
       default: "",
     },
     items: {

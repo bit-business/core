@@ -56,5 +56,5 @@ export const checkConnection = (app) => {
     } else {
       onlineHistory = false;
     }
-  }, 1000);
+  }, 2000);
 };

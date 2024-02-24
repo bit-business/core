@@ -570,17 +570,23 @@ public static function calculateStatusAktivan($statusData) {
     $latestEndDate = null;
     $idevent = null;
 
+    $latestEventDate = null; 
+
     foreach ($statusData as $item) {
         if (isset($item->endstatusdate)) {
             $endDate = new \DateTime($item->endstatusdate); // Use \DateTime here as well
             $endDate->setTime(0, 0, 0); // Set to start of day
 
             if ($endDate >= $today) {
+                if ($latestEndDate === null || $endDate > new \DateTime($latestEndDate)) {
+                    $latestEndDate = $item->endstatusdate; // Always update to the latest end date
+                    $idevent = $item->idevent; // Update idevent corresponding to the latest end date
+                    
                 $statusAktivan = 'Aktivan';
                 $latestEndDate = $item->endstatusdate;
                 $idevent = $item->idevent; 
-                break; // If one active status is found, no need to check further
-            }
+               // break; // If one active status is found, no need to check further
+            }         }
             else if ($endDate < $today) {
                 $latestEndDate = $item->endstatusdate;
                 $idevent = $item->idevent; 

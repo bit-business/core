@@ -43,12 +43,21 @@ export default {
     return resource.post(apiPrefix + "/v1/file/upload/lfm", files);
   },
 
+  delete(data) {
+    const ep = apiPrefix + "/v1/file/delete";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+  },
+
+
   deleteUsingLfm(data) {
     const ep = apiPrefix + "/v1/file/delete/lfm";
     const qs = QueryString(data);
     const url = ep + qs;
     return resource.get(url);
   },
+
 
   browseConfiguration(data = {}) {
     const ep = apiPrefix + "/v1/file/mimetypes";

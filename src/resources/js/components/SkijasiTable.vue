@@ -8,7 +8,7 @@
       <vs-row class="skijasi-table__table-header">
         <vs-col vs-lg="6" vs-md="6" vs-sm="6" vs-xs="12" v-if="pagination">
           <div class="skijasi-table__header-dropdown">
-            Show&nbsp;
+            Prikaži&nbsp;
             <vs-select v-model="maxItemsx" width="100px">
               <vs-select-item
                 :key="index"
@@ -17,7 +17,7 @@
                 v-for="(row, index) in descriptionItems"
               />
             </vs-select>
-            &nbsp;Entries
+            &nbsp;rezultata
           </div>
         </vs-col>
         <vs-col vs-lg="6" vs-md="6" vs-sm="6" vs-xs="12" v-if="search">

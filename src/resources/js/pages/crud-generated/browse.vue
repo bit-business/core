@@ -250,6 +250,7 @@
     v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
     size="6"
     :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
+    @input="saveEntity(record)"
 >
 </skijasi-switch>
 
@@ -656,6 +657,7 @@
     v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
     size="6"
     :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
+    @input="saveEntity(record)"
 >
 </skijasi-switch>
                             <a
@@ -971,6 +973,48 @@ export default {
     this.loadIdsOfflineDelete();
   },
   methods: {
+
+//za switch save metoda
+async saveEntity(record) {
+    // Initialize dataRows object with necessary data from the record
+    const dataRows = {};
+    for (const dataRow of this.dataType.dataRows) {
+      const fieldName = this.$caseConvert.stringSnakeToCamel(dataRow.field);
+      if (record.hasOwnProperty(fieldName)) {
+        dataRows[dataRow.field] = record[fieldName];
+      }
+    }
+
+    // Optionally, add any other necessary validation or processing here
+
+    try {
+      this.$openLoader();
+      const response = await this.$api.skijasiEntity.edit({
+        slug: this.$route.params.slug,
+        data: dataRows,
+      });
+      this.$closeLoader();
+
+      // Handle the response, e.g., show a notification
+      this.$vs.notify({
+        title: 'Spremljeno',
+        text: 'Uspješno je pohranjena promjena.',
+        color: 'success',
+      });
+    } catch (error) {
+      this.$closeLoader();
+      this.$vs.notify({
+        title: 'Error',
+        text: error.message,
+        color: 'danger',
+      });
+    }
+  },
+
+
+// kraj metode
+
+
 
     handleBulkDelete() {
     if (this.selected.length > 0) {
@@ -1458,3 +1502,4 @@ export default {
   },
 };
 </script>
+

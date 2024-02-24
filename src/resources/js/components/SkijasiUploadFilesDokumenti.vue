@@ -10,7 +10,7 @@
       type="file"
       class="skijasi-upload-image__input--hidden"
       ref="fileInput"
-      accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/png, application/msword"
+      accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/jpg, image/png, application/msword"
       @change="onFilePicked"
     />
 
@@ -248,19 +248,21 @@ export default {
     },
    // ... other methods ...
 
+   /*
 onFilePicked(e) {
   const files = e.target.files;
   if (files[0] !== undefined) {
     const file = files[0];
-    if (file.size > this.availableMimetypes.file.maxSize * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
+   // if (file.size > this.availableMimetypes.file.maxSize * 1024) {
       this.$vs.notify({
         title: this.$t("alert.danger"),
-        text: this.$t("alert.sizeTooLarge", { size: "5MB" }), // Update your translation key accordingly
+        text: this.$t("alert.sizeTooLarge", { size: "10MB" }), // Update your translation key accordingly
         color: "danger",
       });
       return;
     }
-    if (!this.availableMimetypes.file.validMime.includes(file.type)) {
+   /* if (!this.availableMimetypes.file.validMime.includes(file.type)) {
       this.$vs.notify({
         title: this.$t("alert.danger"),
         text: this.$t("alert.fileNotAllowed"), // Update your translation key accordingly
@@ -268,14 +270,106 @@ onFilePicked(e) {
       });
     //  return;
     }
+    *
    this.previewImage = URL.createObjectURL(file);
 
     // Perform the upload
     this.uploadImage(file);
   }
 },
+*/
 
-// ... other methods ...
+
+async onFilePicked(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const chunkSize = 1024 * 1024; // 1MB
+  let start = 0;
+  const totalChunks = Math.ceil(file.size / chunkSize);
+  let uploadPromises = [];
+
+  for (let i = 0; i < totalChunks; i++) {
+    const end = Math.min(start + chunkSize, file.size);
+    const chunk = file.slice(start, end);
+    const formData = new FormData();
+    formData.append('file', chunk);
+    formData.append('filename', file.name);
+    formData.append('chunkIndex', i);
+    formData.append('totalChunks', totalChunks);
+
+    uploadPromises.push(this.uploadChunk(formData));
+    start = end;
+  }
+
+ // Wait for all chunks to be uploaded
+// Wait for all chunks to be uploaded
+Promise.all(uploadPromises).then((responses) => {
+  // Find the final file assembly confirmation response
+  const finalAssemblyResponse = responses.find(response => 
+    response.data && response.data.message === "File uploaded successfully" // Adjust based on your backend's success message
+  );
+
+  if (finalAssemblyResponse) {
+    let finalPath = finalAssemblyResponse.data.path; // The path of the uploaded file on the server
+    console.log("Final file path:", finalPath);
+    
+    // Set the preview image if needed
+    // this.previewImage = URL.createObjectURL(file); // This line might not be necessary for the final file, as the file is already uploaded and URL.createObjectURL() is generally for local file previews.
+
+    // Emit the event with the final file path
+    this.$emit("input", finalPath);
+
+    // Reset the input after the upload is complete
+    event.target.value = '';
+  } else {
+    console.error("Final assembly confirmation not received.");
+    // Handle the case where the final assembly confirmation is missing
+  }
+}).catch(error => {
+  console.error('Error during the upload process:', error);
+  // Handle upload error
+});
+
+
+
+  event.target.value = ''; // Reset the input after the upload is complete
+},
+
+
+
+// Method to upload a single chunk
+uploadChunk(formData) {
+  return new Promise((resolve, reject) => {
+    this.$api.skijasiFile.customuploadfiledokumenti(formData, {
+      onUploadProgress: progressEvent => {
+        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log('Chunk upload progress: ', percentCompleted);
+      }
+    })
+    .then(response => {
+      // Check if the response is indicating a successful chunk upload or final file assembly
+      if (response.data.message.includes("successfully") || response.data.message === "Uspješno") {
+        console.log('Chunk uploaded successfully', response);
+        resolve(response);
+      } else {
+        console.error('Chunk upload reported failure', response);
+        reject('Upload failed for a chunk.');
+      }
+    })
+    .catch(error => {
+      console.error('Error uploading chunk', error);
+      reject(error);
+    });
+  });
+},
+
+
+
+
+
+
+
 
     sortImages(event) {
       this.getImages(event)
@@ -314,13 +408,17 @@ onFilePicked(e) {
 
 
     uploadImage(file) {
+
   const formData = new FormData();
   formData.append("file", file);
   // Retrieve the name and idmember values
+  console.log("UPLOAD1");
 
   // Post the form data to the customUploadFile endpoint
   this.$api.skijasiFile.customuploadfiledokumenti(formData)
   .then(response => {
+    console.log("UPLOAD12");
+    
     // Handle the response from the server
         // Update the value to show the image preview from the server
         this.value = response.data.path; // Assuming 'path' is the key where the image URL is stored
@@ -333,11 +431,17 @@ onFilePicked(e) {
     // Revoke the object URL if you want to release memory
     URL.revokeObjectURL(this.previewImage);
     console.log(response.data);
-    // You can now update your component's data or emit an event with the file's path if needed
+
+
+
+    this.previewImage = null; // Reset preview image after successful upload
+        this.$refs.fileInput.value = ''; // Reset the file input
   })
   .catch(error => {
     // Handle any errors
     console.error(error);
+
+    console.log("UPLOAD123");
   });
 },
 

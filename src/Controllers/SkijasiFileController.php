@@ -34,6 +34,7 @@ class SkijasiFileController extends Controller
         $file = $request->input('file', []);
 
         $this->handleDeleteFile($file);
+        
     }
 
     public function viewFile(Request $request)
@@ -152,7 +153,7 @@ public function customUploadFile(Request $request)
     if ($storagePath) {
         return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $storagePath]);
     } else {
-        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+        return ApiResponse::failed(['message' => 'Failed to upload the file ...']);
     }
 }
 
@@ -181,10 +182,101 @@ public function customUploadFileVijesti(Request $request)
     if ($storagePath) {
         return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $storagePath]);
     } else {
-        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+        return ApiResponse::failed(['message' => 'Failed to upload the file..']);
     }
 }
 
+
+public function customUploadFileDokumenti(Request $request)
+{
+    $chunk = $request->file('file');
+    if (!$chunk) {
+        // Return an error response if the file chunk is not found
+        return ApiResponse::failed(['message' => 'No file chunk received']);
+    }
+
+    $originalFilename = $request->input('filename');
+    $chunkIndex = $request->input('chunkIndex');
+    $totalChunks = $request->input('totalChunks');
+
+    // Generate temporary path for storing chunks
+    $tempDir = storage_path('app/temp');
+    $tempPath = $tempDir . '/' . $originalFilename;
+
+
+    // Store the current chunk
+    file_put_contents($tempPath . '_' . $chunkIndex, file_get_contents($chunk->getPathname()));
+
+    // Check if all chunks are uploaded
+    if ($this->areAllChunksUploaded($tempPath, $totalChunks)) {
+        // Extract the file extension from the original filename
+        $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+        $finalFilename = $this->generateFinalFilename($extension);
+        $finalPath = 'dokumenti-clanova/' . $finalFilename;
+
+        // Reassemble the file from chunks
+        $this->reassembleFile($tempPath, $finalPath, $totalChunks);
+
+        // Clean up temporary chunks
+        $this->cleanupChunks($tempPath, $totalChunks);
+
+        // Get the full path of the uploaded file
+        $fullPath = Storage::disk('public')->url($finalPath);
+
+        return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $fullPath]);
+    }
+
+    return ApiResponse::success(['message' => 'Chunk ' . $chunkIndex . ' uploaded successfully']);
+}
+
+private function generateFinalFilename($extension)
+{
+    $existingFiles = Storage::files('dokumenti-clanova');
+    $highestNumber = 0;
+
+    foreach ($existingFiles as $file) {
+        if (preg_match('/dokument(\d+)/', $file, $matches)) {
+            $number = intval($matches[1]);
+            if ($number > $highestNumber) {
+                $highestNumber = $number;
+            }
+        }
+    }
+
+    // Use the original file extension
+    return 'dokument' . ($highestNumber + 1) . '.' . $extension;
+}
+
+private function areAllChunksUploaded($tempPath, $totalChunks)
+{
+    for ($i = 0; $i < $totalChunks; $i++) {
+        if (!file_exists($tempPath . '_' . $i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+private function reassembleFile($tempPath, $finalPath, $totalChunks)
+{
+    $finalFile = fopen(storage_path('app/public/') . $finalPath, 'wb');
+
+    for ($i = 0; $i < $totalChunks; $i++) {
+        fwrite($finalFile, file_get_contents($tempPath . '_' . $i));
+    }
+
+    fclose($finalFile);
+}
+
+private function cleanupChunks($tempPath, $totalChunks)
+{
+    for ($i = 0; $i < $totalChunks; $i++) {
+        unlink($tempPath . '_' . $i);
+    }
+}
+
+
+/*
 public function customUploadFileDokumenti(Request $request)
 {
     $file = $request->file('file');
@@ -208,9 +300,10 @@ public function customUploadFileDokumenti(Request $request)
     if ($storagePath) {
         return ApiResponse::success(['message' => 'Uspješno spremljen dokument', 'path' => $storagePath]);
     } else {
-        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+        return ApiResponse::failed(['message' => 'Failed to upload the file.']);
     }
 }
+*/
 
 public function customUploadFileDokumentiCtt(Request $request)
 {
@@ -235,7 +328,7 @@ public function customUploadFileDokumentiCtt(Request $request)
     if ($storagePath) {
         return ApiResponse::success(['message' => 'Uspješno spremljen dokument', 'path' => $storagePath]);
     } else {
-        return ApiResponse::failed(['message' => 'Failed to upload the file']);
+        return ApiResponse::failed(['message' => 'Failed to upload the file....']);
     }
 }
 

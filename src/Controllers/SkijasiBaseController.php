@@ -593,19 +593,34 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng);
 
 
 
-public function zadnjimaticni() {
-    // Retrieve the latest non-null maticni number from your database
-    $lastMaticni = DB::table('su_clanoviedukacijskipodaci')
-                     ->whereNotNull('maticnibroj')
-                     ->orderBy('id', 'desc')
-                     ->first()
-                     ->maticnibroj;
-
-                 
-       $lastMaticni = $lastRecord ? $lastRecord->maticnibroj : "";
-
-    return response()->json(['maticnibroj' => $lastMaticni]);
-}
+    public function zadnjimaticni() {
+      // Fetch all maticnibroj values that are not null
+      $maticniNumbers = DB::table('su_clanoviedukacijskipodaci')
+                          ->whereNotNull('maticnibroj')
+                          ->pluck('maticnibroj'); // Get a collection of maticnibroj values
+  
+      // Initialize variables to track the highest parts
+      $highestPart1 = 0;
+      $highestPart2 = 0;
+      $highestMaticni = '';
+  
+      foreach ($maticniNumbers as $num) {
+          list($part1, $part2) = explode('/', $num);
+          $part1 = (int) $part1;
+          $part2 = (int) $part2;
+  
+          // Update the highest parts if current parts are higher
+          if ($part1 > $highestPart1 || ($part1 == $highestPart1 && $part2 > $highestPart2)) {
+              $highestPart1 = $part1;
+              $highestPart2 = $part2;
+              $highestMaticni = $num;
+          }
+      }
+  
+      return response()->json(['maticnibroj' => $highestMaticni]);
+  }
+  
+  
 
 
 

@@ -377,4 +377,4 @@ const app = new Vue({
 //broadcastMessageHandle(app);
 
 // HANDLE OFFLINE MODE
-//checkConnection(app);
+checkConnection(app);

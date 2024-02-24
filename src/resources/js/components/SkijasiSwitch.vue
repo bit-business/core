@@ -63,7 +63,7 @@ export default {
       default: "12",
     },
     label: {
-      type: String,
+      type: [String, null],
       default: "",
     },
     placeholder: {
@@ -79,10 +79,10 @@ export default {
       default: "Ne",
     },
     value: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
+  type: [Boolean, null, undefined],
+  default: false,
+},
+
     additionalInfo: {
       type: String,
       default: "",

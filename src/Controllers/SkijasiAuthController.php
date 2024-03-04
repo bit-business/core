@@ -272,7 +272,7 @@ class SkijasiAuthController extends Controller
             $existingUserId = $existingUser->id;
         }
 
-        // Modify the email validation rule to exclude the existing user's ID
+        // 
         $request->validate([
             'name' => 'required|string|max:55',
             'username' => 'required|string|max:55',

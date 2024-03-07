@@ -265,6 +265,13 @@ Vue.prototype.$openLoader = function (payload) {
     console.log("Open Loader", error);
   }
 };
+Vue.prototype.$openLoaderImage = function (payload) {
+  try {
+    this.$root.$children[0].openLoaderImage(payload);
+  } catch (error) {
+    console.log("Open Loader", error);
+  }
+};
 
 Vue.prototype.$closeLoader = function () {
   try {

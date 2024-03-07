@@ -73,9 +73,9 @@ export default {
     },
   },
   methods: {
-    handleInput(val) {
-      this.$emit("input", val);
-    },
+ handleInput(val) {
+  this.$emit("input", val ? 1 : 0);
+},
   },
 };
 </script>

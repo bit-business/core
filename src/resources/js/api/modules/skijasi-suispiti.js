@@ -51,13 +51,16 @@ read(data) {
   edit(data) {
 
    
-    for (const key in data) {
+
       // Check if the property has value null or an empty string
-      if (data[key] === null || data[key] === '') {
+   //   if (data[key] === null || data[key] === '') {
           // If it does, delete that property from data.data
-          delete data[key];
-      }
+  for (const key in data) {
+    if (data[key] === '') {
+      delete data[key];
+    }
   }
+
 
     return resource.put(apiPrefix + "/v1/entities/su-ispiti/edit", { data: data });
 

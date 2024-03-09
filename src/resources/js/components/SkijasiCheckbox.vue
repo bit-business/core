@@ -55,10 +55,10 @@ export default {
       type: String,
       default: "Checkbox",
     },
-   value: {
-    type: Boolean,
-    required: true,
-  },
+    value: {
+  type: [Boolean, Number],
+  required: true,
+},
     items: {
       type: Array,
       required: true,
@@ -73,8 +73,8 @@ export default {
     },
   },
   methods: {
- handleInput(val) {
-  this.$emit("input", val ? 1 : 0);
+    handleInput(val) {
+  this.$emit("input", val);
 },
   },
 };

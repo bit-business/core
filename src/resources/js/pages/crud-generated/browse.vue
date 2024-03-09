@@ -147,10 +147,11 @@
                 :description-body="$t('crudGenerated.footer.descriptionBody')"
                 multiple
               >
-                <template slot="thead">
+                <template slot="thead" style="text-align: center;">
 
                   <vs-th> Opcije </vs-th>
                   <vs-th
+                  v-if="dataRow.type !== 'hidden'"
                     v-for="(dataRow, index) in dataType.dataRows"
                     :key="index"
                     :sort-key="$caseConvert.stringSnakeToCamel(dataRow.field)"
@@ -172,6 +173,7 @@
                         ? 'danger'
                         : 'default'
                     "
+                    style="text-align: center;"
                   >
                     <template
                       v-if="
@@ -200,6 +202,7 @@
                       </vs-td>
 
                       <vs-td
+                      v-if="dataRow.type !== 'hidden'"
                         v-for="(dataRow, indexColumn) in dataType.dataRows"
                         :key="indexColumn"
                         :data="
@@ -207,6 +210,7 @@
                             $caseConvert.stringSnakeToCamel(dataRow.field)
                           ]
                         "
+                        style="text-align: center;"
                       >
                         <template v-if="dataRow.browse == 1">
                           <img
@@ -248,7 +252,7 @@
                           <skijasi-switch
     v-else-if="dataRow.type == 'switch'"
     v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
-    size="6"
+    size="3"
     :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
     @input="saveEntity(record)"
 >
@@ -367,89 +371,7 @@
                       </vs-td>
 
                 
-                      <!--
-                      <vs-td class="crud-generated__button">
-                        <skijasi-dropdown vs-trigger-click>
-                          <vs-button
-                            size="large"
-                            type="flat"
-                            icon="more_vert"
-                          ></vs-button>
-                          <vs-dropdown-menu>
-                            <skijasi-dropdown-item
-                              :to="{
-                                name: 'CrudGeneratedRead',
-                                params: {
-                                  id: data[index].id,
-                                  slug: $route.params.slug,
-                                },
-                              }"
-                              v-if="
-                                isCanRead &&
-                                $helper.isAllowedToModifyGeneratedCRUD(
-                                  'read',
-                                  dataType.name
-                                ) &&
-                                !isShowDataRecycle
-                              "
-                              icon="visibility"
-                            >
-                              Detaljnije
-                            </skijasi-dropdown-item>
-                            <skijasi-dropdown-item
-                              :to="{
-                                name: 'CrudGeneratedEdit',
-                                params: {
-                                  id: data[index].id,
-                                  slug: $route.params.slug,
-                                },
-                              }"
-                              v-if="
-                                isCanEdit &&
-                                $helper.isAllowedToModifyGeneratedCRUD(
-                                  'edit',
-                                  dataType
-                                ) &&
-                                !isShowDataRecycle
-                              "
-                              icon="edit"
-                            >
-                              Izmijeni
-                            </skijasi-dropdown-item>
-                            <skijasi-dropdown-item
-                              icon="delete"
-                              @click="confirmDelete(data[index].id)"
-                              v-if="
-                                !idsOfflineDeleteRecord.includes(
-                                  record.id.toString()
-                                ) &&
-                                $helper.isAllowedToModifyGeneratedCRUD(
-                                  'delete',
-                                  dataType
-                                )
-                              "
-                            >
-                              Obriši
-                            </skijasi-dropdown-item>
-                            <skijasi-dropdown-item
-                              @click="confirmDeleteDataPending(data[index].id)"
-                              icon="delete_outline"
-                              v-if="
-                                idsOfflineDeleteRecord.includes(
-                                  record.id.toString()
-                                ) && !isShowDataRecycle
-                              "
-                            >
-                              {{
-                                $t(
-                                  "offlineFeature.crudGenerator.deleteDataPending"
-                                )
-                              }}
-                            </skijasi-dropdown-item>
-                          </vs-dropdown-menu>
-                        </skijasi-dropdown>
-                      </vs-td>
-                    -->
+             
                     </template>
                   </vs-tr>
                 </template>
@@ -473,14 +395,15 @@
                   @select="handleSelect"
                   @sort="handleSort"
                 >
-                  <template slot="thead">
+                  <template slot="thead" style="text-align: center;">
                   <vs-th> Opcije </vs-th>
                     <skijasi-th
+                    v-if="dataRow.type !== 'hidden'"
                       v-for="(dataRow, index) in dataType.dataRows"
                       :key="`header-${index}`"
                       :sort-key="$caseConvert.stringSnakeToCamel(dataRow.field)"
                     >
-                      <template v-if="dataRow.browse == 1">
+                      <template v-if="dataRow.browse == 1 && dataRow.type !== 'hidden'">
                         {{ dataRow.displayName }}
                       </template>
                     </skijasi-th>
@@ -604,6 +527,7 @@
                    
                       
                         <vs-td
+                        v-if="dataRow.type !== 'hidden'"
                           v-for="(dataRow, indexColumn) in dataType.dataRows"
                           :key="`${index}-${indexColumn}`"
                           :data="
@@ -655,7 +579,7 @@
                                  <skijasi-switch
     v-else-if="dataRow.type == 'switch'"
     v-model="record[$caseConvert.stringSnakeToCamel(dataRow.field)]"
-    size="6"
+    size="3"
     :alert="errors[$caseConvert.stringSnakeToCamel(dataRow.field)]"
     @input="saveEntity(record)"
 >
@@ -779,85 +703,25 @@
                             }}</span>
                           </template>
                         </vs-td>
-                        <vs-td class="crud-generated__button">
-                          <skijasi-dropdown vs-trigger-click>
-                            <vs-button
-                              size="large"
-                              type="flat"
-                              icon="more_vert"
-                            ></vs-button>
-                            <vs-dropdown-menu>
-                              <skijasi-dropdown-item
-                                :to="{
-                                  name: 'CrudGeneratedRead',
-                                  params: {
+
+                        <vs-td class="crud-generated__button" style="text-align: center;">
+                        <router-link
+                            :to="{
+                                name: 'CrudGeneratedRead',
+                                params: {
                                     id: record.id,
                                     slug: $route.params.slug,
-                                  },
-                                }"
-                                v-if="
-                                  isCanRead &&
-                                  $helper.isAllowedToModifyGeneratedCRUD(
-                                    'read',
-                                    dataType
-                                  )
-                                "
-                                icon="visibility"
-                              >
-                                Detaljnije
-                              </skijasi-dropdown-item>
-                              <skijasi-dropdown-item
-                                :to="{
-                                  name: 'CrudGeneratedEdit',
-                                  params: {
-                                    id: record.id,
-                                    slug: $route.params.slug,
-                                  },
-                                }"
-                                v-if="
-                                  isCanEdit &&
-                                  $helper.isAllowedToModifyGeneratedCRUD(
-                                    'edit',
-                                    dataType
-                                  )
-                                "
-                                icon="edit"
-                              >
-                                Izmijeni
-                              </skijasi-dropdown-item>
-                              <skijasi-dropdown-item
-                                icon="delete"
-                                @click="confirmDelete(record.id)"
-                                v-if="
-                                  !idsOfflineDeleteRecord.includes(
-                                    record.id.toString()
-                                  ) &&
-                                  $helper.isAllowedToModifyGeneratedCRUD(
-                                    'delete',
-                                    dataType
-                                  )
-                                "
-                              >
-                                Obriši
-                              </skijasi-dropdown-item>
-                              <skijasi-dropdown-item
-                                @click="confirmDeleteDataPending(record.id)"
-                                icon="delete_outline"
-                                v-if="
-                                  idsOfflineDeleteRecord.includes(
-                                    record.id.toString()
-                                  )
-                                "
-                              >
-                                {{
-                                  $t(
-                                    "offlineFeature.crudGenerator.deleteDataPending"
-                                  )
-                                }}
-                              </skijasi-dropdown-item>
-                            </vs-dropdown-menu>
-                          </skijasi-dropdown>
-                        </vs-td>
+                                }
+                            }"
+                            v-if="isCanRead && $helper.isAllowedToModifyGeneratedCRUD('read', dataType.name) && !isShowDataRecycle"
+                        >
+                            <vs-button color="primary" type="relief" size="small" style=" display: block; margin-bottom: 8px;">
+                                <vs-icon icon="visibility"></vs-icon>
+                                Detalji
+                            </vs-button>
+                        </router-link>
+                      </vs-td>
+                      
                       </template>
                     </vs-tr>
                   </template>

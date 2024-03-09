@@ -79,7 +79,7 @@ export default {
       default: "Ne",
     },
     value: {
-  type: [Boolean, null, undefined],
+  type: [Boolean, Number, null, undefined],
   default: false,
 },
 
@@ -106,8 +106,9 @@ export default {
   },
   methods: {
     handleInput(val) {
-      this.$emit("input", val);
-    },
+  const booleanValue = !!val; // Convert the value to a boolean
+  this.$emit("input", booleanValue);
+},
   },
 };
 </script>

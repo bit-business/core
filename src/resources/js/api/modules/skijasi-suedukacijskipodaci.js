@@ -9,6 +9,12 @@ const apiPrefix = process.env.MIX_API_ROUTE_PREFIX
 
 export default {
 
+  browse(data = {}) {
+    const ep = apiPrefix + "/v1/entities/su-clanoviedukacijskipodaci";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+  },
 
  citanje(params) {
   
@@ -27,12 +33,6 @@ read(data) {
   },
 
 
-  browse(data = {}) {
-    const ep = apiPrefix + "/v1/entities/su-clanoviedukacijskipodaci";
-    const qs = QueryString(data);
-    const url = ep + qs;
-    return resource.get(url);
-  },
   
 
   all(data = {}) {
@@ -114,6 +114,14 @@ zadnjimaticni() {
   const url = ep;
   return resource.get(url);
 },
+
+zadnjiidbrojevi({ klasagodina }) {
+  const ep = apiPrefix + "/v1/entities/su-clanoviedukacijskipodaci" + "/zadnjiidbrojevi";
+  const qs = QueryString({ klasagodina }); 
+  const url = ep + qs;
+  return resource.get(url);
+},
+
 
 
 };

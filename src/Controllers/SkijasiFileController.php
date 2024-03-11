@@ -335,4 +335,109 @@ public function customUploadFileDokumentiCtt(Request $request)
 
 
 
+
+public function customUploadDokumentiUciliste(Request $request)
+{
+
+   
+    $chunk = $request->file('file');
+    if (!$chunk) {
+        // Return an error response if the file chunk is not found
+        return ApiResponse::failed(['message' => 'No file chunk received']);
+    }
+
+    $originalFilename = $request->input('filename');
+    $chunkIndex = $request->input('chunkIndex');
+    $totalChunks = $request->input('totalChunks');
+
+    $idbroj = $request->input('idbroj');
+
+    // Generate temporary path for storing chunks
+    $tempDir = storage_path('app/temp');
+    $tempPath = $tempDir . '/' . $originalFilename;
+
+
+    // Store the current chunk
+    file_put_contents($tempPath . '_' . $chunkIndex, file_get_contents($chunk->getPathname()));
+
+    // Check if all chunks are uploaded
+    if ($this->areAllChunksUploaded2($tempPath, $totalChunks)) {
+        // Extract the file extension from the original filename
+        $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+        $finalFilename2 = $this->generateFinalFilename2($extension, $idbroj);
+        $finalPath = 'dokumenti-uciliste/' . $finalFilename2;
+
+        // Reassemble the file from chunks
+        $this->reassembleFile2($tempPath, $finalPath, $totalChunks);
+
+        // Clean up temporary chunks
+        $this->cleanupChunks2($tempPath, $totalChunks);
+
+        // Get the full path of the uploaded file
+        $fullPath = Storage::disk('public')->url($finalPath);
+
+        return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $fullPath]);
+    }
+
+    return ApiResponse::success(['message' => 'Chunk ' . $chunkIndex . ' uploaded successfully']);
+}
+
+private function generateFinalFilename2($extension, $idbroj)
+{
+    $existingFiles = Storage::files('dokumenti-uciliste');
+    $highestNumber = 0;
+    $pattern = '/SUdokument_id' . preg_quote($idbroj, '/') . '_\d+\.' . preg_quote($extension, '/') . '$/';
+
+    foreach ($existingFiles as $file) {
+        // Check if file matches the specific pattern for the given id and extension
+        if (preg_match($pattern, $file, $matches)) {
+            // Extract the numeric part of the filename
+            $fileNameParts = explode('_', basename($file));
+            $numberPart = preg_replace('/\D/', '', end($fileNameParts));
+            $number = intval($numberPart);
+
+            if ($number > $highestNumber) {
+                $highestNumber = $number;
+            }
+        }
+    }
+
+    // Increment the highest number found for files with the same idbroj and extension
+    $finalNumber = $highestNumber + 1;
+
+    // Return the new filename using the original file extension
+    return "SUdokument_id{$idbroj}_{$finalNumber}.{$extension}";
+}
+
+private function areAllChunksUploaded2($tempPath, $totalChunks)
+{
+    for ($i = 0; $i < $totalChunks; $i++) {
+        if (!file_exists($tempPath . '_' . $i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+private function reassembleFile2($tempPath, $finalPath, $totalChunks)
+{
+    $finalFile = fopen(storage_path('app/public/') . $finalPath, 'wb');
+
+    for ($i = 0; $i < $totalChunks; $i++) {
+        fwrite($finalFile, file_get_contents($tempPath . '_' . $i));
+    }
+
+    fclose($finalFile);
+}
+
+private function cleanupChunks2($tempPath, $totalChunks)
+{
+    for ($i = 0; $i < $totalChunks; $i++) {
+        unlink($tempPath . '_' . $i);
+    }
+}
+
+
+
+
 }

@@ -1,0 +1,535 @@
+<template>
+<!-- ... other code ... -->
+
+
+
+<vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
+
+  <!-- This input will handle file selection -->
+  <input
+      type="file"
+      class="skijasi-upload-image__input--hidden"
+      ref="fileInput"
+      accept=".pdf, .jpg, .jpeg, .png, .doc, application/pdf, image/jpeg, image/jpg, image/png, application/msword, .docx"
+      @change="onFilePicked"
+    />
+
+    <!-- Custom button for file input -->
+    <vs-button
+      class="custom-upload-button"
+      @click="openFileDialog"
+      color="primary"
+    >
+      Odaberi Datoteku
+    </vs-button>
+
+
+    <!-- Only display this row if there is a preview image or an existing value -->
+    <vs-row v-if="previewImage || hasValue">
+      <vs-col vs-lg="4" vs-sm="12">
+        <div class="skijasi-upload-image__preview">
+          <!-- Different handling for image and non-image files -->
+          <img v-if="isImageFile(value)" :src="value" class="skijasi-upload-image__preview-image" />
+          <a v-else :href="value" target="_blank" class="skijasi-upload-image__preview-link">Datoteka je uspješno odabrana!</a>
+          <vs-button
+            class="skijasi-upload-image__remove-button"
+            color="danger"
+            icon="close"
+            @click="removeImage"
+          />
+        </div>
+      </vs-col>
+    </vs-row>
+
+
+
+
+
+   
+
+    <vs-popup
+      :title="$t('action.delete.title')"
+      :active.sync="showDeleteImage"
+      class="skijasi-upload-image__popup-dialog--delete"
+    >
+      <p>{{ $t("action.delete.text") }}</p>
+      <div class="skijasi-upload-image__popup-dialog-content--delete">
+        <vs-button color="primary" type="relief" @click="closeDeleteDialog">
+          {{ $t("action.delete.cancel") }}
+        </vs-button>
+        <vs-button color="danger" type="relief" @click="deleteImage()">
+          {{ $t("action.delete.accept") }}
+        </vs-button>
+      </div>
+    </vs-popup>
+  </vs-col>
+</template>
+
+<script>
+import { mapState } from "vuex";
+import * as _ from "lodash";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+export default {
+  name: "SkijasiUploadDokumentiUciliste",
+  props: {
+    size: {
+      type: String || Number,
+      default: "12",
+    },
+    label: {
+      type: String,
+      default: "",
+    },
+    placeholder: {
+      type: String,
+      default: "Dodaj datoteku",
+    },
+    value: {
+      default: null,
+    },
+    additionalInfo: {
+      type: String,
+      default: "",
+    },
+    alert: {
+      type: String || Array,
+      default: "",
+    },
+    sharesOnly: {
+      type: Boolean,
+    },
+    privateOnly: {
+      type: Boolean,
+    },
+  },
+  data() {
+    return {
+      previewImage: null, 
+
+
+      showFileManager: false,
+      activeTab: "private",
+      showDeleteImage: false,
+      page: 1,
+      images: [],
+      paginator: {
+        total: 1,
+        perPage: 30,
+      },
+      isValidImageUrl: undefined,
+      model: null,
+      sortTypeValue: '',
+      sortTypeList: [
+        {
+          label : "Time",
+          value : 'time',
+        },
+        {
+          label : "Alphabet",
+          value : 'alphabet',
+        }
+
+      ],
+    };
+  },
+  watch: {
+    page: {
+      handler() {
+        this.getImages();
+      },
+      immediate: false,
+    },
+  },
+  created() {
+    if (this.sharesOnly) {
+      this.activeTab = "shares";
+    }
+  },
+  computed: {
+    getActiveTab() {
+      return this.activeTab;
+    },
+    getActiveFolder() {
+      switch (this.getActiveTab) {
+        case "url":
+          return;
+        case "shares":
+          return "/shares";
+        default:
+          return `/${this.userId}`;
+      }
+    },
+    hasValue() {
+      return (
+        this.value !== null &&
+        this.value !== "null" &&
+        this.value !== "" &&
+        this.value !== "[]" &&
+        this.value !== "{}"
+      );
+    },
+    ...mapState({
+      userId(state) {
+        return state.skijasi.user.id;
+      },
+      availableMimetypes(state) {
+        return state.skijasi.availableMimetypes;
+      },
+    }),
+  },
+  methods: {
+    openFileDialog() {
+    this.$refs.fileInput.click();
+  },
+
+  
+    isImageFile(filePath) {
+      return /\.(jpg|jpeg|png|gif)$/i.test(filePath);
+    },
+    removeImage() {
+      // Set both value and previewImage to null
+      this.$emit('input', null);
+      this.previewImage = null;
+    },
+
+    
+    resetState() {
+      this.showFileManager = false;
+      if (this.sharesOnly) {
+        this.activeTab = "shares";
+      } else {
+        this.activeTab = "private";
+      }
+      this.showDeleteImage = false;
+      this.page = 1;
+      this.images = [];
+      this.paginator = {
+        total: 1,
+        perPage: 30,
+      };
+      if (!this.hasValue) {
+        this.model = null;
+      }
+      this.isValidImageUrl = undefined;
+    },
+    setActiveTab(tab) {
+      if (this.getActiveTab !== tab) {
+        this.activeTab = tab;
+        this.model = null;
+        this.page = 1;
+        this.getImages();
+      }
+    },
+    openFileManager() {
+      this.showFileManager = true;
+      this.disableScrollOnBody();
+      this.getImages();
+    },
+    closeFileManager() {
+      this.showFileManager = false;
+      this.enableScrollOnBody();
+      this.resetState();
+    },
+    openDeleteDialog() {
+      this.showDeleteImage = true;
+    },
+    closeDeleteDialog() {
+      this.showDeleteImage = false;
+    },
+    emitInput() {
+      this.$emit("input", this.model);
+      this.closeFileManager();
+    },
+    disableScrollOnBody() {
+      disableBodyScroll(document.querySelector("body"));
+    },
+    enableScrollOnBody() {
+      enableBodyScroll(document.querySelector("body"));
+    },
+   // ... other methods ...
+
+   /*
+onFilePicked(e) {
+  const files = e.target.files;
+  if (files[0] !== undefined) {
+    const file = files[0];
+    if (file.size > 10 * 1024 * 1024) {
+   // if (file.size > this.availableMimetypes.file.maxSize * 1024) {
+      this.$vs.notify({
+        title: this.$t("alert.danger"),
+        text: this.$t("alert.sizeTooLarge", { size: "10MB" }), // Update your translation key accordingly
+        color: "danger",
+      });
+      return;
+    }
+   /* if (!this.availableMimetypes.file.validMime.includes(file.type)) {
+      this.$vs.notify({
+        title: this.$t("alert.danger"),
+        text: this.$t("alert.fileNotAllowed"), // Update your translation key accordingly
+        color: "danger",
+      });
+    //  return;
+    }
+    *
+   this.previewImage = URL.createObjectURL(file);
+
+    // Perform the upload
+    this.uploadImage(file);
+  }
+},
+*/
+
+
+async onFilePicked(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const chunkSize = 1024 * 1024; // 1MB
+  let start = 0;
+  const totalChunks = Math.ceil(file.size / chunkSize);
+  let uploadPromises = [];
+
+  for (let i = 0; i < totalChunks; i++) {
+    const end = Math.min(start + chunkSize, file.size);
+    const chunk = file.slice(start, end);
+    const formData = new FormData();
+    formData.append('file', chunk);
+    formData.append('filename', file.name);
+    formData.append('chunkIndex', i);
+    formData.append('totalChunks', totalChunks);
+    formData.append("idbroj", this.$route.params.id);
+
+    uploadPromises.push(this.uploadChunk(formData));
+    start = end;
+  }
+
+ // Wait for all chunks to be uploaded
+// Wait for all chunks to be uploaded
+Promise.all(uploadPromises).then((responses) => {
+  // Find the final file assembly confirmation response
+  const finalAssemblyResponse = responses.find(response => 
+    response.data && response.data.message === "File uploaded successfully" // Adjust based on your backend's success message
+  );
+
+  if (finalAssemblyResponse) {
+    let finalPath = finalAssemblyResponse.data.path; // The path of the uploaded file on the server
+    console.log("Final file path:", finalPath);
+    
+    // Set the preview image if needed
+    // this.previewImage = URL.createObjectURL(file); // This line might not be necessary for the final file, as the file is already uploaded and URL.createObjectURL() is generally for local file previews.
+
+    // Emit the event with the final file path
+    this.$emit("input", finalPath);
+
+    // Reset the input after the upload is complete
+    event.target.value = '';
+  } else {
+    console.error("Final assembly confirmation not received.");
+    // Handle the case where the final assembly confirmation is missing
+  }
+}).catch(error => {
+  console.error('Error during the upload process:', error);
+  // Handle upload error
+});
+
+
+
+  event.target.value = ''; // Reset the input after the upload is complete
+},
+
+
+
+// Method to upload a single chunk
+uploadChunk(formData) {
+  return new Promise((resolve, reject) => {
+    this.$api.skijasiFile.customuploaddokumentiuciliste(formData, {
+      onUploadProgress: progressEvent => {
+        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log('Chunk upload progress: ', percentCompleted);
+      }
+    })
+    .then(response => {
+      // Check if the response is indicating a successful chunk upload or final file assembly
+      if (response.data.message.includes("successfully") || response.data.message === "Uspješno") {
+        console.log('Chunk uploaded successfully', response);
+        resolve(response);
+      } else {
+        console.error('Chunk upload reported failure', response);
+        reject('Upload failed for a chunk.');
+      }
+    })
+    .catch(error => {
+      console.error('Error uploading chunk', error);
+      reject(error);
+    });
+  });
+},
+
+
+
+
+
+
+
+
+    sortImages(event) {
+      this.getImages(event)
+    },
+    getImages(sortType) {
+      if (this.getActiveFolder) {
+        this.$openLoader();
+        this.$api.skijasiFile
+          .browseUsingLfm({
+            workingDir: this.getActiveFolder,
+            type: "file",
+            sort_type: sortType ? sortType : 'time',
+            page: this.page,
+          })
+          .then((res) => {
+            const error = _.get(res, "data.original.error", null);
+            if (error) {
+              this.$vs.notify({
+                title: this.$t("alert.danger"),
+                text: error.message,
+                color: "danger",
+              });
+            }
+
+            this.images = res.data.items;
+            this.paginator = res.data.paginator;
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            this.$closeLoader();
+          });
+      }
+    },
+
+
+    uploadImage(file) {
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("idbroj", this.userId);
+
+  // Post the form data to the customUploadFile endpoint
+  this.$api.skijasiFile.customuploaddokumentiuciliste(formData)
+  .then(response => {
+    console.log("UPLOAD12");
+    
+    // Handle the response from the server
+        // Update the value to show the image preview from the server
+        this.value = response.data.path; // Assuming 'path' is the key where the image URL is stored
+    this.previewImage = this.value; // Update the preview image to the final URL
+
+
+     // Emit the event to parent component with the new image URL
+     this.$emit("input", response.data.path); 
+
+    // Revoke the object URL if you want to release memory
+    URL.revokeObjectURL(this.previewImage);
+    console.log(response.data);
+
+
+
+    this.previewImage = null; // Reset preview image after successful upload
+        this.$refs.fileInput.value = ''; // Reset the file input
+  })
+  .catch(error => {
+    // Handle any errors
+    console.error(error);
+
+    console.log("UPLOAD123");
+  });
+},
+
+
+/*
+    uploadImage(file) {
+      const files = new FormData();
+      files.append("upload", file);
+      files.append("type", "image");
+      files.append("working_dir", this.getActiveFolder);
+      this.$api.skijasiFile
+        .uploadUsingLfm(files)
+        .then((res) => {
+          const error = _.get(res, "data.original.error", null);
+          if (error) {
+            this.$vs.notify({
+              title: this.$t("alert.danger"),
+              text: error.message,
+              color: "danger",
+            });
+          } else {
+            this.$vs.notify({
+              title: this.$t("alert.success"),
+              text: "Upload successful",
+              color: "success",
+            });
+          }
+        })
+        .catch((error) => {
+          this.$vs.notify({
+            title: this.$t("alert.danger"),
+            text: error.message,
+            color: "danger",
+          });
+        })
+        .finally(() => {
+          this.getImages();
+        });
+    },
+
+    */
+    deleteImage() {
+      this.$openLoader();
+      this.$api.skijasiFile
+        .deleteFile({
+          "items[]": _.find(this.images, { url: this.model }).name,
+        })
+        .then((res) => {
+          const error = _.get(res, "data.original.error", null);
+          if (error) {
+            this.$vs.notify({
+              title: this.$t("alert.danger"),
+              text: error.message,
+              color: "danger",
+            });
+          }
+
+          this.getImages();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          this.$closeLoader();
+          this.closeDeleteDialog();
+        });
+    },
+  },
+};
+</script>
+
+<style scoped>
+.image-preview-container {
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 200px; /* Adjust as needed */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
+.custom-upload-button {
+    background-color: blue; /* Customize as needed */
+    color: white; /* Customize text color */
+    /* Add more styles as needed */
+  }
+</style>

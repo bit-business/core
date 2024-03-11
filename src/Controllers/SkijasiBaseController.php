@@ -619,6 +619,40 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng);
   
       return response()->json(['maticnibroj' => $highestMaticni]);
   }
+
+  public function zadnjiidbrojevi(Request $request) {
+    // Assume 'klasagodine' is passed as a request parameter
+    $klasagodina = $request->input('klasagodina');
+    
+    // Fetch the highest idclanaedukacije value
+    $highestIdClanaEdukacije = DB::table('su_clanoviedukacijskipodaci')
+                                 ->max('idclanaedukacije');
+    // Calculate the next idclanaedukacije by adding 1 to the highest value
+    $nextIdClanaEdukacije = $highestIdClanaEdukacije + 1;
+
+    // Fetch the highest clanbrojknjige value that is not null
+    $highestClanBrojKnjige = DB::table('su_clanoviedukacijskipodaci')
+                               ->whereNotNull('clanbrojknjige')
+                               ->max('clanbrojknjige');
+    // Calculate the next clanbrojknjige by adding 1 to the highest value
+    $nextClanBrojKnjige = $highestClanBrojKnjige + 1;
+
+    // Fetch the highest brojclanskiidurbroj value for the specified klasagodine
+    $highestBrojClanskiIdUrBroj = DB::table('su_clanoviedukacijskipodaci')
+                                    ->where('klasagodina', $klasagodina)
+                                    ->max('brojclanskiidurbroj');
+    // Calculate the next brojclanskiidurbroj by adding 1 to the highest value
+    $nextBrojClanskiIdUrBroj = $highestBrojClanskiIdUrBroj + 1;
+
+    // Return all values in a single JSON response
+    return response()->json([
+        'idclanaedukacije' => $nextIdClanaEdukacije,
+        'clanbrojknjige' => $nextClanBrojKnjige,
+        'brojclanskiidurbroj' => $nextBrojClanskiIdUrBroj
+     
+    ]);
+}
+
   
   
 

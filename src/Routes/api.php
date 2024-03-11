@@ -75,6 +75,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::post('/upload/customvijesti', 'SkijasiFileController@customuploadfilevijesti');
             Route::post('/upload/customdokumenti', 'SkijasiFileController@customuploadfiledokumenti');
             Route::post('/upload/customdokumentictt', 'SkijasiFileController@customuploadfiledokumentictt');
+            Route::post('/upload/customdokumentiuciliste', 'SkijasiFileController@customuploaddokumentiuciliste');
+
             Route::get('/getfolders', 'SkijasiFileController@getFolders');
 
             Route::get('/get-images-from-slike', 'SkijasiFileController@getImagesFromSlike');
@@ -289,6 +291,9 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
                         Route::get($data_type->slug.'/zadnjimaticni', $crud_data_controller.'@zadnjimaticni')
                         ->name($data_type->slug.'.zadnjimaticni');
+
+                        Route::get($data_type->slug.'/zadnjiidbrojevi', $crud_data_controller.'@zadnjiidbrojevi')
+                        ->name($data_type->slug.'.zadnjiidbrojevi');
 
                         Route::post($data_type->slug.'/generateisiagodinu', $crud_data_controller.'@generateisiagodinu')
                         ->name($data_type->slug.'.generateisiagodinu');

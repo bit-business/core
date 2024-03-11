@@ -82,4 +82,9 @@ export default {
   },
 
 
+  customuploaddokumentiuciliste(files) {
+    return resource.post(apiPrefix + "/v1/file/upload/customdokumentiuciliste", files);
+  },
+
+
 };

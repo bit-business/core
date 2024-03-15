@@ -233,7 +233,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.citanjeispiti')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',read');
 
-                    Route::put($data_type->slug.'/edit', $crud_data_controller.'@edit')
+                        Route::put($data_type->slug.'/edit', $crud_data_controller.'@edit')
                         ->name($data_type->slug.'.edit')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',edit');
 

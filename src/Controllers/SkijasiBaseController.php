@@ -594,48 +594,54 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng);
 
 
     public function zadnjimaticni() {
+          // Fetch the highest clanbrojknjige value that is not null
+    $highestClanBrojKnjige = DB::table('su_clanoviedukacijskipodaci')
+    ->whereNotNull('clanbrojknjige')
+    ->max('clanbrojknjige');
+// Calculate the next clanbrojknjige by adding 1 to the highest value
+$nextClanBrojKnjige = $highestClanBrojKnjige + 1;
+
       // Fetch all maticnibroj values that are not null
-      $maticniNumbers = DB::table('su_clanoviedukacijskipodaci')
-                          ->whereNotNull('maticnibroj')
-                          ->pluck('maticnibroj'); // Get a collection of maticnibroj values
+            // Find the highest maticnibroj and extract the numeric part before the '/'
+            $highestMaticniBroj = DB::table('su_clanoviedukacijskipodaci')
+            ->whereNotNull('maticnibroj')
+            ->max('maticnibroj');
+    
+        $maticniBrojNumber = preg_replace('/\/.*/', '', $highestMaticniBroj);
+    
+        // Calculate the next maticnibroj
+        $nextMaticniBroj = '';
+       
+        $nextMaticniBrojNumber = intval($maticniBrojNumber);
+        
+    
+        // Append the last 3 digits of $nextClanBrojKnjige to $nextMaticniBroj
+        $lastThreeDigits = str_pad(substr($nextClanBrojKnjige, -3), 3, '0', STR_PAD_LEFT);
+        if ($lastThreeDigits === '000') {
+            $nextMaticniBroj = ($nextMaticniBrojNumber + 1) . '/0';
+        } else {
+            $nextMaticniBroj = $nextMaticniBrojNumber . '/' . $lastThreeDigits;
+        }
+
+            // Fetch the highest idclanaedukacije value
+    $highestIdClanaEdukacije = DB::table('su_clanoviedukacijskipodaci')
+    ->max('idclanaedukacije');
+// Calculate the next idclanaedukacije by adding 1 to the highest value
+$nextIdClanaEdukacije = $highestIdClanaEdukacije + 1;
+
   
-      // Initialize variables to track the highest parts
-      $highestPart1 = 0;
-      $highestPart2 = 0;
-      $highestMaticni = '';
-  
-      foreach ($maticniNumbers as $num) {
-          list($part1, $part2) = explode('/', $num);
-          $part1 = (int) $part1;
-          $part2 = (int) $part2;
-  
-          // Update the highest parts if current parts are higher
-          if ($part1 > $highestPart1 || ($part1 == $highestPart1 && $part2 > $highestPart2)) {
-              $highestPart1 = $part1;
-              $highestPart2 = $part2;
-              $highestMaticni = $num;
-          }
-      }
-  
-      return response()->json(['maticnibroj' => $highestMaticni]);
+
+    // Return all values in a single JSON response
+    return response()->json([
+      'clanbrojknjige' => $nextClanBrojKnjige,
+      'maticnibroj' => $nextMaticniBroj,
+      'idclanaedukacije' => $nextIdClanaEdukacije
+  ]);
   }
 
   public function zadnjiidbrojevi(Request $request) {
     // Assume 'klasagodine' is passed as a request parameter
     $klasagodina = $request->input('klasagodina');
-    
-    // Fetch the highest idclanaedukacije value
-    $highestIdClanaEdukacije = DB::table('su_clanoviedukacijskipodaci')
-                                 ->max('idclanaedukacije');
-    // Calculate the next idclanaedukacije by adding 1 to the highest value
-    $nextIdClanaEdukacije = $highestIdClanaEdukacije + 1;
-
-    // Fetch the highest clanbrojknjige value that is not null
-    $highestClanBrojKnjige = DB::table('su_clanoviedukacijskipodaci')
-                               ->whereNotNull('clanbrojknjige')
-                               ->max('clanbrojknjige');
-    // Calculate the next clanbrojknjige by adding 1 to the highest value
-    $nextClanBrojKnjige = $highestClanBrojKnjige + 1;
 
     // Fetch the highest brojclanskiidurbroj value for the specified klasagodine
     $highestBrojClanskiIdUrBroj = DB::table('su_clanoviedukacijskipodaci')
@@ -646,10 +652,7 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng);
 
     // Return all values in a single JSON response
     return response()->json([
-        'idclanaedukacije' => $nextIdClanaEdukacije,
-        'clanbrojknjige' => $nextClanBrojKnjige,
         'brojclanskiidurbroj' => $nextBrojClanskiIdUrBroj
-     
     ]);
 }
 

@@ -68,30 +68,32 @@ export default {
     },
   },
   computed: {
-    innerValue: {
-      get() {
-        return this.value ? new Date(this.value) : null;
-      },
-      set(val) {
-        if (!val) {
-          this.$emit("input", null);
-        } else {
-          const utcDate = new Date(val.getTime() - (val.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-          this.$emit("input", utcDate);
-        }
+  innerValue: {
+    get() {
+      return this.value ? new Date(this.value) : null;
+    },
+    set(val) {
+      if (!val) {
+        this.$emit("input", null);
+      } else {
+        const selectedDate = new Date(val);
+        const formattedDate = `${selectedDate.getFullYear()}-${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}-${selectedDate.getDate().toString().padStart(2, '0')}`;
+        this.$emit("input", formattedDate);
       }
     }
-  },
-  methods: {
-    handleInput(date) {
-  if (date == null || date == '') {
-    this.$emit("input", null);
-  } else {
-    const utcDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-    this.$emit("input", utcDate);
   }
 },
+methods: {
+  handleInput(date) {
+    if (date == null || date === '') {
+      this.$emit("input", null);
+    } else {
+      const selectedDate = new Date(date);
+      const formattedDate = `${selectedDate.getFullYear()}-${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}-${selectedDate.getDate().toString().padStart(2, '0')}`;
+      this.$emit("input", formattedDate);
+    }
   },
+},
 };
 </script>
 

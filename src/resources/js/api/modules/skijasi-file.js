@@ -90,4 +90,9 @@ export default {
   },
 
 
+  getpdfdokumenti() {
+    return resource.get(apiPrefix + "/v1/file/upload/getpdfdokumenti");
+  },
+
+
 };

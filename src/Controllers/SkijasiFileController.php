@@ -11,6 +11,8 @@ use UniSharp\LaravelFilemanager\Controllers\UploadController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
+use Carbon\Carbon;
+
 
 
 class SkijasiFileController extends Controller
@@ -465,6 +467,37 @@ private function cleanupChunks2($tempPath, $totalChunks)
     }
 }
 
+
+
+public function getPdfDokumenti($folderPath = 'dokumenti-web-hzuts')
+{
+    // Get the absolute path of the folder
+    $folderPath = Storage::disk('public')->path($folderPath);
+
+    // Get all files in the folder
+    $files = File::files($folderPath);
+
+    // Filter out non-PDF files
+    $pdfFiles = array_filter($files, function ($file) {
+        return File::extension($file) === 'pdf';
+    });
+
+    // Map the PDF files to an array with their names and URLs
+    $pdfFileData = array_map(function ($file) use ($folderPath) {
+        $filename = File::name($file);
+        $relativePath = str_replace(public_path(), '', $file);
+        $url = Storage::disk('public')->url($relativePath);
+        $lastModified = Carbon::createFromTimestamp(File::lastModified($file));
+
+        return [
+            'name' => $filename,
+            'url' => $url,
+            'date' => $lastModified->toDateTimeString()
+        ];
+    }, $pdfFiles);
+
+    return ApiResponse::success($pdfFileData);
+}
 
 
 

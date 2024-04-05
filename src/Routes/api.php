@@ -82,6 +82,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
             Route::get('/get-images-from-slike', 'SkijasiFileController@getImagesFromSlike');
 
+            Route::get('/upload/getpdfdokumenti', 'SkijasiFileController@getpdfdokumenti');
+
 
         });
 

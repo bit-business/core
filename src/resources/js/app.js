@@ -17,7 +17,7 @@ import App from "./apps/App.vue";
 console.log("app.js is being executed.");
 
 //import firebase from "firebase/app";
-import "firebase/firebase-messaging";
+//import "firebase/firebase-messaging";
 import 'firebase/storage';
 
 //import { notificationMessageReceiveHandle } from "./utils/firebase";

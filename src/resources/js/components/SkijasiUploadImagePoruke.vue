@@ -1,5 +1,4 @@
 <template>
-<!-- ... other code ... -->
 <vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
     <!-- Only display this row if there is a preview image or an existing value -->
     <vs-row v-if="previewImage || hasValue">
@@ -60,7 +59,7 @@ import { mapState } from "vuex";
 import * as _ from "lodash";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 export default {
-  name: "SkijasiUploadImageVijesti",
+  name: "SkijasiUploadImagePoruke",
   props: {
     size: {
       type: String || Number,
@@ -301,7 +300,7 @@ onFilePicked(e) {
   // Retrieve the name and idmember values
 
   // Post the form data to the customUploadFile endpoint
-  this.$api.skijasiFile.customuploadfilevijesti(formData)
+  this.$api.skijasiFile.customuploadfileporuke(formData)
   .then(response => {
     // Handle the response from the server
         // Update the value to show the image preview from the server

@@ -175,7 +175,7 @@ export default {
   alert: {
     success: "Spremljeno",
     update_success: "Uspješno spremljeno!",
-    danger: "Opasnost",
+    danger: "Greška",
     error: "Greška",
   },
 

@@ -72,6 +72,9 @@ export default {
   customuploadfilevijesti(files) {
     return resource.post(apiPrefix + "/v1/file/upload/customvijesti", files);
   },
+  customuploadfileporuke(files) {
+    return resource.post(apiPrefix + "/v1/file/upload/customporuke", files);
+  },
   customuploadfiledogadaji(files) {
     return resource.post(apiPrefix + "/v1/file/upload/customdogadaji", files);
   },

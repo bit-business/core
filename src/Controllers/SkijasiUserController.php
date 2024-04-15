@@ -117,7 +117,7 @@ class SkijasiUserController extends Controller
             $user->statusString = GetData::calculateStatusString($statusData, $trainerStatusLabels);
             
 
-            $licenceData = GetData::fetchLicenceDataForMember($user->idmember);
+            $licenceData = GetData::fetchLicenceDataForMember($user->id);
             $user->licenceData = $licenceData;
 
 
@@ -126,7 +126,7 @@ class SkijasiUserController extends Controller
             $user->endstatusdate = $statusAktivanData['endstatusdate'];
             $user->idevent = $statusAktivanData['idevent'];
 
-            $isiaData = GetData::fetchISIAbroj($user->idmember);
+            $isiaData = GetData::fetchISIAbroj($user->id);
             $user->isiaBroj = $isiaData;
       
                 }
@@ -232,7 +232,7 @@ class SkijasiUserController extends Controller
     $user->statusString = GetData::calculateStatusString($statusData, $trainerStatusLabels);
     
 
-    $licenceData = GetData::fetchLicenceDataForMember($user->idmember);
+    $licenceData = GetData::fetchLicenceDataForMember($user->id);
     $user->licenceData = $licenceData;
 
 
@@ -241,7 +241,7 @@ class SkijasiUserController extends Controller
     $user->endstatusdate = $statusAktivanData['endstatusdate'];
     $user->idevent = $statusAktivanData['idevent'];
 
-    $isiaData = GetData::fetchISIAbroj($user->idmember);
+    $isiaData = GetData::fetchISIAbroj($user->id);
     $user->isiaBroj = $isiaData;
 
 

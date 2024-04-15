@@ -7,6 +7,20 @@ use NadzorServera\Skijasi\Middleware\SkijasiAuthenticate;
 use NadzorServera\Skijasi\Middleware\SkijasiCheckPermissions;
 use NadzorServera\Skijasi\Middleware\SkijasiCheckPermissionsForCRUD;
 
+use App\Http\Controllers\AdminMessageController;
+
+
+Route::group(['prefix' => 'skijasi-api/v1/poruke', 'middleware' => 'api'], function () {
+    Route::get('/poruke', [AdminMessageController::class, 'index']);
+    Route::get('/pregledporuke', [AdminMessageController::class, 'pregledporuke']);
+    Route::post('/', [AdminMessageController::class, 'store']);
+    Route::put('/{id}', [AdminMessageController::class, 'updateAdmin']);
+    Route::delete('/{id}', [AdminMessageController::class, 'destroy']);
+    Route::put('/markallread/{id}', [AdminMessageController::class, 'markallread']);
+    Route::put('/hidenotification/{id}', [AdminMessageController::class, 'hideNotification']);
+    Route::put('/markread/{id}', [AdminMessageController::class, 'markRead']);
+});
+
 $api_route_prefix = \config('skijasi.api_route_prefix');
 Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skijasi\Controllers', 'as' => 'skijasi.', 'middleware' => [ApiRequest::class]], function () {
     Route::group(['prefix' => 'v1'], function () {
@@ -15,6 +29,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
         });
 
 
+       
         
 
         Route::group(['prefix' => 'data'], function () {
@@ -73,6 +88,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
             Route::post('/upload/custom', 'SkijasiFileController@customuploadfile');
             Route::post('/upload/customvijesti', 'SkijasiFileController@customuploadfilevijesti');
+            Route::post('/upload/customporuke', 'SkijasiFileController@customuploadfileporuke');
+
             Route::post('/upload/customdogadaji', 'SkijasiFileController@customuploadfiledogadaji');
             Route::post('/upload/customdokumenti', 'SkijasiFileController@customuploadfiledokumenti');
             Route::post('/upload/customdokumentictt', 'SkijasiFileController@customuploadfiledokumentictt');
@@ -337,6 +354,12 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                 Route::post('/send-firebase-message', 'SkijasiFCMController@sendNotification');
 
             });
+
+
+
+
+
+
             Route::group(['prefix' => 'messages', 'middleware' => 'auth'], function () {
                 Route::get('/', 'SkijasiNotificationsController@getMessages');
                 Route::put('/{id}', 'SkijasiNotificationsController@readMessage');

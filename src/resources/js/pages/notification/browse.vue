@@ -3,19 +3,75 @@
     <skijasi-breadcrumb-row>
       <template slot="action"> </template>
     </skijasi-breadcrumb-row>
-    <vs-row>
+
+
+    <vs-row class="pad-bot">
+      <vs-col vs-lg="12">
+      <div  class="">
+            <vs-button class="compose-button" @click="toggleMessageComposer">Pošalji Novu Poruku</vs-button>
+          </div>
+
+          <div v-if="showMessageComposer">
+            <vs-card class="slanjekartica">
+              <template #header>
+                <h4>Slanje nove poruke/obavijesti</h4>
+              </template>
+
+              <div>
+
+                <div class="input-container">
+                  <vs-textarea v-model="message" placeholder="Sadržaj poruke" rows="6" />
+
+  <vs-input v-model="url" placeholder="Link koji otvara poruka (neobavezno)" />
+ <skijasi-upload-image-poruke
+                    v-model="slika"
+                    size="3"
+                    :label="$t('Slika uz poruku (neobavezno)')"
+                    :placeholder="$t('Odaberi sliku')"
+                  ></skijasi-upload-image-poruke>
+
+        
+                <div>
+                  <vs-button :class="{ 'selected-button': !selectSpecificUsers, 'inactive-button': selectSpecificUsers }" @click="selectSpecificUsers = false; sendToAll = true">Svim korisnicima</vs-button>
+                  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="selectSpecificUsers = true; sendToAll = false">Specifični korisnici</vs-button>
+
+                </div>
+
+                <div v-if="selectSpecificUsers">
+                  <div class="user-list">
+                    <span v-for="user in users" :key="user.id" @click="toggleUserSelection(user)">
+                      <span :class="{ 'selected': isSelected(user) }">{{ user.username }} {{ user.name }},</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="button-group">
+                <div class="con-btn p-5">
+                  <vs-button class="posaljigumb" color="warning" @click="sendMessage">Pošalji Poruku</vs-button>
+                  <vs-button class="posaljigumb" color="gray" @click="toggleMessageComposer">Odustani</vs-button>
+                </div>
+              </div>
+            </vs-card>
+          </div>
+        </vs-col>      </vs-row>
+        <vs-row>
       <vs-col vs-lg="12">
         <vs-card>
-          <div slot="header">
-            <h3>Notification Inbox</h3>
+          <div slot="header" class="header-container">
+            <h3>Povijest poslanih poruka</h3>
           </div>
+
+
+
           <div>
             <skijasi-table
               v-model="selected"
               pagination
               max-items="10"
               search
-              :data="dataNotification"
+              :data="sortedMessages"
               stripe
               description
               :description-items="descriptionItems"
@@ -24,54 +80,77 @@
               :description-body="$t('role.footer.descriptionBody')"
             >
               <template slot="thead">
-                <vs-th :sort-key="title">
-                  {{ $t("notification.table.thead.title") }}
-                </vs-th>
-                <vs-th :sort-key="body">
-                  {{ $t("notification.table.thead.message") }}
-                </vs-th>
-                <vs-th :sort-key="user_name">
-                  {{ $t("notification.table.thead.user") }}
-                </vs-th>
-                <vs-th> {{ $t("crud.header.action") }} </vs-th>
+                <vs-th>Poruku kreirao</vs-th>
+                <vs-th>Slika</vs-th>
+                <vs-th>Sadržaj poruke</vs-th>
+                <vs-th>Link</vs-th>
+                <vs-th>Poslano korisnicima</vs-th>
+                <vs-th>Vrijeme slanja</vs-th>
+                <vs-th>Tko je pročitao poruku</vs-th>
+                <vs-th>Opcije</vs-th>
               </template>
 
               <template slot-scope="{ data }">
-                <vs-tr
-                  v-for="(notif, indexMessage) in data"
-                  :key="indexMessage"
-                  :data="notif"
-                >
-                  <vs-td :data="dataNotification[indexMessage].title">
-                    {{ dataNotification[indexMessage].title }}
-                  </vs-td>
-                  <vs-td :data="dataNotification[indexMessage].body">
-                    {{ dataNotification[indexMessage].body }}
-                  </vs-td>
-                  <vs-td :data="dataNotification[indexMessage].user_name">
-                    {{ dataNotification[indexMessage].user_name }}
-                  </vs-td>
+                <vs-tr v-for="(message, index) in data" :key="index" :data="message">
+                  <vs-td v-if="message">
+      {{ getSentByName(message.sent_by) }}
+    </vs-td>
+    <vs-td >
+  <img :src="message.slika" alt="Nema slike" style="max-width: 100px; max-height: 100px;">
+</vs-td>
+
+<vs-td style="max-width: 30vw; word-wrap: break-word;">
+  {{ message.message }}
+</vs-td>
+
+                  <vs-td >{{ message.url }}</vs-td>
                   <vs-td>
-                    <skijasi-dropdown vs-trigger-click>
-                      <vs-button
-                        size="large"
-                        type="flat"
-                        icon="more_vert"
-                      ></vs-button>
-                      <vs-dropdown-menu>
-                        <skijasi-dropdown-item
-                          icon="delete"
-                          @click="confirmDelete(indexMessage)"
-                        >
-                          Delete
+      <!-- Display the names and usernames of recipients horizontally -->
+      <template v-if="message && message.recipients">
+      <div class="recipient-list">
+        <span v-if="message.sent_to && message.sent_to.length === 1 && message.sent_to[0] === 'svi'">Poslano svima</span>
+        <span v-else v-for="(recipient, index) in message.recipients" :key="index" class="recipient">
+          {{ recipient.username }} {{ recipient.name }}
+        </span>
+      </div>
+    </template>
+    </vs-td>
+                  <vs-td v-if="message && message.created_at">{{ formatDate(message.created_at) }}</vs-td>
+
+                  <vs-td>
+    <template >
+        <div class="reader-list">
+            <span v-for="(reader, index) in message.readers" :key="index" class="recipient">
+                <template v-if="reader === '' || !reader">
+                    Pročitali svi
+                </template>
+                <template v-else-if="reader && reader.username && reader.name">
+                    {{ reader.username }} {{ reader.name }}
+                </template>
+            </span>
+        </div>
+    </template>
+</vs-td>
+
+
+                  
+               
+
+                  <vs-td>
+                        <skijasi-dropdown-item icon="delete" @click="deleteMessage(message.id)">
+                          Obriši
                         </skijasi-dropdown-item>
-                      </vs-dropdown-menu>
-                    </skijasi-dropdown>
+                          <skijasi-dropdown-item icon="check" @click="markAsRead(message)">
+                          Označi kao pročitano svima
+                          </skijasi-dropdown-item>
+                    
+      
                   </vs-td>
                 </vs-tr>
               </template>
             </skijasi-table>
           </div>
+
         </vs-card>
       </vs-col>
     </vs-row>
@@ -79,52 +158,336 @@
 </template>
 
 <script>
-import { keyMessageNotification } from "../../utils/firebase";
+import { mapState } from 'vuex'
 
 export default {
   name: "NotificationBrowse",
-  components: {},
   data() {
     return {
+      showMessageComposer: false,
+      message: "",
+      slika: null,
+      url: "",
+      sendToAll: true,
+      sentAt: null,
+      selectSpecificUsers: false, // Track whether to select specific users or all users
+      selectedUsers: [],
+      users: [], // Replace with your actual list of users
       descriptionItems: [10, 50, 100],
       selected: [],
-      dataNotification: [],
+      messages: [], // Replace with your actual list of messages
     };
   },
-  created() {
-    this.dataNotification = this.getNotificationMessage();
+
+  mounted() {
+    this.getUserList(); 
+    this.fetchUserMessages();
   },
+
+  computed: {
+    sortedMessages() {
+      // Sort messages by created_at timestamp in descending order
+      return this.messages.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    },
+  },
+
+
   methods: {
-    confirmDelete(indexMessage) {
-      this.$vs.dialog({
-        type: "confirm",
-        color: "danger",
-        title: this.$t("action.delete.title"),
-        text: this.$t("action.delete.text"),
-        accept: () => this.deleteNotificationMessage(indexMessage),
-        acceptText: this.$t("action.delete.accept"),
-        cancelText: this.$t("action.delete.cancel"),
-        cancel: () => {},
+    getSentByName(sentById) {
+      const user = this.users.find(user => user.id == parseInt(sentById));
+      return user ? `${user.username} ${user.name}` : '';
+    },
+
+    handleFileUpload(event) {
+    this.selectedFile = event.target.files[0];
+  },
+
+
+    toggleUserSelection(user) {
+      const index = this.selectedUsers.findIndex(u => u.id === user.id);
+      if (index === -1) {
+        this.selectedUsers.push(user);
+      } else {
+        this.selectedUsers.splice(index, 1);
+      }
+    },
+
+    isSelected(user) {
+      return this.selectedUsers.some(u => u.id === user.id);
+    },
+
+    toggleSelectAll() {
+      if (this.selectedUsers.length === this.users.length) {
+        this.selectedUsers = [];
+      } else {
+        this.selectedUsers = [...this.users];
+      }
+    },
+
+    getUserList() {
+      this.$openLoader();
+      this.$api.skijasiUser
+        .browse()
+        .then((response) => {
+          this.$closeLoader();
+          this.users = response.data.users;      
+          console.log("TEST", this.users);
+        })
+        .catch((error) => {
+          this.$closeLoader();
+          this.$vs.notify({
+            title: this.$t("alert.danger"),
+            text: error.message,
+            color: "danger",
+          });
+        });
+    },
+
+    toggleMessageComposer() {
+      this.showMessageComposer = !this.showMessageComposer;
+      if (!this.showMessageComposer) {
+        this.resetForm();
+      }
+    },
+
+    resetForm() {
+      this.message = "";
+      this.slika = null;
+      this.sendToAll = false;
+      this.selectedUsers = [];
+      this.url = "";
+    },
+
+      sendMessage() {
+  const messageData = {
+    url: this.url,
+    slika: this.slika,
+    message: this.message,
+    sendToAll: this.sendToAll, // Include sendToAll in messageData
+    sentTo: this.sendToAll ? [] : this.selectedUsers.map((user) => user.id.toString()), // Convert user IDs to strings
+  };
+
+  console.log("testsenddata:", messageData);
+
+  this.$api.skijasiPoruke
+    .sendMessage(messageData)
+    .then((response) => {
+      console.log("Message sent successfully:", response.data);
+      // Optionally, you can add the new message to the messages array
+      this.fetchUserMessages();
+      this.messages.push(response.data);
+    })
+    .catch((error) => {
+      console.error("Error sending message:", error);
+    });
+
+  },
+
+
+    deleteMessage(messageId) {
+      this.$api.skijasiPoruke
+        .deleteMessage(messageId)
+        .then(() => {
+          // Remove the deleted message from the messages array
+          this.messages = this.messages.filter((message) => message.id !== messageId);
+        })
+        .catch((error) => {
+          console.error("Error deleting message:", error);
+        });
+    },
+
+    markAsRead(message) {
+  // Check if message has recipients and it's not null
+  if (message.recipients && Array.isArray(message.recipients)) {
+    // Copy the recipients of the message
+    const recipients = message.recipients.map(recipient => recipient && recipient.id ? recipient.id : null);
+
+    // Check if 'svi' is included in the recipients
+    const isSviIncluded = recipients.includes('svi');
+
+    // Send the list of recipients to the backend to mark the message as read for all of them
+    this.$api.skijasiPoruke
+      .markallread(message.id, { recipients: isSviIncluded ? ['svi'] : recipients }) // Send ['svi'] if 'svi' is included
+      .then((response) => {
+        // Update the message in the messages array
+        const index = this.messages.findIndex((msg) => msg.id === message.id);
+        if (index !== -1) {
+          // Mark the message as read for all recipients
+          this.messages[index].readers = message.recipients;
+          // Optionally, update the is_read property if available in the response
+          if (response.data && response.data.is_read) {
+            this.messages[index].is_read = response.data.is_read;
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error marking message as read:", error);
       });
-    },
-    deleteNotificationMessage(indexMessage) {
-      const dataMessageFromLocalStorage = this.getNotificationMessage().filter(
-        (item, index) => index != indexMessage
-      );
-      localStorage.setItem(
-        keyMessageNotification,
-        JSON.stringify(dataMessageFromLocalStorage)
-      );
-      this.dataNotification = this.getNotificationMessage();
-    },
-    getNotificationMessage() {
-      const dataMessageFromLocalStorage = localStorage.getItem(
-        keyMessageNotification
-      );
-      return dataMessageFromLocalStorage != null
-        ? JSON.parse(dataMessageFromLocalStorage)
-        : [];
+  } else {
+    console.error("Error: Message recipients are not valid.");
+  }
+},
+
+
+
+
+
+fetchUserMessages() {
+  console.log("Fetching user messages...");
+  this.$api.skijasiPoruke
+    .getMessages()
+    .then((response) => {
+      console.log("API Response:", response);
+      if (response) {
+        console.log("Response Data:", response);
+        // Update recipient information for each message
+        response.forEach((message) => {
+          // Check if message.sent_to is not null and is an array
+          if (Array.isArray(message.sent_to)) {
+            // Convert string IDs to integers for message.sent_to
+            const sentToIds = message.sent_to.map(id => parseInt(id));
+            message.recipients = sentToIds.map((userId) => {
+              const user = this.users.find((user) => user.id === userId);
+              return user ? { id: user.id, name: user.name, username: user.username } : null;
+            });
+          } else {
+            // If message.sent_to is null or not an array, set recipients as an empty array
+            message.recipients = [];
+          }
+
+          // Convert string IDs to integers for message.is_read
+          let isReadIds = [];
+          if (Array.isArray(message.is_read)) {
+            isReadIds = message.is_read.map(id => parseInt(id));
+          }
+          message.readers = isReadIds.map((userId) => {
+            const user = this.users.find((user) => user.id === userId);
+            return user ? { id: user.id, name: user.name, username: user.username } : null;
+          });
+        });
+        this.messages = response;
+        console.log("Messages:", this.messages);
+      } else {
+        console.error("No data received from API");
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching user messages:", error);
+    });
+},
+
+
+
+
+
+
+    formatDate(dateString) {
+      // Format the date string as needed
+      return new Date(dateString).toLocaleString();
     },
   },
 };
 </script>
+
+<style scoped>
+.user-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.user-list span {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.user-list span.selected {
+  background-color: #20c4ff;
+  color: white;
+}
+
+.user-list span.select-all {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+
+.selected-button {
+  background-color: #06bbd3 !important;
+  color: white;
+  font-weight: bold;
+}
+
+.inactive-button {
+  background-color: #ccc !important;
+  color: #aaaaaa !important;
+}
+
+.header-container {
+  display: flex;
+
+  align-items: center;
+}
+
+.compose-button {
+  width: 100%;
+  margin: 0 auto;
+  padding: 1%;
+  font-size: large;
+  font-weight: bold;
+}
+
+.pad-bot {
+padding-bottom: 3%;
+padding-top: 1%;
+}
+
+.recipient-list {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: smaller;
+}
+.reader-list{
+  display: flex;
+  flex-wrap: wrap;
+  font-size: smaller;
+  color: rgb(15, 79, 85);
+}
+
+.recipient {
+  margin-right: 10px; /* Adjust as needed */
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Adjust the gap value as needed */
+}
+
+.slanjekartica{
+background-color:rgb(253, 253, 253);
+border: #06bbd3 2px solid;
+}
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+}
+
+.con-btn {
+  display: flex;
+  justify-content: center; /* Center buttons */
+  align-items: center; /* Align items vertically */
+  background-color: rgb(253, 253, 253);
+}
+
+.posaljigumb {
+  margin-right: 50px; 
+  padding: 15px 30px; 
+
+  font-weight: 600;
+  font-size: small ;
+}
+
+
+
+</style>

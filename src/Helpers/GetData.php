@@ -42,30 +42,36 @@ class GetData
                 ->get();
     
 
-    
+                Log::info('Educational groups fetched for user ID: ' . $userId . ', Groups: ' . json_encode($edukacijskeGrupe));
+
    // Fetch ispiti based on the condition
-$ispiti = collect();
+   $ispiti = collect();
 
-foreach ($edukacijskeGrupe as $grupa) {
-    $grupaIspiti = DB::table('su_ispiti')
-        ->join('su_edukacijskagrupasegmentclan', 'su_ispiti.idedukacijskogsegmentaclana', '=', 'su_edukacijskagrupasegmentclan.id')
-        ->where('su_edukacijskagrupasegmentclan.idedukacijskegupe', $grupa->id)
-        ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
-        ->select('su_ispiti.*')
-        ->get();
+   foreach ($edukacijskeGrupe as $grupa) {
+       $grupaIspiti = DB::table('su_ispiti')
+           ->join('su_edukacijskagrupasegmentclan', 'su_ispiti.idedukacijskogsegmentaclana', '=', 'su_edukacijskagrupasegmentclan.id')
+           ->where('su_edukacijskagrupasegmentclan.idedukacijskegupe', $grupa->id)
+           ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
+           ->select('su_ispiti.*', 'su_ispiti.idsegmenta AS idsegmenta', 'su_edukacijskagrupasegmentclan.idsegmenta AS clan_idsegmenta')
+           ->get();
+   
+       $ispiti = $ispiti->merge($grupaIspiti);
+   }
+   Log::info('Exams fetched for user ID: ' . $userId . ', Exams: ' . json_encode($ispiti));
 
-    $ispiti = $ispiti->merge($grupaIspiti);
-}
    
 
                 $edukacijskiProgram = DB::table('su_clanoviedukacijskipodaci')
                 ->where('idmember', $user->id)
                 ->first();
+                
     
             $edukacijskiProgramId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
             $edukacijskiProgramName = self::getEdukacijskiProgramName($edukacijskiProgramId);
             $edukacijskiProgramIds[$userId] = $edukacijskiProgramName;
-    
+            
+            Log::info('Educational program fetched for user ID: ' . $userId . ', Program ID: ' . $edukacijskiProgramId . ', Program Name: ' . $edukacijskiProgramName);
+
   
             $statusMessage = self::calculateStatusMessage($ispiti, $edukacijskiProgram);
     
@@ -141,7 +147,7 @@ foreach ($edukacijskeGrupe as $grupa) {
                     ($ispit->ocjenaispita && $ispit->ocjenaispita <= 1 && !$highestGrade) &&
                     $ispit->idadmitmakeupseg === null
                 ) {
-                    \Log::info('Ispit failed: ', $ispit);
+                  
                     $cjelinaCompleted = false;
                     break;
                 }
@@ -188,16 +194,27 @@ foreach ($edukacijskeGrupe as $grupa) {
         });
     
         if (!empty($ispitiI)) {
-            $oldestIspitDate = min(array_map(function ($ispit) {
-                return new DateTime($ispit->datumispita);
-            }, $ispitiI));
-    
-            $yearsSinceOldestIspit = $oldestIspitDate->diff($now)->y;
-    
-            if ($yearsSinceOldestIspit > 5) {
-                return "Prošlo 5.godina od I.specijalnosti";
+            $oldestIspitDate = null;
+            foreach ($ispitiI as $ispit) {
+                // Check if datumispita is not empty or null
+                if (!empty($ispit->datumispita)) {
+                    $currentDate = new \DateTime($ispit->datumispita);
+                    if ($oldestIspitDate === null || $currentDate < $oldestIspitDate) {
+                        $oldestIspitDate = $currentDate;
+                    }
+                }
+            }
+        
+            // If oldestIspitDate is still null, it means all datumispita values were empty or null
+            if ($oldestIspitDate !== null) {
+                $yearsSinceOldestIspit = $oldestIspitDate->diff($now)->y;
+        
+                if ($yearsSinceOldestIspit > 5) {
+                    return "Prošlo 5.godina od I.specijalnosti";
+                }
             }
         }
+        
     
         if (!$allCjelinaCompleted && $anyValidPopravciDateFound) {
             return $generalStatus; // Return the time-based status if a valid "Popravci" date is found
@@ -240,7 +257,7 @@ foreach ($edukacijskeGrupe as $grupa) {
     protected static function getCjelinaText($ispit)
     {
         $parentsegid = self::getParentSegIdForIspit($ispit);
-    
+        Log::info("Cjelina found for parentsegid:", (array)$ispit);
         foreach (static::$cjelinaMapping as $cjelinaName => $segmentIds) {
             if (in_array($parentsegid, $segmentIds)) {
                 Log::info("Cjelina found: $cjelinaName for parentsegid: $parentsegid");
@@ -257,16 +274,16 @@ foreach ($edukacijskeGrupe as $grupa) {
     protected static function getParentSegIdForIspit($ispit)
     {
         $segment = DB::table('su_edukacijskisegmenti')
-            ->where('parentsegid', $ispit->idsegmenta)
+            ->where('parentsegid', $ispit->clan_idsegmenta)
             ->first();
-
+    
         return $segment ? $segment->parentsegid : null;
     }
 
     protected static function getProgramIdForIspit($ispit)
     {
         $segment = DB::table('su_edukacijskisegmenti')
-            ->where('idedukacijskogprograma', $ispit->idsegmenta)
+            ->where('idedukacijskogprograma', $ispit->clan_idsegmenta)
             ->first();
 
         return $segment ? $segment->idedukacijskogprograma : null;

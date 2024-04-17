@@ -176,6 +176,21 @@ class SkijasiUserController extends Controller
             }
         }
     
+
+
+        public function browseuserporuke(Request $request)
+        {
+            try {
+                $users = User::all();
+    
+                $data['users'] = $users;
+    
+                return ApiResponse::success(collect($data)->toArray());
+            } catch (Exception $e) {
+                return ApiResponse::failed($e);
+            }
+            }
+        
     
     
         public function read(Request $request)

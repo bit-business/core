@@ -26,8 +26,9 @@ class GetData
 
     public static function getStatusMessagesForUsers($userIds)
     {
-        $statusMessages = [];
-        $edukacijskiProgramIds = [];
+        $statusMessages = array_fill_keys($userIds, []);
+        $edukacijskiProgramIds = array_fill_keys($userIds, []);
+    
     
         foreach ($userIds as $userId) {
             // Fetch user data
@@ -42,7 +43,7 @@ class GetData
                 ->get();
     
 
-                Log::info('Educational groups fetched for user ID: ' . $userId . ', Groups: ' . json_encode($edukacijskeGrupe));
+        
 
    // Fetch ispiti based on the condition
    $ispiti = collect();
@@ -57,7 +58,6 @@ class GetData
    
        $ispiti = $ispiti->merge($grupaIspiti);
    }
-   Log::info('Exams fetched for user ID: ' . $userId . ', Exams: ' . json_encode($ispiti));
 
    
 
@@ -65,20 +65,24 @@ class GetData
                 ->where('idmember', $user->id)
                 ->first();
                 
-    
-            $edukacijskiProgramId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
-            $edukacijskiProgramName = self::getEdukacijskiProgramName($edukacijskiProgramId);
-            $edukacijskiProgramIds[$userId] = $edukacijskiProgramName;
-            
-            Log::info('Educational program fetched for user ID: ' . $userId . ', Program ID: ' . $edukacijskiProgramId . ', Program Name: ' . $edukacijskiProgramName);
 
-  
-            $statusMessage = self::calculateStatusMessage($ispiti, $edukacijskiProgram);
+
+
+                $statusMessage = self::calculateStatusMessage($ispiti, $edukacijskiProgram);
+                $statusMessages[$userId][] = $statusMessage;
+        
+                $edukacijskiProgramId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
+                $edukacijskiProgramName = self::getEdukacijskiProgramName($edukacijskiProgramId);
+                $edukacijskiProgramIds[$userId] = array_merge($edukacijskiProgramIds[$userId], [$edukacijskiProgramName]);
+        
+                Log::info('Educational program fetched for user ID: ' . $userId . ', Program ID: ' . $edukacijskiProgramId . ', Program Name: ' . $edukacijskiProgramName);
     
+       
             
     
-            $statusMessages[$userId] = $statusMessage;
+    
         }
+
         return ['statusMessages' => $statusMessages, 'edukacijskiProgramIds' => $edukacijskiProgramIds];
         }
 
@@ -139,8 +143,7 @@ class GetData
     
             foreach ($cjelinaIspiti as $ispit) {
                 $highestGrade = self::getHighestGradeForSegment($ispit->idsegmenta, $ispiti);
-                \Log::info('Checking ispit: ', (array) $ispit);
-                \Log::info('Highest grade for idsegmenta ' . $ispit->idsegmenta . ': ' . $highestGrade);
+          
     
             
                 if (
@@ -174,9 +177,8 @@ class GetData
     
         foreach ($ispitiByCjelina as $cjelinaIspiti) {
             foreach ($cjelinaIspiti as $ispit) {
-                if ($ispit->ocjenaispita && $ispit->ocjenaispita <= 1 && !$hasHigherGrade($ispit->idsegmenta)) {
+                if ($ispit->ocjenaispita && $ispit->ocjenaispita = 1 && !$hasHigherGrade($ispit->idsegmenta)) {
                     $failedCount++;
-    
                     // Mark all cjelina as not completed if any ispit requires "Popravci"
                     $allCjelinaCompleted = false;
                 }
@@ -735,8 +737,9 @@ if ($filter_value) {
         if ($data_type->name == 'su_clanovi') {
             foreach ($records as $key => $record) {
                 $result = self::getStatusMessagesForUsers([$record->id]);
-                $sustatusclanova = $result['statusMessages'];
-                $edukacijskiProgramIds = $result['edukacijskiProgramIds'];
+                $sustatusclanova = $result['statusMessages'][$record->id];
+                $edukacijskiProgramIds = $result['edukacijskiProgramIds'][$record->id];
+    
                 $records[$key]->sustatusclanova = $sustatusclanova;
                 $records[$key]->upisanieduprogrami = $edukacijskiProgramIds;
             }

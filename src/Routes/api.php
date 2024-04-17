@@ -10,7 +10,7 @@ use NadzorServera\Skijasi\Middleware\SkijasiCheckPermissionsForCRUD;
 use App\Http\Controllers\AdminMessageController;
 
 
-Route::group(['prefix' => 'skijasi-api/v1/poruke', 'middleware' => 'api'], function () {
+Route::group(['prefix' => 'skijasi-api/v1/poruke', 'middleware' => 'auth'], function () {
     Route::get('/poruke', [AdminMessageController::class, 'index']);
     Route::get('/pregledporuke', [AdminMessageController::class, 'pregledporuke']);
     Route::post('/', [AdminMessageController::class, 'store']);
@@ -159,6 +159,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::get('/zadnjiidmember', 'SkijasiUserController@zadnjiidmember');
 
             Route::get('/browsenasiclanovi', 'SkijasiUserController@browsenasiclanovi');
+            Route::get('/browseuserporuke', 'SkijasiUserController@browseuserporuke');
             Route::get('/readmojstatus', 'SkijasiUserController@readmojstatus');
 
 

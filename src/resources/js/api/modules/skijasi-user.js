@@ -96,6 +96,12 @@ zadnjiidmember() {
     return resource.get(url);
   },
 
+  browseuserporuke(data = {}) {
+    const ep = apiPrefix + "/v1/users/browseuserporuke";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+  },
 
   readmojstatus(data) {
     const ep = apiPrefix + "/v1/users/readmojstatus";

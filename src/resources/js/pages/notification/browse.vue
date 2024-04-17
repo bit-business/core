@@ -227,7 +227,7 @@ export default {
     getUserList() {
       this.$openLoader();
       this.$api.skijasiUser
-        .browse()
+        .browseuserporuke()
         .then((response) => {
           this.$closeLoader();
           this.users = response.data.users;      

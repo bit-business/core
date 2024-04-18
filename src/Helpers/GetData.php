@@ -8,13 +8,9 @@ use ReflectionClass;
 use NadzorServera\Skijasi\Models\DataType;
 use NadzorServera\Skijasi\Models\Permission;
 use NadzorServera\Skijasi\Models\UserRole;
-
-
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-
 use NadzorServera\Skijasi\Models\User;
-
 
 class GetData
 {
@@ -24,16 +20,18 @@ class GetData
         'II. dio specijalnosti' => [2, 6, 126, 156, 196],
     ];
 
+    protected static $cjelinaMapping2 = [
+        'Teoretski dio' => [184],
+    ];
+
     public static function getStatusMessagesForUsers($userIds)
     {
         $statusMessages = array_fill_keys($userIds, []);
         $edukacijskiProgramIds = array_fill_keys($userIds, []);
     
-    
         foreach ($userIds as $userId) {
             // Fetch user data
             $user = DB::table('su_clanovi')->find($userId);
-
     
             // Fetch related data
             $edukacijskeGrupe = DB::table('su_edukacijskagrupasegmentclan')
@@ -42,127 +40,123 @@ class GetData
                 ->select('su_edukacijskagrupa.*')
                 ->get();
     
-
-        
-
-   // Fetch ispiti based on the condition
-   $ispiti = collect();
-
-   foreach ($edukacijskeGrupe as $grupa) {
-       $grupaIspiti = DB::table('su_ispiti')
-           ->join('su_edukacijskagrupasegmentclan', 'su_ispiti.idedukacijskogsegmentaclana', '=', 'su_edukacijskagrupasegmentclan.id')
-           ->where('su_edukacijskagrupasegmentclan.idedukacijskegupe', $grupa->id)
-           ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
-           ->select('su_ispiti.*', 'su_ispiti.idsegmenta AS idsegmenta', 'su_edukacijskagrupasegmentclan.idsegmenta AS clan_idsegmenta')
-           ->get();
-   
-       $ispiti = $ispiti->merge($grupaIspiti);
-   }
-
-   
-
-                $edukacijskiProgram = DB::table('su_clanoviedukacijskipodaci')
+            // Fetch ispiti based on the condition
+            $ispiti = collect();
+    
+            foreach ($edukacijskeGrupe as $grupa) {
+                $grupaIspiti = DB::table('su_ispiti')
+                    ->join('su_edukacijskagrupasegmentclan', 'su_ispiti.idedukacijskogsegmentaclana', '=', 'su_edukacijskagrupasegmentclan.id')
+                    ->where('su_edukacijskagrupasegmentclan.idedukacijskegupe', $grupa->id)
+                    ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
+                    ->select('su_ispiti.*', 'su_ispiti.idsegmenta AS idsegmenta', 'su_edukacijskagrupasegmentclan.idsegmenta AS clan_idsegmenta')
+                    ->get();
+    
+                $ispiti = $ispiti->merge($grupaIspiti);
+            }
+    
+            $edukacijskiProgrami = DB::table('su_clanoviedukacijskipodaci')
                 ->where('idmember', $user->id)
-                ->first();
-                
-
-
-
-                $statusMessage = self::calculateStatusMessage($ispiti, $edukacijskiProgram);
-                $statusMessages[$userId][] = $statusMessage;
-        
+                ->get();
+    
+            foreach ($edukacijskiProgrami as $edukacijskiProgram) {
+                $isTrenerSkijanja = ($edukacijskiProgram && $edukacijskiProgram->idedukacijskogprograma == 5);
+    
+                $statusMessage = self::calculateStatusMessage($ispiti, $edukacijskiProgram, $isTrenerSkijanja);
+    
+                // Store status message with the corresponding educational program ID
                 $edukacijskiProgramId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
                 $edukacijskiProgramName = self::getEdukacijskiProgramName($edukacijskiProgramId);
-                $edukacijskiProgramIds[$userId] = array_merge($edukacijskiProgramIds[$userId], [$edukacijskiProgramName]);
-        
+    
+                $statusMessages[$userId][$edukacijskiProgramId] = $statusMessage;
+
+                // Store educational program name for reference
+                $edukacijskiProgramIds[$userId][] = $edukacijskiProgramName;
+    
                 Log::info('Educational program fetched for user ID: ' . $userId . ', Program ID: ' . $edukacijskiProgramId . ', Program Name: ' . $edukacijskiProgramName);
-    
-       
-            
-    
-    
+                Log::info('Status Message: ' . $statusMessage);
+                Log::info('Educational Program Name: ' . $edukacijskiProgramName);
+            }
         }
-
+    
         return ['statusMessages' => $statusMessages, 'edukacijskiProgramIds' => $edukacijskiProgramIds];
-        }
-
-
-        protected static function getEdukacijskiProgramName($edukacijskiProgramId)
-{
-    switch ($edukacijskiProgramId) {
-        case 1:
-        case 3:
-        case 4:
-            return "Učitelj Skijanja";
-        case 2:
-        case 6:
-            return "Učitelj daskanja na snijegu";
-        case 5:
-            return "Trener Skijanja";
-        default:
-            return $edukacijskiProgramId;
     }
-}
+    
 
+    protected static function getEdukacijskiProgramName($edukacijskiProgramId)
+    {
+        switch ($edukacijskiProgramId) {
+            case 1:
+            case 3:
+            case 4:
+                return "Učitelj Skijanja";
+            case 2:
+            case 6:
+                return "Učitelj daskanja na snijegu";
+            case 5:
+                return "Trener Skijanja";
+            default:
+                return $edukacijskiProgramId;
+        }
+    }
 
-
-    protected static function calculateStatusMessage($ispiti, $edukacijskiProgram)
+    protected static function calculateStatusMessage($ispiti, $edukacijskiProgram, $isTrenerSkijanja)
     {
         $now = new \DateTime();
         $status = "U tijeku školovanje"; // Default status
-    
+
         $allCjelinaCompleted = true;
         $generalStatus = "";
         $failedCount = 0;
         $anyValidPopravciDateFound = false;
-    
-        $ispitiByCjelina = self::groupIspitiByCjelina($ispiti);
-    
-    
+
+        // Group ispiti by cjelina based on the educational program
+        $ispitiByCjelina = $isTrenerSkijanja
+            ? self::groupIspitiByCjelina($ispiti, static::$cjelinaMapping2)
+            : self::groupIspitiByCjelina($ispiti, static::$cjelinaMapping);
+
         // Check if there are no cjelina present
         if (count($ispitiByCjelina) === 0) {
             \Log::info('NEMA CJELINA ');
             return $status; // Return "U tijeku školovanje" if no cjelina are present
         }
-    
-        // Check if all three cjelina are present and have all ispiti with grade > 1 or idadmitmakeupseg is not null or has a higher grade
-        $cjelinaNames = ['Opći dio', 'I. dio specijalnosti', 'II. dio specijalnosti'];
+
+        // Check if all cjelina are present and have all ispiti with grade > 1 or idadmitmakeupseg is not null or has a higher grade
+        $cjelinaNames = $isTrenerSkijanja
+            ? array_keys(static::$cjelinaMapping2)
+            : ['Opći dio', 'I. dio specijalnosti', 'II. dio specijalnosti'];
+
         $hasAllCjelinasPassed = true;
-    
+
         foreach ($cjelinaNames as $cjelinaName) {
             $cjelinaIspiti = $ispitiByCjelina[$cjelinaName] ?? [];
-            \Log::info('CJELINA ISPITI EMPTY: ', (array) $cjelinaIspiti);
+            \Log::info('CJELINA ISPITI EMPTY: ', (array)$cjelinaIspiti);
 
-    
             if (empty($cjelinaIspiti)) {
                 $hasAllCjelinasPassed = false;
                 break;
             }
-    
+
             $cjelinaCompleted = true;
-    
+
             foreach ($cjelinaIspiti as $ispit) {
                 $highestGrade = self::getHighestGradeForSegment($ispit->idsegmenta, $ispiti);
-          
-    
-            
+
                 if (
                     ($ispit->ocjenaispita && $ispit->ocjenaispita <= 1 && !$highestGrade) &&
                     $ispit->idadmitmakeupseg === null
                 ) {
-                  
                     $cjelinaCompleted = false;
                     break;
                 }
             }
-    
+
             if (!$cjelinaCompleted) {
-                   \Log::info('Cjelina not completed: ' . $cjelinaName);
+                \Log::info('Cjelina not completed: ' . $cjelinaName);
                 $hasAllCjelinasPassed = false;
                 break;
             }
         }
-    
+
         if ($hasAllCjelinasPassed) {
             \Log::info('ZAVRSENO SKOLOVANJE ');
             return "Završeno školovanje";
@@ -190,10 +184,10 @@ class GetData
         }
     
         // Handle "Prošlo 5.godina od I.specijalnosti" if applicable
-        $ispitiI = $ispitiByCjelina['I. dio specijalnosti'] ?? [];
-        $ispitiI = array_filter($ispitiI, function ($ispit) use ($hasHigherGrade) {
-            return $ispit->ocjenaispita === 1 && !$hasHigherGrade($ispit->idsegmenta) && $ispit->datumispita !== null;
-        });
+     //   $ispitiI = $ispitiByCjelina['I. dio specijalnosti'] ?? [];
+      //  $ispitiI = array_filter($ispitiI, function ($ispit) use ($hasHigherGrade) {
+      //      return $ispit->ocjenaispita === 1 && !$hasHigherGrade($ispit->idsegmenta) && $ispit->datumispita !== null;
+    //    });
     
         if (!empty($ispitiI)) {
             $oldestIspitDate = null;
@@ -241,35 +235,35 @@ class GetData
 }
 
 
-    protected static function groupIspitiByCjelina($ispiti)
-    {
-        $ispitiByCjelina = [];
+protected static function groupIspitiByCjelina($ispiti, $cjelinaMapping)
+{
+    $ispitiByCjelina = [];
 
-        foreach ($ispiti as $ispit) {
-            $cjelinaText = self::getCjelinaText($ispit);
-            if (!isset($ispitiByCjelina[$cjelinaText])) {
-                $ispitiByCjelina[$cjelinaText] = [];
-            }
-            $ispitiByCjelina[$cjelinaText][] = $ispit;
+    foreach ($ispiti as $ispit) {
+        $cjelinaText = self::getCjelinaText($ispit, $cjelinaMapping);
+        if (!isset($ispitiByCjelina[$cjelinaText])) {
+            $ispitiByCjelina[$cjelinaText] = [];
         }
-
-        return $ispitiByCjelina;
+        $ispitiByCjelina[$cjelinaText][] = $ispit;
     }
 
-    protected static function getCjelinaText($ispit)
-    {
-        $parentsegid = self::getParentSegIdForIspit($ispit);
-        Log::info("Cjelina found for parentsegid:", (array)$ispit);
-        foreach (static::$cjelinaMapping as $cjelinaName => $segmentIds) {
-            if (in_array($parentsegid, $segmentIds)) {
-                Log::info("Cjelina found: $cjelinaName for parentsegid: $parentsegid");
-                return $cjelinaName;
-            }
+    return $ispitiByCjelina;
+}
+
+protected static function getCjelinaText($ispit, $cjelinaMapping)
+{
+    $parentsegid = self::getParentSegIdForIspit($ispit);
+    Log::info("Cjelina found for parentsegid:", (array)$ispit);
+    foreach ($cjelinaMapping as $cjelinaName => $segmentIds) {
+        if (in_array($parentsegid, $segmentIds)) {
+            Log::info("Cjelina found: $cjelinaName for parentsegid: $parentsegid");
+            return $cjelinaName;
         }
-    
-        Log::info("Cjelina not found for parentsegid: $parentsegid");
-        return 'Ostalo';
     }
+
+    Log::info("Cjelina not found for parentsegid: $parentsegid");
+    return 'Ostalo';
+}
     
 
 
@@ -737,11 +731,15 @@ if ($filter_value) {
         if ($data_type->name == 'su_clanovi') {
             foreach ($records as $key => $record) {
                 $result = self::getStatusMessagesForUsers([$record->id]);
-                $sustatusclanova = $result['statusMessages'][$record->id];
-                $edukacijskiProgramIds = $result['edukacijskiProgramIds'][$record->id];
-    
+                $sustatusclanova = $result['statusMessages'][$record->id] ?? [];
+                $edukacijskiProgramIds = $result['edukacijskiProgramIds'][$record->id] ?? [];
+        
                 $records[$key]->sustatusclanova = $sustatusclanova;
                 $records[$key]->upisanieduprogrami = $edukacijskiProgramIds;
+
+                Log::info('Record ID: ' . $record->id);
+                Log::info('Status Messages: ' . print_r($sustatusclanova, true));
+                Log::info('Edukacijski Program IDs: ' . print_r($edukacijskiProgramIds, true));
             }
         }
 
@@ -853,6 +851,8 @@ public static function getTrainerStatusLabels() {
     return $labels;
 }
     
+
+
     
 public static function calculateStatusAktivan($statusData) {
     $today = new \DateTime(); // Use \DateTime for global namespace

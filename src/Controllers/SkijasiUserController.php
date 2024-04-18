@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 
 use NadzorServera\Skijasi\Helpers\GetData;
@@ -85,6 +86,45 @@ class SkijasiUserController extends Controller
 
 
                 $users = $query->orderBy($sort, $order)->paginate($perPage, ['*'], 'page', $page);
+
+
+
+   // Filter out users with payments that are unpaid for 3 or more years
+$filteredUsers = collect($users->items())->filter(function ($user) {
+    $paymentData = GetData::fetchPaymentDataForMember($user->id);
+    $statusPlacanja = GetData::calculatePaymentStatus($paymentData);
+
+    // Log statusPlacanja for debugging
+    Log::info("User ID: {$user->id}, Status Placanja: $statusPlacanja");
+
+    // Check if the statusPlacanja is unpaid and if any unpaid payment is 3 or more years old
+    $foundUserOver3Years = false;
+
+    foreach ($paymentData as $payment) {
+        if (!$payment->paidstatus && !$payment->partialpaid && !$payment->paymentdiscard && !$payment->paymentforgive) {
+            $paymentDate = Carbon::parse($payment->opendate);
+            $yearsDifference = $paymentDate->diffInYears(Carbon::now());
+            Log::info("Payment Date: {$payment->opendate}, Years Difference: $yearsDifference");
+            if ($yearsDifference >= 3) {
+                $foundUserOver3Years = true;
+                break; // Exit the loop if any unpaid payment is over 3 years old
+            }
+        }
+    }
+
+    if ($statusPlacanja === 'Nije plaćeno' && $foundUserOver3Years) {
+        Log::info("User found with unpaid payment older than 3 years.");
+        return false; // Exclude the user if any unpaid payment is over 3 years old
+    }
+
+    return true; // Include the user if all payments are paid or not over 3 years old
+});
+
+// Log the number of filtered users for debugging
+Log::info("Filtered Users Count: " . $filteredUsers->count());
+
+$users->setCollection($filteredUsers);
+
 
                 if (!empty($licence)) {
                     $licenceArray = explode(',', $licence);

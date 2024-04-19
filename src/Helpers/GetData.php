@@ -26,50 +26,68 @@ class GetData
 
     public static function getStatusMessagesForUsers($userIds)
     {
-        $statusMessages = array_fill_keys($userIds, []);
-        $edukacijskiProgramIds = array_fill_keys($userIds, []);
+        $statusMessages = [];
+        $edukacijskiProgramIds = [];
     
         foreach ($userIds as $userId) {
             // Fetch user data
             $user = DB::table('su_clanovi')->find($userId);
     
-            // Fetch related data
-            $edukacijskeGrupe = DB::table('su_edukacijskagrupasegmentclan')
-                ->join('su_edukacijskagrupa', 'su_edukacijskagrupasegmentclan.idedukacijskegupe', '=', 'su_edukacijskagrupa.id')
-                ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
-                ->select('su_edukacijskagrupa.*')
-                ->get();
-    
-            // Fetch ispiti based on the condition
-            $ispiti = collect();
-    
-            foreach ($edukacijskeGrupe as $grupa) {
-                $grupaIspiti = DB::table('su_ispiti')
-                    ->join('su_edukacijskagrupasegmentclan', 'su_ispiti.idedukacijskogsegmentaclana', '=', 'su_edukacijskagrupasegmentclan.id')
-                    ->where('su_edukacijskagrupasegmentclan.idedukacijskegupe', $grupa->id)
-                    ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
-                    ->select('su_ispiti.*', 'su_ispiti.idsegmenta AS idsegmenta', 'su_edukacijskagrupasegmentclan.idsegmenta AS clan_idsegmenta')
-                    ->get();
-    
-                $ispiti = $ispiti->merge($grupaIspiti);
-            }
-    
             $edukacijskiProgrami = DB::table('su_clanoviedukacijskipodaci')
                 ->where('idmember', $user->id)
                 ->get();
     
+            $statusMessages[$userId] = [];
+            $edukacijskiProgramIds[$userId] = [];
+    
             foreach ($edukacijskiProgrami as $edukacijskiProgram) {
                 $isTrenerSkijanja = ($edukacijskiProgram && $edukacijskiProgram->idedukacijskogprograma == 5);
     
-                $statusMessage = self::calculateStatusMessage($ispiti, $edukacijskiProgram, $isTrenerSkijanja);
+                // Fetch related data
+                $edukacijskeGrupe = DB::table('su_edukacijskagrupasegmentclan')
+                    ->join('su_edukacijskagrupa', 'su_edukacijskagrupasegmentclan.idedukacijskegupe', '=', 'su_edukacijskagrupa.id')
+                    ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
+                    ->select('su_edukacijskagrupa.*')
+                    ->get();
+    
+                    Log::info("Fetched edukacijske grupe for user ID: $userId, count: " . $edukacijskeGrupe->count());
+
+
+    
+                // Fetch ispiti based on the condition
+                $ispiti = collect();
+    
+                foreach ($edukacijskeGrupe as $grupa) {
+                    $grupaIspiti = DB::table('su_ispiti')
+                        ->join('su_edukacijskagrupasegmentclan', 'su_ispiti.idedukacijskogsegmentaclana', '=', 'su_edukacijskagrupasegmentclan.id')
+                        ->where('su_edukacijskagrupasegmentclan.idedukacijskegupe', $grupa->id)
+                        ->where('su_edukacijskagrupasegmentclan.idmember', $userId)
+                        ->select('su_ispiti.*', 'su_ispiti.idsegmenta AS idsegmenta', 'su_edukacijskagrupasegmentclan.idsegmenta AS clan_idsegmenta')
+                        ->get();
+    
+                    Log::info("Fetched ispiti for grupa ID: $grupa->id, count: " . $grupaIspiti->count());
+    
+                    $ispiti = $ispiti->merge($grupaIspiti);
+                }
+    
+                Log::info("Total ispiti fetched for user ID: $userId, count: " . $ispiti->count());
+    
+                // Filter the $ispiti collection based on the educational program
+                $programId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
+                $ispitiFiltred = $ispiti->filter(function ($ispit) use ($programId) {
+                    return self::getProgramIdForIspit($ispit) == $programId;
+                });
+    
+                Log::info("Ispiti filtered for program ID: $programId, count: " . $ispitiFiltred->count());
+    
+                $statusMessage = self::calculateStatusMessage($ispitiFiltred, $edukacijskiProgram, $isTrenerSkijanja);
+    
     
                 // Store status message with the corresponding educational program ID
                 $edukacijskiProgramId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
                 $edukacijskiProgramName = self::getEdukacijskiProgramName($edukacijskiProgramId);
     
                 $statusMessages[$userId][$edukacijskiProgramId] = $statusMessage;
-
-                // Store educational program name for reference
                 $edukacijskiProgramIds[$userId][] = $edukacijskiProgramName;
     
                 Log::info('Educational program fetched for user ID: ' . $userId . ', Program ID: ' . $edukacijskiProgramId . ', Program Name: ' . $edukacijskiProgramName);
@@ -171,7 +189,8 @@ class GetData
     
         foreach ($ispitiByCjelina as $cjelinaIspiti) {
             foreach ($cjelinaIspiti as $ispit) {
-                if ($ispit->ocjenaispita && $ispit->ocjenaispita = 1 && !$hasHigherGrade($ispit->idsegmenta)) {
+                $ocjenaispita = intval($ispit->ocjenaispita);
+if (is_int($ispit->ocjenaispita) && $ispit->ocjenaispita == 1 && !$hasHigherGrade($ispit->idsegmenta)) {
                     $failedCount++;
                     // Mark all cjelina as not completed if any ispit requires "Popravci"
                     $allCjelinaCompleted = false;
@@ -241,11 +260,15 @@ protected static function groupIspitiByCjelina($ispiti, $cjelinaMapping)
 
     foreach ($ispiti as $ispit) {
         $cjelinaText = self::getCjelinaText($ispit, $cjelinaMapping);
+        Log::info("Cjelina text for ispit: ", (array)$ispit, " is: $cjelinaText");
+
         if (!isset($ispitiByCjelina[$cjelinaText])) {
             $ispitiByCjelina[$cjelinaText] = [];
         }
         $ispitiByCjelina[$cjelinaText][] = $ispit;
     }
+
+    Log::info("Ispiti grouped by cjelina: ", $ispitiByCjelina);
 
     return $ispitiByCjelina;
 }
@@ -253,8 +276,10 @@ protected static function groupIspitiByCjelina($ispiti, $cjelinaMapping)
 protected static function getCjelinaText($ispit, $cjelinaMapping)
 {
     $parentsegid = self::getParentSegIdForIspit($ispit);
-    Log::info("Cjelina found for parentsegid:", (array)$ispit);
+    Log::info("Cjelina found for parentsegid:", (array)$ispit, " parentsegid: $parentsegid");
+
     foreach ($cjelinaMapping as $cjelinaName => $segmentIds) {
+        Log::info("Checking cjelina: $cjelinaName, segmentIds: ", $segmentIds);
         if (in_array($parentsegid, $segmentIds)) {
             Log::info("Cjelina found: $cjelinaName for parentsegid: $parentsegid");
             return $cjelinaName;
@@ -264,8 +289,6 @@ protected static function getCjelinaText($ispit, $cjelinaMapping)
     Log::info("Cjelina not found for parentsegid: $parentsegid");
     return 'Ostalo';
 }
-    
-
 
     protected static function getParentSegIdForIspit($ispit)
     {
@@ -279,12 +302,20 @@ protected static function getCjelinaText($ispit, $cjelinaMapping)
     protected static function getProgramIdForIspit($ispit)
     {
         $segment = DB::table('su_edukacijskisegmenti')
-            ->where('idedukacijskogprograma', $ispit->clan_idsegmenta)
+            ->where('id', $ispit->clan_idsegmenta)
             ->first();
-
-        return $segment ? $segment->idedukacijskogprograma : null;
+    
+        if ($segment) {
+            return $segment->idedukacijskogprograma;
+        } else {
+            // If no segment is found, try to get the program ID from the parent segment
+            $parentSegment = DB::table('su_edukacijskisegmenti')
+                ->where('parentsegid', $ispit->clan_idsegmenta)
+                ->first();
+    
+            return $parentSegment ? $parentSegment->idedukacijskogprograma : null;
+        }
     }
-
 
 
 

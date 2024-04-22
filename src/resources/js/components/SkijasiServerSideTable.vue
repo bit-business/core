@@ -19,12 +19,23 @@
           </vs-col>
           <vs-col vs-lg="6" vs-md="6" vs-sm="6" vs-xs="12">
             <div class="skijasi-server-side-table__header-search">
-              <input
-                type="text"
-                class="skijasi-server-side-table__input-search"
-                v-on:keyup.enter="handleSearch"
-              />
+              <div class="input-container">
+                <input
+                  type="text"
+                  class="skijasi-server-side-table__input-search"
+                  v-model="searchInput"
+                  @keyup.enter="handleSearch"
+                />
+                <vs-icon
+                  v-if="searchInput"
+                  class="clear-icon"
+                  icon="close"
+                  @click="clearSearchInput"
+                ></vs-icon>
+              </div>
+
               <vs-icon icon="search"></vs-icon>
+
             </div>
           </vs-col>
         </vs-row>
@@ -108,6 +119,8 @@ export default {
     page: 1,
     currentSortKey: null,
     currentSortType: null,
+
+    searchInput: '' 
   }),
   computed: {
     totalItem() {
@@ -133,6 +146,13 @@ export default {
     handleSearch(e) {
       this.$emit("search", e);
     },
+
+    
+    clearSearchInput() {
+  this.searchInput = '';
+  this.$emit("search", ''); // Emit search event with empty string
+},
+
     handleSort(key, sortType) {
       this.currentSortKey = key;
       this.currentSortType = sortType;
@@ -141,3 +161,16 @@ export default {
   },
 };
 </script>
+<style scoped>
+.input-container {
+  position: relative;
+}
+
+.clear-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 10px;
+  cursor: pointer;
+}
+</style>

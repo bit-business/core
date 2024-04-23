@@ -1,10 +1,18 @@
 <template>
     <div>
   <vs-row>
+
+    <div class="welcome-container">
+        <img src="/storage/slike/g14.svg" class="centered-image" alt="Welcome Image">
+    <div>
+        <div class="welcome-text">Dobrodošli na Hzuts bazu i nadzornu ploču</div>
+        <div class="sub-text">Ovdje se nalazi statistika i svi novi zahtjevi od korisnika </div> 
+      </div>
+    </div>
+
+
     <skijasi-widget :col="col" :widgets="dashboardData"> </skijasi-widget>
-    <div style="text-align: center; padding-left: 3%;">Napomena: U analitici su trenutno tesni podaci za testiranje. Ova stranica još nije dovršena.</div>
- 
-    <div style="text-align: center; padding-left: 3%;">Napomena: U analitici su trenutno tesni podaci za testiranje. Ova stranica još nije dovršena.</div>
+
 
   </vs-row>
 
@@ -267,7 +275,7 @@ export default {
     },
 
 
-
+/*
     sendFirebaseMessage() {
   
             this.$api.skijasiFcm.saveTokenMessage("TEST DA LI RADI 2")
@@ -289,6 +297,8 @@ export default {
             console.error("Error sending firebase message:", error);
         });
     }
+*/
+
 
   },
 };
@@ -422,4 +432,32 @@ export default {
 }
 
 
+.welcome-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 2.6rem;
+    margin-top: 1rem;
+  }
+
+  .centered-image {
+    width: 4%;
+    margin: 0 1rem; /* Center the image horizontally */
+    display: block; /* Ensure the image doesn't stick to other elements */
+  }
+
+  .welcome-text {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .sub-text {
+    margin-left: 1rem;
+    font-size: 14px; /* Adjust font size for smaller text */
+    color: #888; /* Adjust color as needed */
+  }
 </style>

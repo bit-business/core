@@ -87,7 +87,7 @@ export default {
       type: String,
     },
     noDataText: {
-      default: "No data Available",
+      default: "Nema zapisa",
       type: String,
     },
     stripe: {

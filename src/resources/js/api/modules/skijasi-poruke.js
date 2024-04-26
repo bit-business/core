@@ -42,6 +42,8 @@ export default {
   updateMessage(messageId, data) {
     return resource.put(apiPrefix + `/v1/poruke/${messageId}`, data);
   },
+
+  
   sendMessage(data) {
     return resource.post(apiPrefix + "/v1/poruke", data);
   },

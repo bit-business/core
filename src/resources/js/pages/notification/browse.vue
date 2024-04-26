@@ -31,13 +31,12 @@
                   ></skijasi-upload-image-poruke>
 
         
-                <div>
-                  <vs-button :class="{ 'selected-button': !selectSpecificUsers, 'inactive-button': selectSpecificUsers }" @click="selectSpecificUsers = false; sendToAll = true">Svim korisnicima</vs-button>
-                  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="selectSpecificUsers = true; sendToAll = false">Specifični korisnici</vs-button>
+                  <div>
+  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi' }" @click="selectSpecificUsers = false; sendToAll = 'svi'">Svim korisnicima</vs-button>
+  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi2', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi2' }" @click="selectSpecificUsers = false; sendToAll = 'svi2'">Hzuts članovima</vs-button>
+  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="selectSpecificUsers = true; sendToAll = ''">Specifični korisnici</vs-button>
+</div>
 
-                </div>
-
-           
 
                 <div v-if="selectSpecificUsers">
 
@@ -93,8 +92,10 @@
 
 </div>
 <div v-else>
-  <p>Poruka će biti poslana svim korisnicima.</p>
+  <p v-if="sendToAll === 'svi'">Poruka će biti poslana svim korisnicima.</p>
+  <p v-else-if="sendToAll === 'svi2'">Poruka će biti poslana HZUTS članovima.</p>
 </div>
+
 
 
               </div>
@@ -144,7 +145,7 @@
               </template>
 
               <template slot-scope="{ data }">
-                <vs-tr v-for="(message, index) in data" :key="index" :data="message">
+                <vs-tr v-for="(message, index) in data" :key="index" :data="message" style=" text-align: center;">
                   <vs-td v-if="message">
       {{ getSentByName(message.sent_by) }}
     </vs-td>
@@ -160,29 +161,35 @@
                   <vs-td>
       <!-- Display the names and usernames of recipients horizontally -->
       <template v-if="message && message.recipients">
-      <div class="recipient-list">
-        <span v-if="message.sent_to && message.sent_to.length === 1 && message.sent_to[0] === 'svi'">Poslano svima</span>
-        <span v-else v-for="(recipient, index) in message.recipients" :key="index" class="recipient">
-          {{ recipient.username }} {{ recipient.name }}
-        </span>
-      </div>
-    </template>
+        <div class="recipient-list">
+          <span v-if="message.sent_to && message.sent_to.length === 1">
+            <template v-if="message.sent_to[0] === 'svi'">Poslano svima</template>
+            <template v-else-if="message.sent_to[0] === 'svi2'">Poslano članovima</template>
+          </span>
+          <span v-else v-for="(recipient, index) in message.recipients" :key="index" class="recipient">
+            {{ recipient.username }} {{ recipient.name }}
+          </span>
+        </div>
+      </template>
     </vs-td>
                   <vs-td v-if="message && message.created_at">{{ formatDate(message.created_at) }}</vs-td>
 
                   <vs-td>
-    <template >
+                    <template>
         <div class="reader-list">
-            <span v-for="(reader, index) in message.readers" :key="index" class="recipient">
-                <template v-if="reader === '' || !reader">
-                    Pročitali svi
-                </template>
-                <template v-else-if="reader && reader.username && reader.name">
-                    {{ reader.username }} {{ reader.name }}
-                </template>
-            </span>
+          <span v-for="(reader, index) in message.readers" :key="index" class="recipient">
+            <template v-if="reader === '' || !reader">
+              <template v-if="message.sent_to && message.sent_to.length === 1">
+                <template v-if="message.sent_to[0] === 'svi'">Pročitali svi</template>
+                <template v-else-if="message.sent_to[0] === 'svi2'">Pročitali svi članovi</template>
+              </template>
+            </template>
+            <template v-else-if="reader && reader.username && reader.name">
+              {{ reader.username }} {{ reader.name }}
+            </template>
+          </span>
         </div>
-    </template>
+      </template>
 </vs-td>
 
 
@@ -210,6 +217,9 @@
   </div>
 </template>
 
+
+
+
 <script>
 import { mapState } from 'vuex'
 
@@ -221,7 +231,7 @@ export default {
       message: "",
       slika: null,
       url: "",
-      sendToAll: true,
+      sendToAll: '',
       sentAt: null,
       selectSpecificUsers: false, // Track whether to select specific users or all users
       selectedUsers: [],
@@ -337,6 +347,7 @@ export default {
     message: this.message,
     sendToAll: this.sendToAll,
     sentTo: this.sendToAll ? [] : this.selectedUsers.map((user) => user.id.toString()),
+    userType: this.sendToAll === 'svi2' ? 'članovi' : null,
   };
 
   console.log("testsenddata:", messageData);
@@ -348,12 +359,18 @@ export default {
       // Optionally, you can add the new message to the messages array
       this.fetchUserMessages();
       this.messages.push(response.data);
+
+      this.$vs.notify({
+        title: "Poruka poslana",
+        text: "Slanje uspješno!",
+        color: "success",
+      });
+
     })
     .catch((error) => {
       console.error("Error sending message:", error);
     });
-
-  },
+},
 
 
     deleteMessage(messageId) {

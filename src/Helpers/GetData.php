@@ -42,6 +42,7 @@ class GetData
     
             foreach ($edukacijskiProgrami as $edukacijskiProgram) {
                 $isTrenerSkijanja = ($edukacijskiProgram && $edukacijskiProgram->idedukacijskogprograma == 5);
+
     
                 // Fetch related data
                 $edukacijskeGrupe = DB::table('su_edukacijskagrupasegmentclan')
@@ -50,7 +51,7 @@ class GetData
                     ->select('su_edukacijskagrupa.*')
                     ->get();
     
-                    Log::info("Fetched edukacijske grupe for user ID: $userId, count: " . $edukacijskeGrupe->count());
+            
 
 
     
@@ -65,12 +66,23 @@ class GetData
                         ->select('su_ispiti.*', 'su_ispiti.idsegmenta AS idsegmenta', 'su_edukacijskagrupasegmentclan.idsegmenta AS clan_idsegmenta')
                         ->get();
     
-                    Log::info("Fetched ispiti for grupa ID: $grupa->id, count: " . $grupaIspiti->count());
+                
     
                     $ispiti = $ispiti->merge($grupaIspiti);
                 }
     
-                Log::info("Total ispiti fetched for user ID: $userId, count: " . $ispiti->count());
+
+
+                if ($edukacijskiProgram->odustao == 1) {
+                    $statusMessages[$userId][$edukacijskiProgram->idedukacijskogprograma] = "Odustao";
+                    $edukacijskiProgramName = self::getEdukacijskiProgramName($edukacijskiProgram->idedukacijskogprograma);
+                    $edukacijskiProgramIds[$userId][] = $edukacijskiProgramName;
+                   
+                    continue; // Skip the remaining logic for this educational program
+                }
+
+
+             
     
                 // Filter the $ispiti collection based on the educational program
                 $programId = $edukacijskiProgram ? $edukacijskiProgram->idedukacijskogprograma : null;
@@ -78,9 +90,10 @@ class GetData
                     return self::getProgramIdForIspit($ispit) == $programId;
                 });
     
-                Log::info("Ispiti filtered for program ID: $programId, count: " . $ispitiFiltred->count());
+            
     
                 $statusMessage = self::calculateStatusMessage($ispitiFiltred, $edukacijskiProgram, $isTrenerSkijanja);
+                
     
     
                 // Store status message with the corresponding educational program ID
@@ -90,9 +103,7 @@ class GetData
                 $statusMessages[$userId][$edukacijskiProgramId] = $statusMessage;
                 $edukacijskiProgramIds[$userId][] = $edukacijskiProgramName;
     
-                Log::info('Educational program fetched for user ID: ' . $userId . ', Program ID: ' . $edukacijskiProgramId . ', Program Name: ' . $edukacijskiProgramName);
-                Log::info('Status Message: ' . $statusMessage);
-                Log::info('Educational Program Name: ' . $edukacijskiProgramName);
+              
             }
         }
     
@@ -122,6 +133,11 @@ class GetData
         $now = new \DateTime();
         $status = "U tijeku školovanje"; // Default status
 
+        if ($edukacijskiProgram->odustao == 1) {
+            return "Odustao";
+        }
+    
+
         $allCjelinaCompleted = true;
         $generalStatus = "";
         $failedCount = 0;
@@ -134,7 +150,7 @@ class GetData
 
         // Check if there are no cjelina present
         if (count($ispitiByCjelina) === 0) {
-            \Log::info('NEMA CJELINA ');
+          
             return $status; // Return "U tijeku školovanje" if no cjelina are present
         }
 
@@ -147,7 +163,7 @@ class GetData
 
         foreach ($cjelinaNames as $cjelinaName) {
             $cjelinaIspiti = $ispitiByCjelina[$cjelinaName] ?? [];
-            \Log::info('CJELINA ISPITI EMPTY: ', (array)$cjelinaIspiti);
+          
 
             if (empty($cjelinaIspiti)) {
                 $hasAllCjelinasPassed = false;
@@ -169,14 +185,14 @@ class GetData
             }
 
             if (!$cjelinaCompleted) {
-                \Log::info('Cjelina not completed: ' . $cjelinaName);
+              
                 $hasAllCjelinasPassed = false;
                 break;
             }
         }
 
         if ($hasAllCjelinasPassed) {
-            \Log::info('ZAVRSENO SKOLOVANJE ');
+          
             return "Završeno školovanje";
         }
     
@@ -260,7 +276,7 @@ protected static function groupIspitiByCjelina($ispiti, $cjelinaMapping)
 
     foreach ($ispiti as $ispit) {
         $cjelinaText = self::getCjelinaText($ispit, $cjelinaMapping);
-        Log::info("Cjelina text for ispit: ", (array)$ispit, " is: $cjelinaText");
+       
 
         if (!isset($ispitiByCjelina[$cjelinaText])) {
             $ispitiByCjelina[$cjelinaText] = [];
@@ -268,7 +284,7 @@ protected static function groupIspitiByCjelina($ispiti, $cjelinaMapping)
         $ispitiByCjelina[$cjelinaText][] = $ispit;
     }
 
-    Log::info("Ispiti grouped by cjelina: ", $ispitiByCjelina);
+
 
     return $ispitiByCjelina;
 }
@@ -276,17 +292,17 @@ protected static function groupIspitiByCjelina($ispiti, $cjelinaMapping)
 protected static function getCjelinaText($ispit, $cjelinaMapping)
 {
     $parentsegid = self::getParentSegIdForIspit($ispit);
-    Log::info("Cjelina found for parentsegid:", (array)$ispit, " parentsegid: $parentsegid");
+
 
     foreach ($cjelinaMapping as $cjelinaName => $segmentIds) {
-        Log::info("Checking cjelina: $cjelinaName, segmentIds: ", $segmentIds);
+      
         if (in_array($parentsegid, $segmentIds)) {
-            Log::info("Cjelina found: $cjelinaName for parentsegid: $parentsegid");
+          
             return $cjelinaName;
         }
     }
 
-    Log::info("Cjelina not found for parentsegid: $parentsegid");
+
     return 'Ostalo';
 }
 
@@ -768,9 +784,7 @@ if ($filter_value) {
                 $records[$key]->sustatusclanova = $sustatusclanova;
                 $records[$key]->upisanieduprogrami = $edukacijskiProgramIds;
 
-                Log::info('Record ID: ' . $record->id);
-                Log::info('Status Messages: ' . print_r($sustatusclanova, true));
-                Log::info('Edukacijski Program IDs: ' . print_r($edukacijskiProgramIds, true));
+            
             }
         }
 

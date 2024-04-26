@@ -37,13 +37,66 @@
 
                 </div>
 
+           
+
                 <div v-if="selectSpecificUsers">
-                  <div class="user-list">
-                    <span v-for="user in users" :key="user.id" @click="toggleUserSelection(user)">
-                      <span :class="{ 'selected': isSelected(user) }">{{ user.username }} {{ user.name }},</span>
-                    </span>
-                  </div>
-                </div>
+
+
+
+                <vs-input v-model="searchQuery" placeholder="Pretraživanje korisnika za slanje poruke" />
+
+<!-- Display the filtered users in a scrollable table -->
+<div class="user-table">
+  <table class="">
+    <thead>
+      <tr>
+        <th>Ime</th>
+        <th>Prezime</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-if="searchQuery && filteredUsers.length" v-for="user in filteredUsers" :key="user.id" class="user-row">
+        <td>{{ user.name }}</td>
+        <td>{{ user.username }}</td>
+        <td>
+          <vs-button
+          color="primary"
+            icon="add"
+            size="small"
+            flat
+            @click="toggleUserSelection(user)"
+          ></vs-button>
+        </td>
+      </tr>
+      <tr v-if="!searchQuery && users.length" class="user-row">
+        <td colspan="3" class="no-data-message">
+          Molimo upišite ime za pretraživanje HZUTS korisnika
+        </td>
+      </tr>
+      <tr v-if="!users.length" class="user-row">
+        <td colspan="3" class="no-data-message">
+          Nema korisnika po tome imenu.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Display the selected users -->
+<div class="selected-users">
+  <span v-if="selectedUsers.length">Korisnici kojima će se poslati poruka:</span>
+  <span v-for="(user, index) in selectedUsers" :key="index" class="selected-user">
+    {{ user.username }} {{ user.name }}<span v-if="index !== selectedUsers.length - 1">,</span>
+  </span>
+</div>
+
+</div>
+<div v-else>
+  <p>Poruka će biti poslana svim korisnicima.</p>
+</div>
+
+
               </div>
               </div>
 
@@ -176,19 +229,38 @@ export default {
       descriptionItems: [10, 50, 100],
       selected: [],
       messages: [], // Replace with your actual list of messages
+
+      searchQuery: '',
+      tableHeight: '20vh',
     };
   },
 
-  mounted() {
-    this.getUserList(); 
+  created() {
+    this.getUserList();
     this.fetchUserMessages();
   },
+
+
 
   computed: {
     sortedMessages() {
       // Sort messages by created_at timestamp in descending order
       return this.messages.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     },
+
+    filteredUsers() {
+    const query = this.searchQuery.trim().toLowerCase();
+    console.log('Search Query:', query);
+    const filtered = this.users.filter(user => {
+      const username = user.username.trim().toLowerCase();
+      const name = user.name.trim().toLowerCase();
+      return username.includes(query) || name.includes(query) || `${name} ${username}`.includes(query);
+    });
+    console.log('Filtered Users:', filtered);
+    return filtered;
+
+},
+
   },
 
 
@@ -203,14 +275,14 @@ export default {
   },
 
 
-    toggleUserSelection(user) {
-      const index = this.selectedUsers.findIndex(u => u.id === user.id);
-      if (index === -1) {
-        this.selectedUsers.push(user);
-      } else {
-        this.selectedUsers.splice(index, 1);
-      }
-    },
+  toggleUserSelection(user) {
+  const index = this.selectedUsers.findIndex(u => u.id === user.id);
+  if (index === -1) {
+    this.selectedUsers.push(user);
+  } else {
+    this.selectedUsers.splice(index, 1);
+  }
+},
 
     isSelected(user) {
       return this.selectedUsers.some(u => u.id === user.id);
@@ -258,13 +330,13 @@ export default {
       this.url = "";
     },
 
-      sendMessage() {
+    sendMessage() {
   const messageData = {
     url: this.url,
     slika: this.slika,
     message: this.message,
-    sendToAll: this.sendToAll, // Include sendToAll in messageData
-    sentTo: this.sendToAll ? [] : this.selectedUsers.map((user) => user.id.toString()), // Convert user IDs to strings
+    sendToAll: this.sendToAll,
+    sentTo: this.sendToAll ? [] : this.selectedUsers.map((user) => user.id.toString()),
   };
 
   console.log("testsenddata:", messageData);
@@ -489,5 +561,37 @@ border: #06bbd3 2px solid;
 }
 
 
+.user-table {
+  max-height: 20vh; /* Adjust the height as needed */
+  overflow-y: auto; /* Add scrollbars for vertical overflow */
+}
 
+.selected-users {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.selected-user {
+  margin-left: 0.5rem;
+  background-color: #f0f0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.user-row td {
+  padding: 0.5rem 1rem; /* Adjust the padding values as needed */
+}
+
+.user-table table {
+  border: 1px solid #06bbd3; /* Add a gray border to the table */
+  border-collapse: collapse; /* Merge the borders between cells */
+}
+
+.user-table th,
+.user-table td {
+ /* Add a gray border to table cells */
+  padding: 0.5rem; /* Add some padding to the cells */
+}
 </style>

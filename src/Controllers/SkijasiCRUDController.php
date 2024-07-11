@@ -427,12 +427,12 @@ class SkijasiCRUDController extends Controller
 
             DB::commit();
 
-            activity('CRUD')
-                ->causedBy(auth()->user() ?? null)
-                ->withProperties(['attributes' => $new_data_type])
-                ->performedOn($new_data_type)
-                ->event('created')
-                ->log('CRUD table '.$new_data_type->slug.' has been created');
+            // activity('CRUD')
+            //     ->causedBy(auth()->user() ?? null)
+            //     ->withProperties(['attributes' => $new_data_type])
+            //     ->performedOn($new_data_type)
+            //     ->event('created')
+            //     ->log('CRUD table '.$new_data_type->slug.' has been created');
 
             return ApiResponse::success($new_data_type);
         } catch (Exception $e) {

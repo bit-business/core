@@ -113,7 +113,7 @@ class SkijasiUserRoleController extends Controller
                 ->causedBy(auth()->user() ?? null)
                 ->performedOn($user)
                 ->event('created or updated')
-                ->log('User '.$user->name.' has been created or updated');
+                ->log('Član '.$user->name.' je stvoren ili ažuriran');
 
             return ApiResponse::success($data);
         } catch (Exception $e) {

@@ -292,12 +292,12 @@ class SkijasiMenuController extends Controller
             $new_menu->save();
 
             DB::commit();
-            activity('Menu')
-                ->causedBy(auth()->user() ?? null)
-                ->withProperties(['attributes' => $new_menu])
-                ->performedOn($new_menu)
-                ->event('created')
-                ->log('Menu '.$new_menu->display_name.' has been created');
+            // activity('Menu')
+            //     ->causedBy(auth()->user() ?? null)
+            //     ->withProperties(['attributes' => $new_menu])
+            //     ->performedOn($new_menu)
+            //     ->event('created')
+            //     ->log('Menu '.$new_menu->display_name.' has been created');
 
             return ApiResponse::success($new_menu);
         } catch (Exception $e) {
@@ -337,12 +337,12 @@ class SkijasiMenuController extends Controller
 
             DB::commit();
 
-            activity('Menu')
-                ->causedBy(auth()->user() ?? null)
-                ->withProperties(['attributes' => $new_menu_item])
-                ->performedOn($new_menu_item)
-                ->event('created')
-                ->log('Menu '.$new_menu_item->title.' has been created');
+            // activity('Menu')
+            //     ->causedBy(auth()->user() ?? null)
+            //     ->withProperties(['attributes' => $new_menu_item])
+            //     ->performedOn($new_menu_item)
+            //     ->event('created')
+            //     ->log('Menu '.$new_menu_item->title.' has been created');
 
             return ApiResponse::success($new_menu_item);
         } catch (Exception $e) {

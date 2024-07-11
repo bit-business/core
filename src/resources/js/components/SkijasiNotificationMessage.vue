@@ -5,7 +5,7 @@
       href="#"
       :style="{ color: topbarFontColor }"
     >
-      <vs-icon icon="notifications"></vs-icon>
+      <vs-icon icon="shopping_cart"></vs-icon>
       <sup>{{ countUnreadMessage }}</sup>
     </a>
 
@@ -158,7 +158,7 @@ export default {
         .getMessages()
         .then(({ data }) => {
 
-          console.log("TEST učitao poruke sidebar:",data);
+
           this.messages = data.messages.map((item, index) => {
             item.style = {
               backgroundColor: !item.isRead ? "#f0f5f9" : "#ffffff",
@@ -167,11 +167,12 @@ export default {
             if(item.createdAt){
               item.createdAt = moment(item.createdAt).utc().format('YYYY-MM-DD HH:mm:ss');
             }
-            console.log("TEST učitao poruke sidebar2:",item);
+       
             return item;
           });
 
           this.loadUnreadMessage();
+          this.updateNotificationCount();
         })
         .catch((error) => {
           this.$vs.notify({
@@ -180,6 +181,10 @@ export default {
             color: "danger",
           });
         });
+    },
+    updateNotificationCount() {
+      // This method should update the count in this component
+      this.loadUnreadMessage();// Assuming this method exists to fetch the new count
     },
     readMessage(id) {
       this.$api.skijasiFcm.readMessage(id).catch((error) => {

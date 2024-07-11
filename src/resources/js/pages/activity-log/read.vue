@@ -12,26 +12,8 @@
               <th>{{ $t("activityLog.header.logName") }}</th>
               <td>{{ activitylog.logName }}</td>
             </tr>
-            <tr>
-              <th>{{ $t("activityLog.header.subjectType") }}</th>
-              <td>
-                {{ activitylog.subjectType ? activitylog.subjectType : "-" }}
-              </td>
-            </tr>
-            <tr>
-              <th>{{ $t("activityLog.header.subjectId") }}</th>
-              <td>{{ activitylog.subjectId ? activitylog.subjectId : "-" }}</td>
-            </tr>
-            <tr>
-              <th>{{ $t("activityLog.header.causerType") }}</th>
-              <td>
-                {{ activitylog.causerType ? activitylog.causerType : "-" }}
-              </td>
-            </tr>
-            <tr>
-              <th>{{ $t("activityLog.header.causerId") }}</th>
-              <td>{{ activitylog.causerId ? activitylog.causerId : "-" }}</td>
-            </tr>
+      
+     
             <tr>
               <th>{{ $t("activityLog.header.description") }}</th>
               <td>{{ activitylog.description }}</td>
@@ -56,9 +38,9 @@
                 }}</span>
               </th>
               <td v-if="index === 'avatar'">
-                <img :src="item" width="100%" alt="" />
+                <img :src="item" width="200px" alt="" />
               </td>
-              <td v-else>{{ item === null ? "null" : item }}</td>
+              <td v-else>{{ item === null ? "" : item }}</td>
             </tr>
           </table>
         </vs-card>
@@ -70,15 +52,18 @@
           </div>
           <table class="skijasi-table">
             <tr v-for="(item, index) in filteredCauser" :key="index">
-              <th>
+              <!-- <th>
                 <span class="activity-log__text--capitalize">{{
                   index | replaceTitle
                 }}</span>
-              </th>
+              </th> -->
               <td v-if="index === 'avatar'">
-                <img :src="item" width="100%" alt="" />
+                <img :src="item" width="200px" alt="" />
               </td>
-              <td v-else>{{ item === null ? "null" : item }}</td>
+              <td v-if="index === 'name'">
+                {{ item === null ? "" : item }}
+              </td>
+              <!-- <td v-else>{{ item === null ? "" : item }}</td> -->
             </tr>
           </table>
         </vs-card>
@@ -87,7 +72,7 @@
       <vs-col vs-lg="6" vs-xs="12" v-if="!$helper.isObjectEmpty(properties)">
         <vs-card>
           <div slot="header">
-            <h3>{{ $t("activityLog.detail.properties.title") }}</h3>
+            <h3>{{ "Promjene:" }}</h3>
           </div>
           <table class="skijasi-table">
             <tr v-for="(item, index) in properties" :key="index">
@@ -105,12 +90,12 @@
                           index | replaceTitle
                         }}</span>
                       </th>
-                      <td>{{ value === null ? "null" : value }}</td>
+                      <td>{{ value === null ? "" : value }}</td>
                     </template>
                   </tr>
                 </table>
               </td>
-              <td v-else>{{ item === null ? "null" : item }}</td>
+              <td v-else>{{ item === null ? "" : item }}</td>
             </tr>
           </table>
         </vs-card>
@@ -125,6 +110,8 @@ export default {
   components: {},
   filters: {
     replaceTitle: function (title) {
+      if (title === 'old') return 'Staro stanje:';
+      if (title === 'attributes') return 'Novo stanje:';
       return title.replace(/([A-Z])/g, " $1").trim();
     },
   },
@@ -154,6 +141,7 @@ export default {
       return data;
     },
   },
+  
   mounted() {
     this.getActivityLogDetail();
   },

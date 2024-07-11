@@ -5,8 +5,8 @@
         <download-excel
             :data="activitylogs"
             :fields="fieldsForExcel"
-            :worksheet="'Activity Log Management'"
-            :name="'Activity Log Management '+ '.xls'"
+            :worksheet="'Povijest Aktivnosti'"
+            :name="'Povijest Aktivnosti '+ '.xls'"
             class="crud-generated__excel-button"
           >
             <skijasi-dropdown-item
@@ -53,7 +53,7 @@
                 $t('crudGenerated.footer.descriptionConnector')
               "
             >
-              <template slot="thead">
+              <template slot="thead" style="text-align: center;">
                 <skijasi-th sort-key="logName">
                   {{ $t("activityLog.header.logName") }}
                 </skijasi-th>
@@ -64,7 +64,7 @@
                   {{ $t("activityLog.header.description") }}
                 </skijasi-th>
                 <skijasi-th sort-key="createdAt">
-                  {{ $t("activityLog.header.dateLogged") }}
+                  {{ "Vrijeme promjene" }}
                 </skijasi-th>
                 <skijasi-th> {{ $t("activityLog.header.action") }} </skijasi-th>
               </template>
@@ -74,6 +74,7 @@
                   :data="record"
                   :key="index"
                   v-for="(record, index) in activitylogs"
+                  style="text-align: center;"
                 >
                   <vs-td :data="record.logName">
                     {{ record.logName ? record.logName : "-" }}
@@ -85,27 +86,21 @@
                     {{ record.description }}
                   </vs-td>
                   <vs-td :data="record.createdAt">
-                    {{ $helper.formatDate(record.createdAt) }}
+                    {{ formatDate(record.createdAt) }}
                   </vs-td>
                   <vs-td style="" class="activity-log__dropdown-button">
-                    <skijasi-dropdown vs-trigger-click>
-                      <vs-button
-                        size="large"
-                        type="flat"
-                        icon="more_vert"
-                      ></vs-button>
-                      <vs-dropdown-menu>
-                        <skijasi-dropdown-item
+                
+                     
+                        <vs-button
                           :to="{
                             name: 'ActivityLogRead',
                             params: { id: record.id },
                           }"
                           icon="visibility"
                         >
-                          Detail
-                        </skijasi-dropdown-item>
-                      </vs-dropdown-menu>
-                    </skijasi-dropdown>
+                          Detalji
+                        </vs-button>
+                     
                   </vs-td>
                 </vs-tr>
               </template>
@@ -167,6 +162,12 @@ export default {
     },
   },
   methods: {
+    formatDate(dateString) {
+      // Format the date string as needed
+      return new Date(dateString).toLocaleString();
+    },
+
+
     handleSearch(e) {
       this.filter = e.target.value;
       this.page = 1;

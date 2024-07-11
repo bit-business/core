@@ -101,12 +101,12 @@ class SkijasiRoleController extends Controller
             $role->save();
 
             DB::commit();
-            activity('Role Controllers')
-                ->causedBy(auth()->user() ?? null)
-                ->withProperties(['attributes' => $role])
-                ->performedOn($role)
-                ->event('created')
-                ->log('Role '.$role->name.' has been created');
+            // activity('Role')
+            //     ->causedBy(auth()->user() ?? null)
+            //     ->withProperties(['attributes' => $role])
+            //     ->performedOn($role)
+            //     ->event('created')
+            //     ->log('Nova rola '.$role->name.' je dodana');
 
             return ApiResponse::success($role);
         } catch (Exception $e) {

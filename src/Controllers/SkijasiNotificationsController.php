@@ -59,6 +59,28 @@ class SkijasiNotificationsController extends Controller
         }
     }
 
+    
+
+    public function clearAllNotifications()
+{
+    try {
+        $user = auth()->user();
+        $deleted = Notification::where('receiver_user_id', $user->id)->delete();
+        
+        if ($deleted) {
+            return ApiResponse::success([
+                'message' => 'All notifications have been deleted successfully.',
+            ]);
+        } else {
+            return ApiResponse::success([
+                'message' => 'No notifications to delete.',
+            ]);
+        }
+    } catch (\Exception $e) {
+        return ApiResponse::failed($e);
+    }
+}
+
 
 // za slanje poruka stavio
     public function sendNotification(Request $request)

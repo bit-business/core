@@ -93,7 +93,8 @@ async read(idmember) {
   //  return resource.put(apiPrefix + "/v1/entities/tbl-payments/edit", data);
   },
 
-  update(data = []) {
+
+update(data = []) {
   const ep = apiPrefix + "/v1/entities/tbl-payments/update";
   return resource.put(ep, data);
 },

@@ -111,12 +111,12 @@ class SkijasiPermissionController extends Controller
 
             DB::commit();
 
-            activity('Permissions')
-                ->causedBy(auth()->user() ?? null)
-                ->withProperties(['attributes' => $permission])
-                ->performedOn($permission)
-                ->event('created')
-                ->log('Permission '.$permission->key.' has been created');
+            // activity('Permissions')
+            //     ->causedBy(auth()->user() ?? null)
+            //     ->withProperties(['attributes' => $permission])
+            //     ->performedOn($permission)
+            //     ->event('created')
+            //     ->log('Permission '.$permission->key.' has been created');
 
             return ApiResponse::success($permission);
         } catch (Exception $e) {

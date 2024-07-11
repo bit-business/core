@@ -70,11 +70,11 @@ class SkijasiDatabaseController extends Controller
                 case 0:
                     $msg = __('skijasi::validation.database.migration_success');
 
-                    activity('Database')
-                        ->causedBy(auth()->user() ?? null)
-                        ->withProperties(['attributes' => $request->all()])
-                        ->event('created')
-                        ->log('Add table '.$request->table.' has been created');
+                    // activity('Database')
+                    //     ->causedBy(auth()->user() ?? null)
+                    //     ->withProperties(['attributes' => $request->all()])
+                    //     ->event('created')
+                    //     ->log('Add table '.$request->table.' has been created');
 
                     return ApiResponse::success($msg);
 

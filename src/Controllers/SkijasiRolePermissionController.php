@@ -113,7 +113,7 @@ class SkijasiRolePermissionController extends Controller
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => $request->all()])
                 ->event('created or updated')
-                ->log('Role '.$role->name.' has been created or updated');
+                ->log('Korisnička Rola '.$role->name.' je ažurirana ili dodana');
 
             return ApiResponse::success($data);
         } catch (Exception $e) {

@@ -130,7 +130,7 @@ export default {
     buttons: {
       updateProfile: "Ažuriraj Profil",
       updateEmail: "Ažuriraj Email",
-      verifyEmail: "Verifikuj Email",
+      verifyEmail: "Verificiraj Email",
       changePassword: "Promijeni Lozinku",
     },
   },
@@ -180,33 +180,33 @@ export default {
   },
 
   activityLog: {
-    title: "Dnevnik Aktivnosti",
+    title: "Povijest aktivnosti",
     warning: {
-      notAllowed: "Nije vam dozvoljeno pregledavanje Dnevnika Aktivnosti.",
+      notAllowed: "Nije vam dozvoljeno pregledavanje Povijesti Aktivnosti.",
     },
     header: {
-      logName: "Naziv Dnevnika",
+      logName: "Aktivnost",
       causerType: "Vrsta Korisnika",
       causerId: "Id Korisnika",
       causerName: "Ime Korisnika",
-      subjectType: "Vrsta Subjecta",
-      subjectId: "Id Subjecta",
-      description: "Opis",
-      dateLogged: "Datum Prijave",
+      subjectType: "Vrsta Aktivnosti",
+      subjectId: "Id Aktivnosti",
+      description: "Opis aktivnosti",
+      dateLogged: "Datum",
       action: "Uredi",
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Rezultati",
       descriptionConnector: "od",
       descriptionBody: "Stranice",
     },
     detail: {
-      title: "Detalji Dnevnika Aktivnosti",
+      title: "Detalji Povijesti Aktivnosti",
       causer: {
-        title: "Detalji Korisnika",
+        title: "Tko je napravio promjenu:",
       },
       subject: {
-        title: "Detalji Subjecta",
+        title: "Podaci za Aktivnost",
       },
       properties: {
         title: "Svojstva",
@@ -287,7 +287,7 @@ export default {
       button: "Dodaj CRUD za ovu tablicu",
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Rezultati",
       descriptionConnector: "od",
       descriptionBody: "Stranice",
     },
@@ -648,7 +648,7 @@ export default {
       action: "Opcije",
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Rezultati",
       descriptionConnector: "od",
       descriptionBody: "Strane",
     },
@@ -766,7 +766,7 @@ export default {
       action: "Opcije",
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Rezultati",
       descriptionConnector: "od",
       descriptionBody: "Stranice",
     },
@@ -854,7 +854,7 @@ export default {
       fieldIdentifyRelatedUser: "Polje Identificiraju Povezanog Korisnika"
     },
     footer: {
-      descriptionTitle: "Registri",
+      descriptionTitle: "Rezultati",
       descriptionConnector: "od",
       descriptionBody: "Stranice",
     },
@@ -971,13 +971,13 @@ export default {
     listTitle: "Here are some of the problems that can occur with a license:",
     licenseEmpty: "License Empty",
     licenseEmptyDescription:
-      "You haven't entered SKIJASI_LICENSE_KEY in .env. Please fill in before you can use Skijasi. For more complete instructions, please see here.",
+      "You haven't entered key",
     licenseInvalid: "License Invalid",
     licenseInvalidDescription:
       "SKIJASI_LICENSE_KEY was not found. Please make sure it is the same as what you get on Skijasi Dashboard. For more complete instructions, please see here.",
     licenseUsersExpired: "Active Period Expires",
     licenseUsersExpiredDescription:
-      "Your active period has expired. Please add your active period to Skijasi Dashboard so that your license can be used again. For more complete instructions, please see here.",
+      "Your active period has expired. Please add your active period to Skijasi Dashboard ",
   },
   authorizationIssue: {
     title: "Sesija istekla",
@@ -1071,7 +1071,7 @@ export default {
         drop: "Are you sure want to delete this field?",
       },
       warning: {
-        title: "IMPORTANT",
+        title: "VAŽNO",
         content:
           'Only the following column types can be "changed": Big Integer, BLOB, Boolean, Date, Datetime, Decimal, Float, Integer, JSON, Long Text, Medium Text, Set, Small Integer, Varchar, Text and Time. Also, every field that you change, it\'ll be recorded when you submit the alter table. If you make some mistakes, you can refresh this page to reset your changes.',
         crud: "Make sure the table has not been generated with CRUD Management if you want to edit or drop it.",

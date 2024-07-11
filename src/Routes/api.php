@@ -247,6 +247,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
 
                         Route::get($data_type->slug.'/allnasiclanovi', $crud_data_controller.'@all')
                         ->name($data_type->slug.'.allnasiclanovi');
+
+                        
                     
 
 
@@ -255,8 +257,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',read');
 
                         Route::put($data_type->slug.'/edit', $crud_data_controller.'@edit')
-                        ->name($data_type->slug.'.edit')
-                        ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',edit');
+                        ->name($data_type->slug.'.edit');
+                        // ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',edit');
 
 
                         Route::put($data_type->slug.'/editDatoteke', $crud_data_controller.'@editDatoteke')
@@ -365,7 +367,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                 Route::get('/', 'SkijasiNotificationsController@getMessages');
                 Route::put('/{id}', 'SkijasiNotificationsController@readMessage');
                 Route::get('/count-unread', 'SkijasiNotificationsController@getCountUnreadMessage');
-
+                Route::delete('/clear-all', 'SkijasiNotificationsController@clearAllNotifications');
                 
 
 

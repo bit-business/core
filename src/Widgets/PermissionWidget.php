@@ -20,7 +20,7 @@ class PermissionWidget implements WidgetInterface
     public function run($params = null)
     {
         return [
-            'label' => 'Narudžbe preko web-a',
+            'label' => 'Ukupno narudžbi preko web-a',
             'icon' => 'lock',
             'value' => Order::count(),
             'prefix_value' => '',

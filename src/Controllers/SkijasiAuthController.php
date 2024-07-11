@@ -83,7 +83,7 @@ class SkijasiAuthController extends Controller
             $ttl = $this->getTTL($remember);
             $token = auth()->setTTL($ttl)->attempt($credentials);
 
-            activity('Authentication')
+            activity('Prijava')
             ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
                 ->log('Korisnik se prijavio');
@@ -152,7 +152,7 @@ class SkijasiAuthController extends Controller
             $ttl = $this->getTTL($remember);
             $token = auth()->setTTL($ttl)->attempt($credentials);
 
-            activity('Authentication')
+            activity('Prijava')
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
                 ->log('Korisnik se prijavio');
@@ -222,7 +222,7 @@ class SkijasiAuthController extends Controller
             $ttl = $this->getTTL($remember);
             $token = auth()->setTTL($ttl)->attempt($credentials);
 
-            activity('Authentication')
+            activity('Prijava')
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
                 ->log('Korisnik se prijavio');
@@ -241,7 +241,7 @@ class SkijasiAuthController extends Controller
         try {
             auth()->logout();
             // auth()->invalidate();
-            activity('Authentication')
+            activity('Odjava')
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
                 ->log('Korisnik se odjavio');

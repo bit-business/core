@@ -13,63 +13,126 @@
 
     <skijasi-widget :col="col" :widgets="dashboardData"> </skijasi-widget>
 
-
+  
   </vs-row>
 
-
-  <div v-if="unapprovedZahtjevi && unapprovedZahtjevi.length" class="unapproved-container2">
-      <h3>Novi zahtjevi za članstvo:          
-</h3>
-      <div class="scrollable-list">
-        <ul>
-          <li v-for="user in unapprovedZahtjevi" :key="user.id" class="user-item">
-            <button @click="obrisizahtjev(user.id)" class="btn-decline2">Obriši zahtjev</button>
-            <img 
-            :src="getAvatarUrl(user.new_avatar ? user.new_avatar : user.avatar)" 
-              alt="Odbijen Avatar" 
-              class="avatar cursor-pointer" 
-              @click="showFullscreenImage(user.new_avatar ? user.new_avatar : user.avatar)">
-              <div class="user-details">
-        <!-- Display user's name and username -->
-        <div class="user-info">
-            <span>{{ user.name }} {{ user.username }}</span>  
-        </div>
-
-        <div class="btncontainer">
-            <button @click="otvoriclana(user.id)" class="btn-approve">Pokaži člana</button>
-        </div>
-    </div>
-</li>
-        </ul>
+  <vs-row class="mt-4">
+      <vs-col :vs-lg="col" vs-xs="12">
+        <div class="notification-section">
+          <div class="notification-header">
+            <h4>Nove narudžbe (čekaju odobrenje)</h4>
+            <vs-button
+              color="primary"
+              type="border"
+              size="small"
+              @click="otvoriplacanja"
+            >
+              Prikaži
+            </vs-button>
+          </div>
+          <div class="icon-container">
+        <span :class="['icon-text', { 'animate-pulse': newOrdersCount > 0 }]">
+          {{ newOrdersCount }}
+        </span>
+        <img src="/storage/slike/baza/placanjeikona1.svg" alt="Nove narudžbe" class="icon">
       </div>
-    </div>
-
-
-  <div v-if="unapprovedUsers && unapprovedUsers.length" class="unapproved-container">
-      <h3>Odobrenja novih profilnih slika:</h3>
-      <div class="scrollable-list">
-        <ul>
-          <li v-for="user in unapprovedUsers" :key="user.id" class="user-item">
-            <img 
-            :src="getAvatarUrl(user.new_avatar)" 
-              alt="Odbijen Avatar" 
-              class="avatar cursor-pointer" 
-              @click="showFullscreenImage(user.new_avatar)">
-              <div class="user-details">
-        <!-- Display user's name and username -->
-        <div class="user-info">
-            <span>{{ user.name }} {{ user.username }}</span> 
         </div>
-
-        <div class="btncontainer">
-            <button @click="approveAvatar(user.id)" class="btn-approve">Odobri</button>
-            <button @click="declineAvatar(user.id)" class="btn-decline">Odbij</button>
+      </vs-col>
+      <vs-col :vs-lg="col" vs-xs="12">
+        <div class="notification-section">
+          <div class="notification-header">
+            <h4>Završene narudžbe</h4>
+            <vs-button
+              color="primary"
+              type="border"
+              size="small"
+              @click="otvoriplacanja"
+            >
+              Prikaži
+            </vs-button>
+          </div>
+          <div class="icon-container">
+            <span class="icon-text">  {{ uspjesneOrdersCount }}</span> 
+            <img src="/storage/slike/baza/placanjeikona2.svg" alt="Završene narudžbe" class="icon">
+   
+          </div>
         </div>
-    </div>
-</li>
-        </ul>
-      </div>
-    </div>
+      </vs-col>
+      <vs-col :vs-lg="col" vs-xs="12">
+        <div class="notification-section">
+          <div class="notification-header">
+            <h4>Broj aktivnih zaduženja</h4>
+            <vs-button
+              color="primary"
+              type="border"
+              size="small"
+              @click="otvoricart"
+            >
+              Prikaži
+            </vs-button>
+          </div>
+          <div class="icon-container">
+            <span class="icon-text">{{ totalCartItems }}</span> 
+            <img src="/storage/slike/baza/placanjeikona3.svg" alt="Aktivna zaduženja" class="icon">
+
+          </div>
+        </div>
+      </vs-col>
+    </vs-row>
+
+    <vs-row class="mt-4">
+      <vs-col :vs-lg="col" vs-xs="12" v-if="unapprovedZahtjevi && unapprovedZahtjevi.length">
+        <div class="section-container unapproved-container2">
+          <h3>Novi zahtjevi za članstvo:</h3>
+          <div class="scrollable-list">
+            <ul>
+              <li v-for="user in unapprovedZahtjevi" :key="user.id" class="user-item">
+                <button @click="obrisizahtjev(user.id)" class="btn-decline2">Obriši zahtjev</button>
+                <img 
+                  :src="getAvatarUrl(user.new_avatar ? user.new_avatar : user.avatar)" 
+                  alt="Odbijen Avatar" 
+                  class="avatar cursor-pointer" 
+                  @click="showFullscreenImage(user.new_avatar ? user.new_avatar : user.avatar)">
+                <div class="user-details">
+                  <div class="user-info">
+                    <span>{{ user.name }} {{ user.username }}</span>  
+                  </div>
+                  <div class="btncontainer">
+                    <button @click="otvoriclana(user.id)" class="btn-approve">Pokaži člana</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </vs-col>
+
+      <vs-col :vs-lg="col" vs-xs="12" v-if="unapprovedUsers && unapprovedUsers.length">
+        <div class="section-container unapproved-container">
+          <h3>Odobrenja novih profilnih slika:</h3>
+          <div class="scrollable-list">
+            <ul>
+              <li v-for="user in unapprovedUsers" :key="user.id" class="user-item">
+                <img 
+                  :src="getAvatarUrl(user.new_avatar)" 
+                  alt="Odbijen Avatar" 
+                  class="avatar cursor-pointer" 
+                  @click="showFullscreenImage(user.new_avatar)">
+                <div class="user-details">
+                  <div class="user-info">
+                    <span>{{ user.name }} {{ user.username }}</span> 
+                  </div>
+                  <div class="btncontainer">
+                    <button @click="approveAvatar(user.id)" class="btn-approve">Odobri</button>
+                    <button @click="declineAvatar(user.id)" class="btn-decline">Odbij</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </vs-col>
+    </vs-row>
 
     <!-- Fullscreen image modal -->
     <div v-if="fullscreenImage" class="fullscreen-modal" @click="fullscreenImage = null">
@@ -90,10 +153,16 @@
 
 <script>
 import { mapState } from 'vuex'
+
+import skijasiOrder from '../../../../../commerce-module/src/resources/js/api/modules/skijasi-order.js';
+import skijasiCart from '../../../../../commerce-theme/src/resources/app/api/modules/skijasi-cart.js';
+
+
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Početna",
-  components: {},
+  components: {
+  },
   data: () => ({
     unapprovedUsers: [],
     unapprovedZahtjevi: [],
@@ -101,6 +170,10 @@ export default {
     fullscreenImage: null, 
     dashboardData: [],
     col: 12,
+
+    orders: [], 
+    totalCartItems: 0,
+
   }),
 
   computed: {
@@ -116,6 +189,16 @@ export default {
       }
     }),
 
+        newOrdersCount() {
+      return this.orders.filter(order => order.status == 'waitingSellerConfirmation').length;
+    },
+    uspjesneOrdersCount() {
+      return this.orders.filter(order => order.status == 'done').length;
+    },
+
+      
+  
+
   },
 
 
@@ -126,6 +209,8 @@ export default {
     this.fetchUnapprovedAvatars();
     this.fetchzahtjeve();
 
+    this.fetchOrders();
+ 
      // Set up a periodic check every 5 minutes (300000 milliseconds).
      this.intervalID = setInterval(this.fetchUnapprovedAvatars, 300000);
   },
@@ -138,8 +223,79 @@ export default {
 
 
   methods: {
+    fetchTotalCartItems() {
+      skijasiCart.getTotalItemsCart()
+        .then(response => {
+        
+            this.totalCartItems = response.data.totalItems;
+            console.log('Updated totalCartItems:', this.totalCartItems);
+          
+        })
+        .catch(error => {
+          console.error('Error fetching total cart items:', error);
+        });
+    },
 
+    fetchOrders() {
+  skijasiOrder.browse()
+    .then(res => {
+      if (res.data && res.data.orders && res.data.orders.data) {
+        this.orders = res.data.orders.data;
+      } else {
+        this.orders = [];
+      }
+    })
+    .catch(err => {
+      this.$helper.displayErrors(err);
+    })
+    .finally(() => {
+      // Any final actions
+      this.fetchTotalCartItems();
+    });
+},
 
+//     clearAllNotifications() {
+//   this.$vs.dialog({
+//     type: 'confirm',
+//     color: 'danger',
+//     title: 'Potvrda',
+//     text: 'Jeste li sigurni da želite obrisati sve obavijesti?',
+//     acceptText: 'Da',
+//     cancelText: 'Ne',
+//     accept: () => {
+//       this.$api.skijasiFcm.clearAllNotifications()
+//         .then((response) => {
+//           if (response.status === 200) {
+
+//             if (this.$refs.notificationComponent) {
+//                 this.$refs.notificationComponent.getMessages();
+//                 this.$refs.notificationComponent.updateNotificationCount();
+//               }
+//             this.$vs.notify({
+//               color: 'success',
+//               title: 'Uspjeh',
+//               text: response.data.message || 'Sve obavijesti su obrisane.'
+//             });
+//           }
+//         })
+//         .catch((error) => {
+//           console.error("Error clearing notifications:", error);
+//           this.$vs.notify({
+//             color: 'danger',
+//             title: 'Greška',
+//             text: 'Došlo je do pogreške prilikom brisanja obavijesti.'
+//           });
+//         });
+//     }
+//   });
+// },
+  
+    otvoriplacanja() {
+      this.$router.push(`/skijasi-dashboard/order/`);    
+    },
+    otvoricart() {
+      this.$router.push(`/skijasi-dashboard/cart/`);    
+    },
 
 
     getAvatarUrl(avatarPath) {
@@ -305,27 +461,23 @@ export default {
 </script>
 
 
-
 <style scoped>
-.unapproved-container {
+.mt-4 {
+  margin-top: 2rem;
+}
+
+.section-container {
   border: 1px solid #e0e0e0;
   background-color: #fff;
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 360px;
-  margin-left: 2.5%;
-  margin-top: 2%;
+  height: 100%;
 }
+
+
 .unapproved-container2 {
-  border: 1px solid #03a9f4;
-  background-color: #fff;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 360px;
-  margin-left: 2.5%;
-  margin-top: 2%;
+  /* border-color: #03a9f4; */
 }
 
 .scrollable-list {
@@ -336,128 +488,165 @@ export default {
   border-radius: 8px;
 }
 
-
 .avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 5%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
   object-fit: cover;
+}
+
+.btn-approve, .btn-decline, .btn-decline2 {
+  border: none; 
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .btn-approve {
   background-color: #4CAF50; 
   color: white; 
-  border: none; 
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: 400;
 }
 
 .btn-decline {
   background-color: #F44336; 
   color: white; 
-  border: none; 
-  padding: 10px 25px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: 500;
 }
 
 .btn-decline2 {
   background-color: #F44336; 
   color: white; 
-  border: none; 
-  padding: 4px 6px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: 400;
-  font-size: 7px;
+  font-size: 0.8rem;
+  padding: 4px 8px;
 }
 
-.btn-approve:hover {
-  background-color: #45a049;
+.btn-approve:hover, .btn-decline:hover, .btn-decline2:hover {
+  opacity: 0.9;
 }
 
-.btn-decline:hover {
-  background-color: #e43525;
-}
-.btn-decline2:hover {
-  background-color: #e43525;
-}
-
-
- /* Fullscreen modal styles */
- .fullscreen-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-
-  .fullscreen-image {
-    max-width: 90%;
-    max-height: 90%;
-  }
-  .btncontainer {
+.fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-left: 6%;
-  gap: 26px;
+  z-index: 9999;
 }
+
+.fullscreen-image {
+  max-width: 90%;
+  max-height: 90%;
+}
+
 .user-item {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .user-info {
-    padding: 1px;
-    font-size: 1em;
-    text-align: center; /* Center the text */
+  font-size: 0.9em;
 }
 
 .user-details {
-    display: flex;
-    flex-direction: column; /* Stack the user-info and btncontainer vertically */
-    align-items: center;
-    gap: 10px; /* Adjust this value as needed for spacing between user-info and btncontainer */
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.btncontainer {
+  display: flex;
+  gap: 10px;
+}
+
+.welcome-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.centered-image {
+  width: 4%;
+  margin-right: 1rem;
+}
+
+.welcome-text {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sub-text {
+  font-size: 14px;
+  color: #888;
 }
 
 
-.welcome-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin-bottom: 2.6rem;
-    margin-top: 1rem;
-  }
+.notification-section {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: 0.5s ease-out;
+overflow: visible;
+border: 1px solid #e0e0e0;
+}
 
-  .centered-image {
-    width: 4%;
-    margin: 0 1rem; /* Center the image horizontally */
-    display: block; /* Ensure the image doesn't stick to other elements */
-  }
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
 
-  .welcome-text {
-    margin-left: 1rem;
-    margin-right: 1rem;
-    margin-top: 1rem;
-    font-size: 20px;
-    font-weight: 700;
-  }
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .sub-text {
-    margin-left: 1rem;
-    font-size: 14px; /* Adjust font size for smaller text */
-    color: #888; /* Adjust color as needed */
+.icon {
+  width: 140px; /* Adjust this value to make the icon smaller or larger */
+  height: 140px; /* Adjust this value to make the icon smaller or larger */
+  margin-left: 34px;
+}
+
+.icon-text {
+  font-size: 29px;
+  font-weight: bold;
+  color: #333;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
   }
+  50% {
+    transform: scale(1.17);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+color: orange;
+}
+
+
+
+.notification-section:hover {
+ box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.25);
+}
+
+
 </style>

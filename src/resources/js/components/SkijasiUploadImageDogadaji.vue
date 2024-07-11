@@ -29,13 +29,13 @@
   />
   <!-- This input will handle file selection -->
   <input
-    type="file"
-    class="skijasi-upload-image__input--hidden"
-    ref="image"
-    :accept="availableMimetypes.image.validMime.join(',')"
-    @change="onFilePicked"
-  />
-
+  type="file"
+  class="skijasi-upload-image__input--hidden"
+  ref="image"
+  :accept="getAcceptedMimeTypes"
+  @change="onFilePicked"
+/>
+   
   
   <!-- ... other code ... -->
 
@@ -101,6 +101,12 @@ export default {
   data() {
     return {
       previewImage: null, 
+      hardcodedMimeTypes: {
+      image: {
+        validMime: ['image/jpeg','image/jpg', 'image/png', 'image/webp'],
+        maxSize: 7120 // 5MB in KB
+      }
+    },
 
 
       showFileManager: false,
@@ -142,6 +148,9 @@ export default {
     }
   },
   computed: {
+    getAcceptedMimeTypes() {
+    return this.hardcodedMimeTypes.image.validMime.join(',');
+  },
     getActiveTab() {
       return this.activeTab;
     },
@@ -164,13 +173,15 @@ export default {
         this.value !== "{}"
       );
     },
+
     ...mapState({
       userId(state) {
         return state.skijasi.user.id;
       },
-      availableMimetypes(state) {
-        return state.skijasi.availableMimetypes;
-      },
+
+      // availableMimetypes(state) {
+      //   return state.skijasi.availableMimetypes;
+      // },
     }),
   },
   methods: {
@@ -234,36 +245,34 @@ export default {
     enableScrollOnBody() {
       enableBodyScroll(document.querySelector("body"));
     },
-   // ... other methods ...
 
-onFilePicked(e) {
+
+   onFilePicked(e) {
   const files = e.target.files;
   if (files[0] !== undefined) {
     const file = files[0];
-    if (file.size > this.availableMimetypes.image.maxSize * 1024) {
+    if (file.size > this.hardcodedMimeTypes.image.maxSize * 1024) {
       this.$vs.notify({
         title: this.$t("alert.danger"),
-        text: this.$t("alert.sizeTooLarge", { size: "5MB" }), // Update your translation key accordingly
+        text: this.$t("alert.sizeTooLarge", { size: "7MB" }),
         color: "danger",
       });
       return;
     }
-    if (!this.availableMimetypes.image.validMime.includes(file.type)) {
+    if (!this.hardcodedMimeTypes.image.validMime.includes(file.type)) {
       this.$vs.notify({
         title: this.$t("alert.danger"),
-        text: this.$t("alert.fileNotAllowed"), // Update your translation key accordingly
+        text: this.$t("alert.fileNotAllowed"),
         color: "danger",
       });
       return;
     }
-   this.previewImage = URL.createObjectURL(file);
-
-    // Perform the upload
+    this.previewImage = URL.createObjectURL(file);
     this.uploadImage(file);
   }
 },
 
-// ... other methods ...
+
 
     sortImages(event) {
       this.getImages(event)

@@ -28,6 +28,11 @@ export default {
   sendFirebaseMessage() {
     const url = `${apiPrefix}/v1/firebase/cloud_messages/send-firebase-message`;
     return resource.post(url);
-  }
+  },
+
+  clearAllNotifications() {
+    const url = `${apiPrefix}/v1/firebase/messages/clear-all`;
+    return resource.delete(url);
+  },
   
 };

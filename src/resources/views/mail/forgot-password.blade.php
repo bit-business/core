@@ -151,7 +151,7 @@
 </head>
 
 <body class=""
-  style="background-color: #f1f1f1; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; border-top: 4px solid #06bbd3">
+  style="background-color: #f1f1f1; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; border-top: 4px solid #03a9f4">
   <span class="preheader"
     style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"></span>
   <table border="0" cellpadding="0" cellspacing="0" class="body"
@@ -182,7 +182,7 @@
 
                       <p>Sve što trebate učiniti je kopirati kod za provjeru i zalijepiti ga u obrazac za provjeru e-pošte kako biste nastavili s postupkom resetiranja lozinke.</p>
 
-                      <p>Srdačno,<br />{{ config('app.name') }}</p>
+                      <p>Srdačno,<br />HZUTS</p>
                     </td>
                   </tr>
                 </table>

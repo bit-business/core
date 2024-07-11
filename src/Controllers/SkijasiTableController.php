@@ -107,14 +107,14 @@ class SkijasiTableController extends Controller
             }
 
             DB::commit();
-            activity('Generate Table')
-                ->causedBy(auth()->user() ?? null)
-                ->withProperties(['attributes' => [
-                    'data_type' => $new_data_type,
-                    'data_rows' => $new_data_row,
-                ]])
-                ->event('created')
-                ->log('Table '.$new_data_type->display_name_singular.' has been created');
+            // activity('Nova Tablica')
+            //     ->causedBy(auth()->user() ?? null)
+            //     ->withProperties(['attributes' => [
+            //         'data_type' => $new_data_type,
+            //         'data_rows' => $new_data_row,
+            //     ]])
+            //     ->event('created')
+            //     ->log('Tablica '.$new_data_type->display_name_singular.' je stvorena');
 
             return ApiResponse::success();
         } catch (Exception $e) {

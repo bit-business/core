@@ -2317,27 +2317,34 @@ $html .= '</body></html>';
   }
 
     
-    public function citanje(Request $request)
-    {
-        try {
-      
-            $slug = $this->getSlug($request);
-            $data_type = $this->getDataType($slug);
-            $request->validate([
-                'idmember' => 'exists:'.$data_type->name,
-            ]);
-
-            $data = $this->getDataDetail2($slug, $request->idmember);
-            
-            // add event notification handle
-            $table_name = $data_type->name;
-            FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_READ, $table_name);
-
-            return ApiResponse::onlyEntity($data);
-        } catch (Exception $e) {
-            return ApiResponse::failed($e);
-        }
-    }
+  public function citanje(Request $request)
+  {
+      try {
+          $slug = $this->getSlug($request);
+          $data_type = $this->getDataType($slug);
+          
+          // Validate the request, checking if idmember exists in the table
+          $request->validate([
+              'idmember' => 'required|exists:'.$data_type->name,
+          ]);
+  
+          $data = $this->getDataDetail2($slug, $request->idmember);
+          
+          // Add event notification handle
+          $table_name = $data_type->name;
+          FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_READ, $table_name);
+  
+          return ApiResponse::onlyEntity($data);
+      } catch (ValidationException $e) {
+          return response()->json([
+              'message' => 'Neispravni podaci',
+              'errors' => $e->errors(),
+          ], 422);
+      } catch (Exception $e) {
+          return ApiResponse::failed($e);
+      }
+  }
+  
 
     public function edit(Request $request)
     {
@@ -2374,7 +2381,7 @@ $html .= '</body></html>';
                     'old' => $updated['old_data'],
                     'attributes' => $updated['updated_data'],
                 ])
-                ->log($data_type->display_name_singular.' je izmijenjen');
+                ->log($data_type->display_name_singular.' je izmijenjeno');
             // add event notification handle
             $table_name = $data_type->name;
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_UPDATE, $table_name);
@@ -2426,7 +2433,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => $stored_data])
-                ->log($data_type->display_name_singular.' has been created');
+                ->log($data_type->display_name_singular.' je dodano u bazu');
 
             DB::commit();
 
@@ -2476,7 +2483,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties($data)
-                ->log($data_type->display_name_singular.' has been deleted');
+                ->log($data_type->display_name_singular.' je obrisano');
 
             DB::commit();
 
@@ -2515,7 +2522,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties($data)
-                ->log($data_type->display_name_singular.' has been restore');
+                ->log($data_type->display_name_singular.' je vraćeno');
 
             DB::commit();
 
@@ -2571,7 +2578,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties($data)
-                ->log($data_type->display_name_singular.' has been bulk deleted');
+                ->log($data_type->display_name_singular.' je masovno obrisano');
 
             DB::commit();
 
@@ -2611,7 +2618,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties($data)
-                ->log($data_type->display_name_singular.' has been bulk deleted');
+                ->log($data_type->display_name_singular.' je masovno vraćeno');
 
             DB::commit();
 
@@ -2646,20 +2653,20 @@ $html .= '</body></html>';
                     $single_data[$order_column] = $index + 1;
                     $single_data->save();
 
-                    activity($data_type->display_name_singular)
-                        ->causedBy(auth()->user() ?? null)
-                        ->withProperties(['attributes' => $single_data])
-                        ->log($data_type->display_name_singular.' has been sorted');
+                    // activity($data_type->display_name_singular)
+                    //     ->causedBy(auth()->user() ?? null)
+                    //     ->withProperties(['attributes' => $single_data])
+                    //     ->log($data_type->display_name_singular.' je sortirano');
                 }
             } else {
                 foreach ($request->data as $index => $row) {
                     $updated_data[$order_column] = $index + 1;
                     DB::table($data_type->name)->where('id', $row['id'])->update($updated_data);
 
-                    activity($data_type->display_name_singular)
-                        ->causedBy(auth()->user() ?? null)
-                        ->withProperties(['attributes' => $updated_data])
-                        ->log($data_type->display_name_singular.' has been sorted');
+                    // activity($data_type->display_name_singular)
+                    //     ->causedBy(auth()->user() ?? null)
+                    //     ->withProperties(['attributes' => $updated_data])
+                    //     ->log($data_type->display_name_singular.' je sortirano');
                 }
             }
 

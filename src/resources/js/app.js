@@ -129,7 +129,7 @@ try {
   console.info("Failed to load custom components", error);
 }
 
-// DYNAMIC IMPORT SKIJASI UTILS
+// DYNAMIC IMPORT UTILS
 try {
   const requireUtils = require.context("./utils", false, /\.js$/);
   requireUtils.keys().forEach((fileName) => {
@@ -152,7 +152,7 @@ try {
     Vue.prototype["$" + utilName] = requireUtils(fileName).default;
   });
 } catch (error) {
-  console.info("Failed to load skijasi utils", error);
+  console.info("Failed to load utils", error);
 }
 
 // DYNAMIC IMPORT CUSTOM UTILS

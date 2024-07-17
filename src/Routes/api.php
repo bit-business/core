@@ -42,6 +42,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
         Route::group(['prefix' => 'activitylogs'], function () {
             Route::get('/', 'SkijasiActivityLogController@browse')->middleware(SkijasiCheckPermissions::class.':browse_activitylogs');
             Route::get('/read', 'SkijasiActivityLogController@read')->middleware(SkijasiCheckPermissions::class.':read_activitylogs');
+
+            Route::get('/stats', 'SkijasiActivityLogController@getstats')->middleware(SkijasiCheckPermissions::class.':read_activitylogs');
         });
 
         Route::group(['prefix' => 'auth'], function () {
@@ -161,6 +163,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::get('/browsenasiclanovi', 'SkijasiUserController@browsenasiclanovi');
             Route::get('/browseuserporuke', 'SkijasiUserController@browseuserporuke');
             Route::get('/readmojstatus', 'SkijasiUserController@readmojstatus');
+
+          Route::get('/userspermonth', 'SkijasiUserController@getuserspermonth');
 
 
         });

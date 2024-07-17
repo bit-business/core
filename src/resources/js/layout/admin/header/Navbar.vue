@@ -5,7 +5,7 @@
       :color="topbarColor"
       class="top-navbar"
       active-text-color="rgba(255,255,255,1)"
-      :style="{ color: topbarFontColor }"
+      :style="{ color: topbarFontColor2 }"
     >
       <div
         slot="logo"
@@ -42,9 +42,9 @@
           <vs-icon icon="menu"></vs-icon>
         </div>
       </div>
-      <div slot="left_menu">
+      <!-- <div slot="left_menu">
         <vs-dropdown vs-trigger-click class="top-navbar__i18n-container">
-          <a href="#" :style="{ color: topbarFontColor }">
+          <a href="#" :style="{ color: topbarFontColor2 }">
             {{ getSelectedLocale.label }}
             <vs-icon icon="expand_more" size="small"></vs-icon>
           </a>
@@ -64,10 +64,13 @@
 
 
 
-      </div>
+      </div> -->
+
+
+
       <div slot="right_menu">
         <skijasi-notification-message
-          :topbarFontColor="topbarFontColor"
+          :topbarFontColor="topbarFontColor2"
         ></skijasi-notification-message>
       </div>
     </skijasi-navbar>
@@ -82,11 +85,19 @@ export default {
   props: {
     topbarColor: {
       type: String,
-      default: "#000000",
+      default: "#03a9f4",
+    },
+    topbarColor2: {
+      type: String,
+      default: "#03a9f4",
     },
     topbarFontColor: {
       type: String,
-      default: "#06bbd3",
+      default: "#03a9f4",
+    },
+    topbarFontColor2: {
+      type: String,
+      default: "#03a9f4",
     },
     title: {
       type: String,
@@ -171,3 +182,11 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+
+.plavaboja{
+
+color: #03a9f4;
+}
+</style>

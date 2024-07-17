@@ -1,60 +1,34 @@
 <template>
-
-<vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
-    <!-- Only display this row if there is a preview image or an existing value -->
-    <vs-row v-if="previewImage || hasValue">
-      <vs-col vs-lg="4" vs-sm="12">
+  <vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
+    <!-- Display preview for each image in the array -->
+    <vs-row v-if="value && value.length > 0">
+      <vs-col vs-lg="4" vs-sm="12" v-for="(image, index) in value" :key="index">
         <div class="skijasi-upload-image__preview">
-          <!-- Use previewImage if it's available, otherwise fallback to value -->
-          <img :src="previewImage || value" class="skijasi-upload-image__preview-image" />
+          <img :src="image" class="skijasi-upload-image__preview-image" />
           <vs-button
             class="skijasi-upload-image__remove-button"
             color="danger"
             icon="close"
-            @click="removeImage"
+            @click="removeImage(index)"
           />
         </div>
       </vs-col>
     </vs-row>
 
+    <!-- Use a hidden input for file selection -->
+    <input
+      type="file"
+      multiple
+      class="skijasi-upload-image__input--hidden"
+      ref="image"
+      :accept="getAcceptedMimeTypes"
+      @change="onFilePicked"
+    />
 
-  <vs-input
-    :label="label"
-    :placeholder="placeholder"
-    @click.prevent="$refs.image.click()"
-    readonly
-    v-model="value"
-    icon="attach_file"
-    icon-after="true"
-  />
-  <!-- This input will handle file selection -->
-  <input
-  type="file"
-  class="skijasi-upload-image__input--hidden"
-  ref="image"
-  :accept="getAcceptedMimeTypes"
-  @change="onFilePicked"
-/>
-   
-
-
-   
-
-    <vs-popup
-      :title="$t('action.delete.title')"
-      :active.sync="showDeleteImage"
-      class="skijasi-upload-image__popup-dialog--delete"
-    >
-      <p>{{ $t("action.delete.text") }}</p>
-      <div class="skijasi-upload-image__popup-dialog-content--delete">
-        <vs-button color="primary" type="relief" @click="closeDeleteDialog">
-          {{ $t("action.delete.cancel") }}
-        </vs-button>
-        <vs-button color="danger" type="relief" @click="deleteImage()">
-          {{ $t("action.delete.accept") }}
-        </vs-button>
-      </div>
-    </vs-popup>
+    <!-- Button to trigger file selection -->
+    <vs-button @click="$refs.image.click()">
+      {{ placeholder }}
+    </vs-button>
   </vs-col>
 </template>
 
@@ -63,7 +37,7 @@ import { mapState } from "vuex";
 import * as _ from "lodash";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 export default {
-  name: "SkijasiUploadImageDogadaji",
+  name: "SkijasiUploadImageDogadajiGalerija",
   props: {
     size: {
       type: String || Number,
@@ -75,24 +49,11 @@ export default {
     },
     placeholder: {
       type: String,
-      default: "Upload Image",
+      default: "Upload Images",
     },
     value: {
-      default: null,
-    },
-    additionalInfo: {
-      type: String,
-      default: "",
-    },
-    alert: {
-      type: String || Array,
-      default: "",
-    },
-    sharesOnly: {
-      type: Boolean,
-    },
-    privateOnly: {
-      type: Boolean,
+      type: Array,
+      default: () => [],
     },
   },
   data() {
@@ -244,28 +205,28 @@ export default {
     },
 
 
-   onFilePicked(e) {
+    onFilePicked(e) {
   const files = e.target.files;
-  if (files[0] !== undefined) {
-    const file = files[0];
-    if (file.size > this.hardcodedMimeTypes.image.maxSize * 1024) {
-      this.$vs.notify({
-        title: this.$t("alert.danger"),
-        text: this.$t("alert.sizeTooLarge", { size: "7MB" }),
-        color: "danger",
-      });
-      return;
-    }
-    if (!this.hardcodedMimeTypes.image.validMime.includes(file.type)) {
-      this.$vs.notify({
-        title: this.$t("alert.danger"),
-        text: this.$t("alert.fileNotAllowed"),
-        color: "danger",
-      });
-      return;
-    }
-    this.previewImage = URL.createObjectURL(file);
-    this.uploadImage(file);
+  if (files.length > 0) {
+    Array.from(files).forEach(file => {
+      if (file.size > this.hardcodedMimeTypes.image.maxSize * 1024) {
+        this.$vs.notify({
+          title: this.$t("alert.danger"),
+          text: this.$t("alert.sizeTooLarge", { size: "7MB" }),
+          color: "danger",
+        });
+        return;
+      }
+      if (!this.hardcodedMimeTypes.image.validMime.includes(file.type)) {
+        this.$vs.notify({
+          title: this.$t("alert.danger"),
+          text: this.$t("alert.fileNotAllowed"),
+          color: "danger",
+        });
+        return;
+      }
+      this.uploadImage(file);
+    });
   }
 },
 
@@ -308,33 +269,42 @@ export default {
 
 
     uploadImage(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  // Retrieve the name and idmember values
+      if (file.size > this.hardcodedMimeTypes.image.maxSize * 1024) {
+        this.$vs.notify({
+          title: this.$t("alert.danger"),
+          text: this.$t("alert.sizeTooLarge", { size: "7MB" }),
+          color: "danger",
+        });
+        return;
+      }
+      if (!this.hardcodedMimeTypes.image.validMime.includes(file.type)) {
+        this.$vs.notify({
+          title: this.$t("alert.danger"),
+          text: this.$t("alert.fileNotAllowed"),
+          color: "danger",
+        });
+        return;
+      }
 
-  // Post the form data to the customUploadFile endpoint
-  this.$api.skijasiFile.customuploadfiledogadaji(formData)
-  .then(response => {
-    // Handle the response from the server
-        // Update the value to show the image preview from the server
-        this.value = response.data.path; // Assuming 'path' is the key where the image URL is stored
-    this.previewImage = this.value; // Update the preview image to the final URL
+      const formData = new FormData();
+      formData.append("file", file);
 
+      this.$api.skijasiFile.customuploadfiledogadaji(formData)
+        .then(response => {
+          const newImageUrl = response.data.path;
+          const updatedGallery = [...this.value, newImageUrl];
+          this.$emit("input", updatedGallery);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
 
-     // Emit the event to parent component with the new image URL
-     this.$emit("input", response.data.path); 
-
-    // Revoke the object URL if you want to release memory
-    URL.revokeObjectURL(this.previewImage);
-    console.log(response.data);
-    // You can now update your component's data or emit an event with the file's path if needed
-  })
-  .catch(error => {
-    // Handle any errors
-    console.error(error);
-  });
-},
-
+    removeImage(index) {
+      const updatedGallery = [...this.value];
+      updatedGallery.splice(index, 1);
+      this.$emit("input", updatedGallery);
+    },
 
 /*
     uploadImage(file) {

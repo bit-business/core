@@ -1,7 +1,20 @@
 <template>
   <div>
-    <skijasi-breadcrumb-hover full>
-      <template slot="action">
+ <!-- User Login Statistics Chart -->
+ <vs-row v-if="$helper.isAllowed('browse_activitylogs')">
+      <vs-col vs-lg="12">
+        <vs-card>
+          <div slot="header">
+            <h3>Statistika prijavljivanja</h3>
+          </div>
+          <div>
+            <canvas ref="chart" style="width: 100%; height: 400px;"></canvas>
+          </div>
+        </vs-card>
+      </vs-col>
+    </vs-row>
+    <!-- <skijasi-breadcrumb-hover full>
+  template slot="action">
         <download-excel
             :data="activitylogs"
             :fields="fieldsForExcel"
@@ -29,14 +42,17 @@
           >
             {{ $t("action.bulkDelete") }}
           </skijasi-dropdown-item>
-      </template>
-    </skijasi-breadcrumb-hover>
+      </template> 
+    </skijasi-breadcrumb-hover> -->
     <vs-row v-if="$helper.isAllowed('browse_activitylogs')">
       <vs-col vs-lg="12">
         <vs-card>
+
           <div slot="header">
             <h3>{{ $t("activityLog.title") }}</h3>
           </div>
+
+
           <div>
             <skijasi-server-side-table
               v-model="selected"
@@ -128,10 +144,18 @@ import moment from "moment";
 import downloadExcel from "vue-json-excel";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
+
 export default {
   name: "ActivityLogBrowse",
   components: { downloadExcel },
   data: () => ({
+    chart: null,
+
+
     data: {},
     selected: [],
     descriptionItems: [10, 50, 100],
@@ -151,6 +175,9 @@ export default {
   }),
   mounted() {
     this.getActivityLogList();
+    this.$nextTick(() => {
+    this.fetchUserLoginStats();
+  });
   },
   watch: {
     page: function (to, from) {
@@ -290,6 +317,95 @@ export default {
         window.URL.revokeObjectURL(data);
       }, 100);
     },
+
+
+
+
+    async fetchUserLoginStats() {
+  try {
+    const response = await this.$api.skijasiActivityLog.getstats({
+      start_date: '2024-01-01',
+      end_date: '2024-12-31',
+    });
+    
+    if (response && response.data) {
+      // Filter data for users 1-5
+      const filteredData = Object.entries(response.data)
+        .filter(([key, _]) => parseInt(key) >= 1 && parseInt(key) <= 5)
+        .reduce((obj, [key, value]) => {
+          obj[key] = value;
+          return obj;
+        }, {});
+
+      const dataArray = Object.entries(filteredData);
+      this.createChart(dataArray);
+    } else {
+      // Handle empty response
+    }
+  } catch (error) {
+    console.error('Error fetching user login stats:', error);
+  }
+},
+createChart(data) {
+  if (this.chart) {
+    this.chart.destroy();
+  }
+  const ctx = this.$refs.chart.getContext('2d');
+  
+  const chartData = {
+    labels: data.map(([userId, _]) => `ID korisnika ${userId}`),
+    datasets: [
+      {
+        label: 'Ukupno Prijavljen Korisnik (sati)',
+        data: data.map(([_, stat]) => stat.totalDuration),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        yAxisID: 'y-axis-1',
+      },
+      {
+        label: 'Broj prijavljivanja',
+        data: data.map(([_, stat]) => stat.sessionCount),
+        backgroundColor: 'rgba(255, 199, 132, 0.6)',
+        yAxisID: 'y-axis-2',
+      },
+    ],
+  };
+  
+  this.chart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+      responsive: true,
+      scales: {
+        'y-axis-1': {
+          type: 'linear',
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Total Login Duration (sati)',
+          },
+        },
+        'y-axis-2': {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: true,
+            text: 'Broj prijavljivanja',
+          },
+          grid: {
+            drawOnChartArea: false,
+          },
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'User ID',
+          },
+        },
+      },
+    },
+  });
+},
+
   },
 };
 </script>

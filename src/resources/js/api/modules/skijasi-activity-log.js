@@ -19,4 +19,10 @@ export default {
     const url = ep + qs;
     return resource.get(url);
   },
+  getstats(data = {}) {
+    const ep = apiPrefix + "/v1/activitylogs/stats";
+    const qs = QueryString(data);
+    const url = ep + qs;
+    return resource.get(url);
+  },
 };

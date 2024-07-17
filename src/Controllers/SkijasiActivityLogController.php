@@ -9,6 +9,8 @@ use Spatie\Activitylog\Models\Activity;
 use NadzorServera\Skijasi\Helpers\ApiResponse;
 use NadzorServera\Skijasi\Models\User;
 
+use Illuminate\Support\Facades\Log;
+
 class SkijasiActivityLogController extends Controller
 {
     public function browse(Request $request)
@@ -75,4 +77,64 @@ class SkijasiActivityLogController extends Controller
             return ApiResponse::failed($e);
         }
     }
+
+
+
+
+    public function getstats(Request $request)
+    {
+        try {
+            
+            $start_date = $request->get('start_date', now()->subMonth());
+            $end_date = $request->get('end_date', now());
+    
+       
+    
+            $logs = Activity::where('log_name', 'Prijava')
+                ->orWhere('log_name', 'Odjava')
+                ->whereBetween('created_at', [$start_date, $end_date])
+                ->orderBy('causer_id')
+                ->orderBy('created_at')
+                ->get();
+    
+            \Log::info('Fetched logs count:', ['count' => $logs->count()]);
+    
+            $userStats = [];
+
+            foreach ($logs as $index => $log) {
+                $userId = $log->causer_id;
+                
+                if (!isset($userStats[$userId])) {
+                    $userStats[$userId] = [
+                        'total_duration' => 0,
+                        'session_count' => 0,
+                    ];
+                }
+    
+                if ($log->log_name === 'Prijava') {
+                    $userStats[$userId]['last_login'] = $log->created_at;
+                    $userStats[$userId]['session_count']++;
+                } elseif ($log->log_name === 'Odjava' && isset($userStats[$userId]['last_login'])) {
+                    $duration = $log->created_at->diffInSeconds($userStats[$userId]['last_login']);
+                    $userStats[$userId]['total_duration'] += $duration;
+                    unset($userStats[$userId]['last_login']);
+                }
+            }
+    
+            // Convert total_duration to hours and calculate average
+            foreach ($userStats as &$stats) {
+                $stats['total_duration'] = round($stats['total_duration'] / 3600, 2); // Convert to hours
+                $stats['average_duration'] = $stats['session_count'] > 0 
+                    ? round($stats['total_duration'] / $stats['session_count'], 2) 
+                    : 0;
+            }
+    
+    
+            return ApiResponse::success($userStats);
+        } catch (Exception $e) {
+          
+            return ApiResponse::failed($e);
+        }
+    }
+
 }

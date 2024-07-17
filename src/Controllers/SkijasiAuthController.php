@@ -239,12 +239,14 @@ class SkijasiAuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            auth()->logout();
-            // auth()->invalidate();
             activity('Odjava')
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties(['attributes' => auth()->user()])
                 ->log('Korisnik se odjavio');
+
+            auth()->logout();
+             auth()->invalidate();
+            
 
             return ApiResponse::success();
         } catch (Exception $e) {

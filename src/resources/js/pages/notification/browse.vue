@@ -345,9 +345,8 @@ export default {
     url: this.url,
     slika: this.slika,
     message: this.message,
-    sendToAll: this.sendToAll,
-    sentTo: this.sendToAll ? [] : this.selectedUsers.map((user) => user.id.toString()),
-    userType: this.sendToAll === 'svi2' ? 'članovi' : null,
+    sendToAll: this.selectSpecificUsers ? 'specific' : this.sendToAll,
+    sentTo: this.selectSpecificUsers ? this.selectedUsers.map((user) => user.id.toString()) : [],
   };
 
   console.log("testsenddata:", messageData);
@@ -356,7 +355,6 @@ export default {
     .sendMessage(messageData)
     .then((response) => {
       console.log("Message sent successfully:", response.data);
-      // Optionally, you can add the new message to the messages array
       this.fetchUserMessages();
       this.messages.push(response.data);
 
@@ -366,9 +364,15 @@ export default {
         color: "success",
       });
 
+      this.toggleMessageComposer(); // Close the message composer after sending
     })
     .catch((error) => {
       console.error("Error sending message:", error);
+      this.$vs.notify({
+        title: "Greška",
+        text: "Došlo je do pogreške prilikom slanja poruke.",
+        color: "danger",
+      });
     });
 },
 

@@ -660,4 +660,46 @@ public function zadnjiidmember() {
             return ApiResponse::failed($e);
         }
     }
+
+
+
+
+    public function getUsersPerMonth(Request $request)
+    {
+        try {
+            $startDate = $request->get('start_date', Carbon::now()->subYear()->startOfMonth());
+            $endDate = $request->get('end_date', Carbon::now()->endOfMonth());
+    
+            $users = User::selectRaw('COUNT(*) as count, DATE_FORMAT(created_at, "%Y-%m") as month, user_type')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->groupBy('month', 'user_type')
+                ->orderBy('month')
+                ->get();
+    
+            $formattedData = $users->groupBy('month')->map(function ($group) {
+                return $group->map(function ($item) {
+                    return [
+                        'user_type' => $item->user_type,
+                        'count' => $item->count
+                    ];
+                });
+            });
+    
+            return response()->json([
+                'message' => 'Uspješno',
+                'data' => [
+                    'items' => $formattedData
+                ],
+                'errors' => null
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Failed',
+                'errors' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+
+    
 }

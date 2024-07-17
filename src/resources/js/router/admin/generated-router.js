@@ -1,4 +1,6 @@
 import Pages from "./../../pages/index.vue";
+import PrijavaNaDogadaj from '../../../../../../../../vendor/skijasi/commerce-theme/src/resources/app/pages/prijavanadogadaj.vue';
+
 
 const adminPanelRoutePrefix = process.env.MIX_ADMIN_PANEL_ROUTE_PREFIX
   ? "/" + process.env.MIX_ADMIN_PANEL_ROUTE_PREFIX
@@ -55,6 +57,17 @@ export default [
     component: Pages,
     meta: {
       title: "Edit Data",
+    },
+  },
+
+
+
+  {
+    path: "/prijavanadogadaj/:formId",
+    name: "PrijavaNaDogadaj",
+    component: PrijavaNaDogadaj,
+    meta: {
+      title: "Prijava na događaj",
     },
   },
 ];

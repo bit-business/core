@@ -110,4 +110,11 @@ zadnjiidmember() {
     return resource.get(url);
   },
 
+  getuserspermonth(data = {}) {
+    const ep = `${apiPrefix}/v1/users/userspermonth`;
+    const qs = QueryString(data);
+    const url = `${ep}${qs}`;
+    return resource.get(url);
+  },
+
 };

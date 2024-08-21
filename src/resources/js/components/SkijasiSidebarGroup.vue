@@ -32,8 +32,8 @@
           icon="keyboard_arrow_down"
         />
         <div>
-          <span class="skijasi-sidebar-group__text">{{ title }}</span>
-          <span class="skijasi-sidebar-group__text">{{ subTitle }}</span>
+          <span class="skijasi-sidebar-group__text2">{{ title }}</span>
+          <span class="skijasi-sidebar-group__text2">{{ subTitle }}</span>
         </div>
       </h4>
       <span class="vs-sidebar--tooltip">{{ title }}</span>

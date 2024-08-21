@@ -16,7 +16,7 @@
         <skijasi-sidebar-group
           :title="user.name"
           :subTitle="user.email"
-          icon="person_pin"
+          icon="a"
         >
           <skijasi-sidebar-item
             v-if="user.id"

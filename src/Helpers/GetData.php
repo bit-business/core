@@ -202,6 +202,8 @@ class GetData
                 return $ispit->idsegmenta === $ispitId && $ispit->ocjenaispita && $ispit->ocjenaispita > 1;
             });
         };
+
+        
     
         foreach ($ispitiByCjelina as $cjelinaIspiti) {
             foreach ($cjelinaIspiti as $ispit) {
@@ -215,7 +217,17 @@ if (is_int($ispit->ocjenaispita) && $ispit->ocjenaispita == 1 && !$hasHigherGrad
         }
     
         if ($failedCount >= 3) {
-            $generalStatus = "Pad";
+            // Check if the failed count is not only from the 'Opći dio' cjelina
+            $opciDioFailedCount = 0;
+            foreach ($ispitiByCjelina['Opći dio'] ?? [] as $ispit) {
+                if ($ispit->ocjenaispita && $ispit->ocjenaispita <= 1 && !$hasHigherGrade($ispit->idsegmenta)) {
+                    $opciDioFailedCount++;
+                }
+            }
+    
+            if ($failedCount - $opciDioFailedCount >= 3) {
+                $generalStatus = "Pad";
+            }
         }
     
         // Handle "Prošlo 5.godina od I.specijalnosti" if applicable

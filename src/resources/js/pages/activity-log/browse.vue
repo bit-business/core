@@ -381,7 +381,7 @@ createChart(data) {
           position: 'left',
           title: {
             display: true,
-            text: 'Total Login Duration (sati)',
+            text: 'Ukupno vrijeme dok je bio prijavljen (sati)',
           },
         },
         'y-axis-2': {
@@ -398,7 +398,7 @@ createChart(data) {
         x: {
           title: {
             display: true,
-            text: 'User ID',
+            text: 'Korisnički ID',
           },
         },
       },

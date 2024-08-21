@@ -12,4 +12,9 @@ export default {
     const url = ep + qs;
     return resource.get(url);
   },
+
+  getCloudflareAnalytics() {
+    const ep = `${apiPrefix}/v1/dashboard/cloudflare-analytics`;
+    return resource.get(ep);
+  },
 };

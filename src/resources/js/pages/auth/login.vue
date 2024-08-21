@@ -331,6 +331,7 @@ export default {
     max-width: 100%;
     overflow: hidden;
     flex-shrink: 0;
+    z-index: 10;
   }
   .email-parent {
     align-self: stretch;
@@ -358,6 +359,7 @@ export default {
   left: 0px;
   width: 400px;
   height: 50px;
+  z-index: 10;
 }
 
 

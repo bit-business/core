@@ -14,6 +14,9 @@ use Spatie\Browsershot\Browsershot;
 
 use NadzorServera\Skijasi\Module\Commerce\Helper\UploadImage;
 
+use NadzorServera\Skijasi\Module\Commerce\Models\Cart;
+use NadzorServera\Skijasi\Module\Commerce\Models\ProductDetail;
+
 
 
 class SkijasiBaseController extends Controller
@@ -658,18 +661,30 @@ $html = $this->convertDataToHtmlID($data, $cardscro, $cardseng);
 
   
   
+private function generateAndUpdateCallnumber($memberId)
+{
+    $paymentId = DB::getPdo()->lastInsertId();
+    $callnumber = $paymentId . '-' . $memberId;
 
+    DB::table('tbl_payments')
+        ->where('id', $paymentId)
+        ->update(['callnumber' => $callnumber]);
+
+    return $paymentId;
+}
 
 
 public function generateisiagodinu(Request $request)
 {
     // Receive numbers and isiayear from the request
-    $numbers = $request->input('numbers'); // This should be an array
+    
+     $numbers = $request->input('numbers'); // This should be an array
+     $numbers = range(1, 597);
     $isiayear = $request->input('isiayear');
 
     $yearToCheck = $isiayear - 1; // Define the year you want to check against
 
-    $opendate = new \DateTime('2024-10-01 00:00:00');
+    $opendate = new \DateTime('2024-09-15 00:00:00');
 
     // Start a database transaction
     DB::beginTransaction();
@@ -677,96 +692,170 @@ public function generateisiagodinu(Request $request)
     try {
         // Retrieve 'idmember' values where 'dateendmember' is NULL and 'isiayear' is the specified year
         $validMembers = DB::table('skijasi_users')
-            ->join('tbl_isia_member', 'skijasi_users.idmember', '=', 'tbl_isia_member.idmember')
+            ->join('tbl_isia_member', 'skijasi_users.id', '=', 'tbl_isia_member.idmember')
             ->whereNull('skijasi_users.dateendmember')
             ->where('tbl_isia_member.isiayear', $yearToCheck)
             ->where('skijasi_users.user_type', 'Hzuts član') 
-            ->select('skijasi_users.idmember')
+            ->select('skijasi_users.id')
             ->distinct() // Ensure you're only getting distinct 'idmember's
             ->get();
 
         // Fetch members who didn't have the specified isiayear
         $otherMembers = DB::table('skijasi_users')
-            ->join('tbl_isia_member', 'skijasi_users.idmember', '=', 'tbl_isia_member.idmember')
-            ->whereNull('skijasi_users.dateendmember')
-            ->where('tbl_isia_member.isiayear', '!=', $yearToCheck)
-            ->where('skijasi_users.user_type', 'Hzuts član')
-            ->select('skijasi_users.idmember')
-            ->distinct()
-            ->get();
+        ->leftJoin('tbl_isia_member', 'skijasi_users.id', '=', 'tbl_isia_member.idmember')
+        ->whereNull('skijasi_users.dateendmember')
+        ->where(function ($query) use ($yearToCheck) {
+            $query->where('tbl_isia_member.isiayear', '!=', $yearToCheck)
+                  ->orWhereNull('tbl_isia_member.isiayear');
+        })
+        ->where('skijasi_users.user_type', 'Hzuts član')
+        ->select('skijasi_users.id')
+        ->distinct()
+        ->get();
 
-        // Check if there are any valid members
-        if ($validMembers->isEmpty() && $otherMembers->isEmpty()) {
-            // No valid members found
-            DB::rollback();
-            return; // Return or handle this case as per your requirement
-        }
-
-        // Check if the counts match
-        if (count($numbers) !== count($validMembers)) {
-            // Handle error: The number of members doesn't match the number of provided numbers
-            DB::rollback();
-            return; // Return or handle this case as per your requirement
-        }
+        $requiredNumbers = count($validMembers);
 
         // Process members with specified isiayear
-        for ($i = 0; $i < count($validMembers); $i++) {
+        $processedMemberIds = []; // Track processed member IDs
 
-            
+        for ($i = 0; $i < count($validMembers); $i++) {
+            $memberId = $validMembers[$i]->id;
+
             // Insert into tbl_isia_member
             DB::table('tbl_isia_member')->insert([
                 'idisia' => $numbers[$i], // Assigns a unique number to a member
-                'idmember' => $validMembers[$i]->idmember,
+                'idmember' => $memberId,
                 'isiayear' => $isiayear,
             ]);
 
             // Insert into tbl_payments
             DB::table('tbl_payments')->insert([
-                'idmember' => $validMembers[$i]->idmember, // the same idmember
+                'idmember' => $memberId, // the same idmember
                 'paymenttitle' => 'ISIA članarina - ' . $isiayear, // e.g., "ISIA članarina - 2024"
                 'idpaygroup' => 2,
-                'idpaysubgroup' => 135,
+                'idpaysubgroup' => 144,
                 'price' => 27,
                 'opendate' => $opendate->format('Y-m-d H:i:s'), // '2024-10-01 00:00:00'
-                // ... any other necessary fields
             ]);
 
+            $this->generateAndUpdateCallnumber($memberId);
 
-  // Construct callnumber with the inserted ID and idmember
-  $paymentId = DB::getPdo()->lastInsertId();
-  $callnumber = $paymentId . '-' . $validMembers[$i]->idmember;
+              // Add Cart for ISIA članarina
+              $this->addToCartForAllStatuses($memberId, 14);
 
-  // Update the payment entry with the callnumber
-  DB::table('tbl_payments')
-      ->where('id', $paymentId) // assuming 'id' is the primary key of tbl_payments
-      ->update(['callnumber' => $callnumber]);
+                $isInLicenceWithPaygroup9 = DB::table('tbl_licence')
+                ->where('idmember', $memberId)
+                ->where('idpaygroup', 9)
+                ->exists();
+
+            // Set price based on the condition
+            $price = $isInLicenceWithPaygroup9 ? 20 : 27;
+
+            DB::table('tbl_payments')->insert([
+              'idmember' => $memberId, // the same idmember
+                'paymenttitle' => 'Godišnja članarina - ' . $isiayear, // e.g., "Godišnja članarina - 2024"
+                'idpaygroup' => 1,
+                'idpaysubgroup' => 143,
+                'price' => $price,
+                'opendate' => $opendate->format('Y-m-d H:i:s'), // '2024-10-01 00:00:00'
+            ]);
+            $this->generateAndUpdateCallnumber($memberId);
+
+    // Add Cart for Godišnja članarina
+    $this->addToCartForAllStatuses($memberId, 13);
+
+            $isInLicenceWithPaygroup7 = DB::table('tbl_licence')
+            ->where('idmember', $memberId)
+            ->where('idpaygroup', 7)
+            ->exists();
+
+              if ( $isInLicenceWithPaygroup7) { 
+                    DB::table('tbl_payments')->insert([
+                        'idmember' => $memberId,
+                        'paymenttitle' => 'ISIA Card članarina - ' . $isiayear, 
+                        'idpaygroup' => 7,
+                        'idpaysubgroup' => 145,
+                        'price' => 13,
+                        'opendate' => $opendate->format('Y-m-d H:i:s'), 
+                    ]);
+                    $this->generateAndUpdateCallnumber($memberId);
+
+                      // Add Cart for ISIA Card članarina
+                      $this->addToCartForAllStatuses($memberId, 15);
+                  }
+
+       
+        // Add cart items for unpaid payments
+        $this->addCartForUnpaidPayments($memberId);
 
 
+
+            // Track the processed member ID
+            $processedMemberIds[] = $memberId;
+        }
+
+        // Filter out the members that were processed
+        $filteredOtherMembers = $otherMembers->filter(function ($member) use ($processedMemberIds) {
+            return !in_array($member->id, $processedMemberIds);
+        });
+
+        // Process members without specified isiayear (Godišnja članarina)
+        foreach ($filteredOtherMembers as $member) { 
+
+
+
+        //trenerska licenca
+        $isInLicenceWithPaygroup12 = DB::table('tbl_licence')
+        ->where('idmember', $member->id)
+        ->where('idpaygroup', 12)
+        ->exists();
+        if ( $isInLicenceWithPaygroup12) { 
+          DB::table('tbl_payments')->insert([
+            'idmember' => $member->id, // the same idmember
+            'paymenttitle' => 'Trenerska članarina - ' . $isiayear, 
+            'idpaygroup' => 12,
+            'idpaysubgroup' => 146,
+            'price' => 27,
+            'opendate' => $opendate->format('Y-m-d H:i:s'), // '2024-10-01 00:00:00'
+        ]);
+
+        $this->generateAndUpdateCallnumber($member->id);
+            // Add Cart for Trenerska članarina
+            $this->addToCartForAllStatuses($member->id, 18);
         }
 
 
-// godisnja clanarina
-        // Process members without specified isiayear
-        foreach ($otherMembers as $member) {
-            // Perform necessary actions for these members, for example:
+        else
+        { 
+
+            // Check if this member is in tbl_licence with idpaygroup 9
+            $isInLicenceWithPaygroup9 = DB::table('tbl_licence')
+                ->where('idmember', $member->id)
+                ->where('idpaygroup', 9)
+                ->exists();
+
+            // Set price based on the condition
+            $price = $isInLicenceWithPaygroup9 ? 20 : 27;
+
             DB::table('tbl_payments')->insert([
-                'idmember' => $member->idmember, // the same idmember
-                'paymenttitle' => 'Godišnja članarina - ' . $isiayear, // e.g., "ISIA članarina - 2024"
-                'idpaygroup' => 1, // or any other appropriate value
-                'idpaysubgroup' => 133, // or any other appropriate value
-                'price' => 27,
+                'idmember' => $member->id, // the same idmember
+                'paymenttitle' => 'Godišnja članarina - ' . $isiayear, 
+                'idpaygroup' => 1,
+                'idpaysubgroup' => 143,
+                'price' => $price,
                 'opendate' => $opendate->format('Y-m-d H:i:s'), // '2024-10-01 00:00:00'
-                // ... any other necessary fields
             ]);
+            $this->generateAndUpdateCallnumber($member->id);
 
-    $paymentId = DB::getPdo()->lastInsertId();
-   // Construct callnumber with the inserted ID and idmember
-   $callnumber = $paymentId . '-' . $member->idmember;
+              // Add Cart for Godišnja članarina
+              $this->addToCartForAllStatuses($member->id, 13);
+          }
+    
 
-   // Update the payment entry with the callnumber
-   DB::table('tbl_payments')
-       ->where('id', $paymentId) // assuming 'id' is the primary key of tbl_payments
-       ->update(['callnumber' => $callnumber]);
+
+            // Add cart items for unpaid payments
+            $this->addCartForUnpaidPayments($member->id);
+    
 
         }
 
@@ -778,9 +867,101 @@ public function generateisiagodinu(Request $request)
         DB::rollback();
         return; // Replace with your error handling
     }
-    
 
-    // Return a response or carry out any subsequent logic
+    return response()->json([
+        'success' => true,
+        'message' => 'Numbers added successfully',
+        'requiredNumbers' => $requiredNumbers // Include this even on success for consistency
+    ]);
+}
+
+// New function to handle multiple statuses
+private function addToCartForAllStatuses($userId, $productId)
+{
+    $memberStatuses = DB::table('tbl_member_status')
+        ->join('trainersts', 'tbl_member_status.trainerstsid', '=', 'trainersts.id')
+        ->where('tbl_member_status.idmember', $userId)
+        ->where('tbl_member_status.statusdefault', 1) 
+        ->select('trainersts.cardscro as userstatus')
+        ->get();
+
+    if ($memberStatuses->isEmpty()) {
+        throw new \Exception("Member status not found for user ID: $userId");
+    }
+
+    foreach ($memberStatuses as $status) {
+        $this->addToCart($userId, $productId, $status->userstatus);
+    }
+}
+
+// Modified helper function to add item to cart
+private function addToCart($userId, $productId, $userStatus)
+{
+    $product_detail = ProductDetail::where('product_id', $productId)
+        ->where(function ($query) use ($userStatus) {
+            $query->where('name', $userStatus)
+                  ->orWhere('name', 'Default');
+        })
+        ->first();
+
+    if (!$product_detail) {
+        \Log::warning("Product detail not found for ID: $productId and status: $userStatus");
+        return; // Skip this status if no matching product detail is found
+    }
+
+    $cart = Cart::where('user_id', $userId)
+        ->where('product_detail_id', $product_detail->id)
+        ->first();
+
+    if (empty($cart)) {
+        Cart::create([
+            'product_detail_id' => $product_detail->id,
+            'user_id' => $userId,
+            'quantity' => 1,
+        ]);
+    } else {
+        $cart->update([
+            'quantity' => $cart->quantity + 1,
+        ]);
+    }
+}
+
+
+
+private function addCartForUnpaidPayments($userId)
+{
+    $fiveYearsAgo = now()->subYears(5)->toDateTimeString();
+
+    $unpaidPayments = DB::table('tbl_payments')
+        ->where('idmember', $userId)
+        ->where('paidstatus', 0)
+        ->where('partialpaid', 0)
+        ->where('paymentdiscard', 0)
+        ->where('paymentforgive', 0)
+        ->where('opendate', '>=', $fiveYearsAgo)
+        ->get();
+
+    foreach ($unpaidPayments as $payment) {
+        $productId = $this->getProductIdForPayment($payment->idpaygroup);
+        if ($productId) {
+            $this->addToCart($userId, $productId, 'Nije član'); // Using 'Default' as status, adjust if needed
+        }
+    }
+}
+
+private function getProductIdForPayment($paygroup)
+{
+    // Map paygroups to product IDs
+    $payGroupToProductId = [
+        1 => 13,  // Godišnja članarina
+        2 => 14,  // ISIA članarina
+        7 => 15,  // ISIA Card članarina
+        12 => 18, // Trenerska članarina
+        // Add more mappings as needed
+        13 => 14,
+    ];
+
+    return $payGroupToProductId[$paygroup] ?? null;
 }
 
 

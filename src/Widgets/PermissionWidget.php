@@ -21,7 +21,7 @@ class PermissionWidget implements WidgetInterface
     {
         return [
             'label' => 'Ukupno narudžbi preko web-a',
-            'icon' => 'lock',
+            'icon' => 'dashboard',
             'value' => Order::count(),
             'prefix_value' => '',
             'delimiter' => '.',

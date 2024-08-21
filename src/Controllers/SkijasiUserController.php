@@ -95,7 +95,7 @@ $filteredUsers = collect($users->items())->filter(function ($user) {
     $statusPlacanja = GetData::calculatePaymentStatus($paymentData);
 
     // Log statusPlacanja for debugging
-    Log::info("User ID: {$user->id}, Status Placanja: $statusPlacanja");
+    // Log::info("User ID: {$user->id}, Status Placanja: $statusPlacanja");
 
     // Check if the statusPlacanja is unpaid and if any unpaid payment is 3 or more years old
     $foundUserOver3Years = false;
@@ -104,7 +104,7 @@ $filteredUsers = collect($users->items())->filter(function ($user) {
         if (!$payment->paidstatus && !$payment->partialpaid && !$payment->paymentdiscard && !$payment->paymentforgive) {
             $paymentDate = Carbon::parse($payment->opendate);
             $yearsDifference = $paymentDate->diffInYears(Carbon::now());
-            Log::info("Payment Date: {$payment->opendate}, Years Difference: $yearsDifference");
+       
             if ($yearsDifference >= 3) {
                 $foundUserOver3Years = true;
                 break; // Exit the loop if any unpaid payment is over 3 years old
@@ -113,15 +113,14 @@ $filteredUsers = collect($users->items())->filter(function ($user) {
     }
 
     if ($statusPlacanja === 'Nije plaćeno' && $foundUserOver3Years) {
-        Log::info("User found with unpaid payment older than 3 years.");
+      
         return false; // Exclude the user if any unpaid payment is over 3 years old
     }
 
     return true; // Include the user if all payments are paid or not over 3 years old
 });
 
-// Log the number of filtered users for debugging
-Log::info("Filtered Users Count: " . $filteredUsers->count());
+
 
 $users->setCollection($filteredUsers);
 

@@ -26,6 +26,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
     Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'dashboard'], function () {
             Route::get('/', 'SkijasiDashboardController@index')->middleware(SkijasiAuthenticate::class);
+            Route::get('/cloudflare-analytics', 'SkijasiDashboardController@getCloudflareAnalytics')->middleware(SkijasiAuthenticate::class);
         });
 
 

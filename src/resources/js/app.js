@@ -3,7 +3,7 @@ import Vuesax from "vuesax";
 import VueI18n from "vue-i18n";
 import { Datetime } from "vue-datetime";
 import Vuelidate from "vuelidate";
-import VueGtag from "vue-gtag";
+// import VueGtag from "vue-gtag";
 
 import api from "./api/index";
 import handleError from "./api/handle-error";
@@ -14,7 +14,12 @@ import lang from "./lang/";
 import excludedRouter from "./router/excludeRouter";
 
 import App from "./apps/App.vue";
-console.log("app.js is being executed.");
+import VueCookieAcceptDecline from 'vue-cookie-accept-decline';
+import 'vue-cookie-accept-decline/dist/vue-cookie-accept-decline.css';
+
+
+Vue.component('vue-cookie-accept-decline', VueCookieAcceptDecline);
+
 
 //import firebase from "firebase/app";
 //import "firebase/firebase-messaging";
@@ -36,7 +41,7 @@ Vue.component("datetime", Datetime);
 Vue.use(Vuelidate);
 
 
-// rest of your app.js code...
+
 
 // IDENTIFIED VARIABLE BROADCAST CHANNEL
 const broadcastChannelName = "sw-skijasi-messages";
@@ -351,21 +356,21 @@ Vue.prototype.$broadcastChannel = broadcastChannel;
 
 // START G-TAG
 
-Vue.use(
-  VueGtag,
-  {
-    pageTrackerExcludedRoutes: excluded,
-    config: {
-      id: process.env.MIX_ANALYTICS_TRACKING_ID
-        ? process.env.MIX_ANALYTICS_TRACKING_ID
-        : null,
-      params: {
-        send_page_view: true,
-      },
-    },
-  },
-  router
-);
+// Vue.use(
+//   VueGtag,
+//   {
+//     pageTrackerExcludedRoutes: excluded,
+//     config: {
+//       id: process.env.MIX_ANALYTICS_TRACKING_ID
+//         ? process.env.MIX_ANALYTICS_TRACKING_ID
+//         : null,
+//       params: {
+//         send_page_view: true,
+//       },
+//     },
+//   },
+//   router
+// );
 
 // END G-TAG
 
@@ -385,3 +390,5 @@ const app = new Vue({
 
 // HANDLE OFFLINE MODE
 checkConnection(app);
+
+app.component('vue-cookie-accept-decline', VueCookieAcceptDecline);

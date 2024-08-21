@@ -142,11 +142,10 @@
     </div>
 
 
-
-    <vs-row class="mt-4">
+    <vs-row class="mt-4" v-if="shouldShowCharts">
   <vs-col :vs-lg="6" vs-xs="12">
     <div class="chart-container">
-      <h4>Statistika novih korisnika</h4>
+      <h4>Statistika novih registracija</h4>
       <canvas ref="newUsersChart"></canvas>
     </div>
   </vs-col>
@@ -156,7 +155,34 @@
       <canvas ref="newOrdersChart"></canvas>
     </div>
   </vs-col>
+
+  <vs-col :vs-lg="6" vs-xs="12">
+    <div class="chart-container">
+      <h4>Posjetitelji web stranice (zadnjih 24 sata)</h4>
+      <canvas ref="uniqueVisitors24HoursChart"></canvas>
+    </div>
+  </vs-col>
+  <vs-col :vs-lg="6" vs-xs="12">
+    <div class="chart-container">
+      <h4>Posjetitelji web stranice (zadnja 3 dana)</h4>
+      <canvas ref="uniqueVisitors3DaysChart"></canvas>
+    </div>
+  </vs-col>
+  <vs-col :vs-lg="6" vs-xs="12">
+    <div class="chart-container">
+      <h4>Broj pregleda web stranice (24 sata)</h4>
+      <canvas ref="pageViews24HoursChart"></canvas>
+    </div>
+  </vs-col>
+  <vs-col :vs-lg="6" vs-xs="12">
+    <div class="chart-container">
+      <h4>Broj pregleda web stranice (3 dana)</h4>
+      <canvas ref="pageViews3DaysChart"></canvas>
+    </div>
+  </vs-col>
+  
 </vs-row>
+
 
 
 <!-- poruka 
@@ -173,6 +199,8 @@ import skijasiOrder from '../../../../../commerce-module/src/resources/js/api/mo
 import skijasiCart from '../../../../../commerce-theme/src/resources/app/api/modules/skijasi-cart.js';
 
 import Chart from 'chart.js/auto';
+let delayed;
+
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -180,6 +208,11 @@ export default {
   components: {
   },
   data: () => ({
+    cloudflareData24Hours: [],
+    cloudflareData3Days: [],
+
+    cloudflareUsersData: null,
+
     unapprovedUsers: [],
     unapprovedZahtjevi: [],
 
@@ -193,9 +226,22 @@ export default {
     newUsersChartData: [],
     newOrdersChartData: null,
     
-
   }),
 
+  watch: {
+  currentUserId: {
+    immediate: true,
+    handler(newId) {
+      if (this.shouldShowCharts) {
+        this.$nextTick(() => {
+          this.fetchNewUsersPerMonth();
+          this.fetchNewOrdersPerMonth();
+          this.fetchCloudflareData();
+        });
+      }
+    }
+  }
+},
   computed: {
     ...mapState({
       isAuthenticated(state) {
@@ -206,7 +252,10 @@ export default {
       },
       appName(state) {
         return this.$_.find(state.themeConfigurations, { key: "appName" }).value;
-      }
+      },
+      currentUserId: state => state.skijasi ? state.skijasi.user.id : null
+    
+    
     }),
 
         newOrdersCount() {
@@ -216,8 +265,21 @@ export default {
       return this.orders.filter(order => order.status == 'done').length;
     },
 
-      
-  
+
+
+  shouldShowCharts: {
+    get() {
+      const allowedIds = [1, 2, 3, 7, 9, 4417, 2439];
+      return this.currentUserId !== null && 
+             this.currentUserId !== undefined && 
+             allowedIds.includes(this.currentUserId);
+    },
+    set(value) {
+      // You can add logic here if needed
+      console.log('Attempted to set shouldShowCharts:', value);
+    }
+  },
+
 
   },
 
@@ -234,8 +296,8 @@ export default {
      // Set up a periodic check every 5 minutes (300000 milliseconds).
      this.intervalID = setInterval(this.fetchUnapprovedAvatars, 300000);
 
-     this.fetchNewUsersPerMonth();
-      this.fetchNewOrdersPerMonth();
+
+
   },
 
   beforeDestroy() {
@@ -299,11 +361,11 @@ export default {
       const monthIndex = parseInt(monthNumber) - 1;
       const shortYear = year.slice(-2); // Get the last two digits of the year
       return `${croatianMonths[monthIndex]} '${shortYear}`;
-  
     });
     const dataClan = this.newUsersChartData.map(item => item['Hzuts član']);
     const dataObicanKorisnik = this.newUsersChartData.map(item => item['Običan Korisnik']);
 
+    let delayed;
     new Chart(ctx, {
       type: 'bar',
       data: {
@@ -313,16 +375,36 @@ export default {
             label: 'Hzuts Član',
             data: dataClan,
             backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 2,
+      borderRadius: 5,
+      borderSkipped: false,
           },
           {
             label: 'Običan Korisnik',
             data: dataObicanKorisnik,
             backgroundColor: 'rgba(255, 149, 132, 0.6)',
+            borderColor: 'rgba(255, 149, 132, 1)',
+      borderWidth: 2,
+      borderRadius: 5,
+      borderSkipped: false,
           }
         ]
       },
       options: {
         responsive: true,
+        animation: {
+          onComplete: () => {
+            delayed = true;
+          },
+          delay: (context) => {
+            let delay = 0;
+            if (context.type == 'data' && context.mode == 'default' && !delayed) {
+              delay = context.dataIndex * 300 + context.datasetIndex * 100;
+            }
+            return delay;
+          }
+        },
         scales: {
           x: {
             ticks: {
@@ -362,13 +444,14 @@ export default {
 },
 
 
+
+
 fetchNewOrdersPerMonth() {
         skijasiOrder.getOrdersPerMonth()
             .then(response => {
-              console.log("test:", response);
+           
               if (response && response.items) {
                     this.newOrdersChartData = response.items;
-                    console.log("test:", this.newOrdersChartData);
                     this.$nextTick(() => {
                         this.createNewOrdersChart();
                     });
@@ -382,77 +465,93 @@ fetchNewOrdersPerMonth() {
     },
     
     createNewOrdersChart() {
-    const ctx = this.$refs.newOrdersChart.getContext('2d');
+  const ctx = this.$refs.newOrdersChart.getContext('2d');
 
-    const croatianMonths = [
-        'Siječanj', 'Veljača', 'Ožujak', 'Travanj', 'Svibanj', 'Lipanj',
-        'Srpanj', 'Kolovoz', 'Rujan', 'Listopad', 'Studeni', 'Prosinac'
-    ];
+  const croatianMonths = [
+    'Siječanj', 'Veljača', 'Ožujak', 'Travanj', 'Svibanj', 'Lipanj',
+    'Srpanj', 'Kolovoz', 'Rujan', 'Listopad', 'Studeni', 'Prosinac'
+  ];
 
-    if (!this.newOrdersChartData || this.newOrdersChartData.length === 0) {
-        console.error('No data available for the chart');
-        return;
-    }
+  if (!this.newOrdersChartData || this.newOrdersChartData.length === 0) {
+    console.error('No data available for the chart');
+    return;
+  }
 
-    try {
-        const labels = this.newOrdersChartData.map(item => {
-            const [month, year] = item.month.split(' ');
-            const monthIndex = parseInt(month, 10) - 1; // Convert month number to zero-based index
-            const shortYear = year.slice(-2);
-            return `${croatianMonths[monthIndex]} '${shortYear}`;
-        });
-        const data = this.newOrdersChartData.map(item => item.count);
+  try {
+    const labels = this.newOrdersChartData.map(item => {
+      const [month, year] = item.month.split(' ');
+      const monthIndex = parseInt(month, 10) - 1; // Convert month number to zero-based index
+      const shortYear = year.slice(-2);
+      return `${croatianMonths[monthIndex]} '${shortYear}`;
+    });
+    const data = this.newOrdersChartData.map(item => item.count);
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Nove Narudžbe',
-                    data: data,
-                    backgroundColor: 'rgba(255, 199, 32, 0.6)',
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        ticks: {
-                            maxRotation: 0,
-                            minRotation: 0
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Broj Novih Narudžbi'
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += context.parsed.y.toLocaleString('hr-HR');
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                }
+    let delayed;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Nove Narudžbe',
+          data: data,
+          backgroundColor: 'rgba(15, 188, 249, 0.7)',
+          borderColor: 'rgba(15, 188, 249, 1.0)',
+      borderWidth: 2,
+      borderRadius: 5,
+      borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: {
+          onComplete: () => {
+            delayed = true;
+          },
+          delay: (context) => {
+            let delay = 0;
+            if (context.type === 'data' && context.mode === 'default' && !delayed) {
+              delay = context.dataIndex * 300 + context.datasetIndex * 100;
             }
-        });
-    } catch (error) {
-        console.error('Error creating chart:', error);
-    }
+            return delay;
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              maxRotation: 0,
+              minRotation: 0
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Broj Novih Narudžbi'
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                if (context.parsed.y !== null) {
+                  label += context.parsed.y.toLocaleString('hr-HR');
+                }
+                return label;
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error creating chart:', error);
+  }
 },
-
 
 
 
@@ -686,6 +785,108 @@ fetchNewOrdersPerMonth() {
         });
       }
     },
+
+
+
+  fetchCloudflareData() {
+    this.$api.skijasiDashboard.getCloudflareAnalytics()
+      .then(response => {
+        if (response.data) {
+          this.cloudflareData24Hours = response.data.pageViews24Hours;
+          this.cloudflareData3Days = response.data.pageViews3Days;
+          this.$nextTick(() => {
+            this.createCloudflareCharts();
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching Cloudflare data:', error);
+      });
+  },
+
+  createCloudflareCharts() {
+    this.createCloudflareChart('pageViews24HoursChart', this.cloudflareData24Hours, 'Broj pregleda (24 sata)', 'pageViews');
+    this.createCloudflareChart('uniqueVisitors24HoursChart', this.cloudflareData24Hours, 'Broj posjetitelja (24 sata)', 'uniqueVisitors');
+    this.createCloudflareChart('pageViews3DaysChart', this.cloudflareData3Days, 'Broj pregleda (3 Dana)', 'pageViews');
+    this.createCloudflareChart('uniqueVisitors3DaysChart', this.cloudflareData3Days, 'Broj posjetitelja (3 Dana)', 'uniqueVisitors');
+  },
+
+  createCloudflareChart(chartRef, data, label, dataKey) {
+  const ctx = this.$refs[chartRef];
+  if (!ctx) return;
+
+  let delayed;
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(item => item.date),
+      datasets: [{
+        label: label,
+        data: data.map(item => item[dataKey]),
+        backgroundColor: 'rgba(255, 199, 32, 0.6)',
+        borderColor:  'rgba(255, 199, 32, 1)',
+        borderWidth: 2,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: {
+        onComplete: () => {
+          delayed = true;
+        },
+        delay: (context) => {
+          let delay = 0;
+          if (context.type === 'data' && context.mode === 'default' && !delayed) {
+            delay = context.dataIndex * 300 + context.datasetIndex * 100;
+          }
+          return delay;
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 0,
+            minRotation: 0
+          }
+        },
+        y: {
+          beginAtZero: true,
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += context.parsed.y.toLocaleString('hr-HR');
+              }
+              return label;
+            }
+          }
+        }
+      }
+    }
+  });
+},
+
+
+    processCloudflareData(data) {
+  // Assuming `data` is an object with `data` property that contains your relevant data
+  return data.map(item => ({
+    date: item.date,
+    pageViews: item.pageViews, // Ensure these fields match the backend data
+    uniqueVisitors: item.uniqueVisitors // Ensure these fields match the backend data
+  }));
+},
+
+
 
 
 

@@ -85,8 +85,12 @@
     width: 100%;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 14px;
+    margin-top: 12px;
     border-radius: 5px;
+  }
+
+  .skijasi-sidebar-group__item-group {
+    justify-content: center;
   }
   
   
@@ -128,8 +132,8 @@
   }
   
   .vs-sidebar-group:hover h4 {
-    background-color: rgba(173, 216, 230, 0.3);
-    padding-left: 30px; /* Slightly increase padding on hover */
+  
+    padding-left: 36px; 
   }
   
 .skijasi-sidebar-group__text2 {

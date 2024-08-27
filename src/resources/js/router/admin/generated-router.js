@@ -16,7 +16,7 @@ export default [
     name: "CrudGeneratedBrowse",
     component: Pages,
     meta: {
-      title: "Browse Data",
+      title: "HZUTS Baza",
     },
   },
   {
@@ -32,7 +32,7 @@ export default [
     name: "CrudGeneratedAdd",
     component: Pages,
     meta: {
-      title: "Add Data",
+      title: "Dodavanje",
     },
   },
   {
@@ -40,7 +40,7 @@ export default [
     name: "CrudGeneratedSort",
     component: Pages,
     meta: {
-      title: "Sort Data Data",
+      title: "Sortiranje",
     },
   },
   {
@@ -48,7 +48,7 @@ export default [
     name: "CrudGeneratedRead",
     component: Pages,
     meta: {
-      title: "Detail Data",
+      title: "Pregled korisnika",
     },
   },
   {
@@ -56,7 +56,7 @@ export default [
     name: "CrudGeneratedEdit",
     component: Pages,
     meta: {
-      title: "Edit Data",
+      title: "Promjena podataka",
     },
   },
 

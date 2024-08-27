@@ -246,7 +246,7 @@ export default [
     name: "ActivityLogBrowse",
     component: Pages,
     meta: {
-      title: "Browse Activity Log",
+      title: "Povijest aktivnosti",
     },
   },
   {
@@ -254,7 +254,7 @@ export default [
     name: "ActivityLogRead",
     component: Pages,
     meta: {
-      title: "Detail Activity Log",
+      title: "Detalji aktivnosti loga",
     },
   },
   {
@@ -265,7 +265,7 @@ export default [
     // },
     component: Pages,
     meta: {
-      title: "Browse Log Viewer",
+      title: "Serverske greske",
     },
   },
   {
@@ -313,7 +313,7 @@ export default [
     name: "ApiDocsBrowse",
     component: Pages,
     meta: {
-      title: "Browse API Documentation",
+      title: "API dokumentacija",
     },
   },
 ];

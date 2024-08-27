@@ -18,7 +18,7 @@ export default [
     name: "Home",
     component: Pages,
     meta: {
-      title: "Home",
+      title: "HZUTS",
     },
   },
   {

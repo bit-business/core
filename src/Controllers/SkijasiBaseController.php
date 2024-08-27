@@ -18,6 +18,11 @@ use NadzorServera\Skijasi\Module\Commerce\Models\Cart;
 use NadzorServera\Skijasi\Module\Commerce\Models\ProductDetail;
 
 
+use NadzorServera\Skijasi\Mail\KIFDiplomaNotification;
+use Illuminate\Support\Facades\Mail;
+
+use App\Models\AdminMessage;
+
 
 class SkijasiBaseController extends Controller
 {
@@ -2567,6 +2572,15 @@ $html .= '</body></html>';
             $table_name = $data_type->name;
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_UPDATE, $table_name);
 
+
+  // Check if the filetitle is 'Diploma'
+            if (isset($data['filetitle']) && $data['filetitle'] === 'Diploma') {
+                $this->sendDiplomaNotification($data['idmember']);
+            }
+
+
+
+
             return ApiResponse::onlyEntity($updated['updated_data']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -2579,8 +2593,39 @@ $html .= '</body></html>';
  
 
 
-   
+    private function sendDiplomaNotification($userId)
+    {
+        try {
+            // Use DB facade to query the 'skijasi_users' table directly
+            $user = DB::table('skijasi_users')->where('id', $userId)->first();
+    
+            // Check if the user is found
+            if (!$user) {
+                throw new Exception('User not found');
+            }
+    
+            // Send email
+            Mail::to($user->email)->send(new KIFDiplomaNotification($user));
+    
+            // Send FCM notification
+        
+              AdminMessage::create([
+                  'message' => "{$user->name},\nObavještavamo Vas da prilikom dolaska na državni seminar dužni ste skijati u grupi.\n\nVaš HZUTS",
+                  'sent_by' => 1, // Assuming 1 is the ID for system messages
+                  'sent_to' => ["$user->id"],
+                  'is_read' => [],
+                  'is_hidden' => [],
+              ]);
+            
 
+
+        
+        } catch (Exception $e) {
+            // Log the error, but don't throw it to prevent disrupting the main flow
+            Log::error('Failed to send KIF Diploma notification: ' . $e->getMessage());
+        }
+    }
+    
        
        
   

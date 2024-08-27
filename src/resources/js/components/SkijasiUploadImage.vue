@@ -1,11 +1,9 @@
 <template>
-<!-- ... other code ... -->
-<vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
-    <!-- Only display this row if there is a preview image or an existing value -->
+  <vs-col :vs-lg="size" vs-xs="12" class="skijasi-upload-image__container">
+    <!-- Preview image -->
     <vs-row v-if="previewImage || hasValue">
       <vs-col vs-lg="4" vs-sm="12">
         <div class="skijasi-upload-image__preview">
-          <!-- Use previewImage if it's available, otherwise fallback to value -->
           <img :src="previewImage || value" class="skijasi-upload-image__preview-image" />
           <vs-button
             class="skijasi-upload-image__remove-button"
@@ -17,27 +15,51 @@
       </vs-col>
     </vs-row>
 
+    <!-- File input -->
+    <vs-input
+      :label="label"
+      :placeholder="placeholder"
+      @click.prevent="$refs.image.click()"
+      readonly
+      v-model="value"
+      icon="attach_file"
+      icon-after="true"
+    />
+    <input
+      type="file"
+      class="skijasi-upload-image__input--hidden"
+      ref="image"
+      :accept="availableMimetypes.image.validMime.join(',')"
+      @change="onFilePicked"
+    />
 
-  <vs-input
-    :label="label"
-    :placeholder="placeholder"
-    @click.prevent="$refs.image.click()"
-    readonly
-    v-model="value"
-    icon="attach_file"
-    icon-after="true"
-  />
-  <!-- This input will handle file selection -->
-  <input
-    type="file"
-    class="skijasi-upload-image__input--hidden"
-    ref="image"
-    :accept="availableMimetypes.image.validMime.join(',')"
-    @change="onFilePicked"
-  />
-
-  
-  <!-- ... other code ... -->
+    <!-- Cropper modal -->
+    <vs-dialog v-model="showCropper" title="Crop Image" @close="onCropperClose">
+      <div class="cropper-container" v-if="showCropper">
+        <div class="button-group" v-if="showCropper">
+    <button @click="cancelCrop" class="cancel-button">Odustani</button>
+    <button @click="cropImage" class="confirm-button">Potvrdi</button>
+  </div>
+        <cropper
+          v-if="showCropper"
+          ref="cropper"
+          :src="cropperImage"
+          :aspectRatio="2/3"
+    :guides="true"
+    :viewMode="2"
+    :autoCropArea="0.97"
+    :dragMode="'move'"
+    :movable="true"
+    :zoomable="true"
+    :rotatable="true"
+    :scalable="true"
+    :cropBoxMovable="true"
+    :cropBoxResizable="true"
+          @ready="onCropperReady"
+        ></cropper>
+      </div>
+    
+    </vs-dialog>
 
 <!-- ... other code ... -->
 
@@ -65,8 +87,15 @@
 import { mapState } from "vuex";
 import * as _ from "lodash";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+
+import Cropper from 'vue-cropperjs';
+import 'cropperjs/dist/cropper.css';
+
 export default {
   name: "SkijasiUploadImage",
+  components: {
+    Cropper
+  },
   props: {
     size: {
       type: String || Number,
@@ -112,6 +141,13 @@ export default {
   },
   data() {
     return {
+      previewImage: null,
+      showCropper: false,
+      cropperImage: '',
+      cropperReady: false,
+
+
+
       previewImage: null, 
 
 
@@ -273,32 +309,102 @@ export default {
     },
    // ... other methods ...
 
-onFilePicked(e) {
-  const files = e.target.files;
-  if (files[0] !== undefined) {
-    const file = files[0];
-    if (file.size > this.availableMimetypes.image.maxSize * 1024) {
-      this.$vs.notify({
-        title: this.$t("alert.danger"),
-        text: this.$t("alert.sizeTooLarge", { size: "5MB" }), // Update your translation key accordingly
-        color: "danger",
-      });
-      return;
-    }
-    if (!this.availableMimetypes.image.validMime.includes(file.type)) {
-      this.$vs.notify({
-        title: this.$t("alert.danger"),
-        text: this.$t("alert.fileNotAllowed"), // Update your translation key accordingly
-        color: "danger",
-      });
-      return;
-    }
-   this.previewImage = URL.createObjectURL(file);
+   onFilePicked(e) {
+      const files = e.target.files;
+      if (files[0] !== undefined) {
+        const file = files[0];
+        if (file.size > this.availableMimetypes.image.maxSize * 1024) {
+          this.$vs.notify({
+            title: this.$t("alert.danger"),
+            text: this.$t("alert.sizeTooLarge", { size: "5MB" }),
+            color: "danger",
+          });
+          return;
+        }
+        if (!this.availableMimetypes.image.validMime.includes(file.type)) {
+          this.$vs.notify({
+            title: this.$t("alert.danger"),
+            text: this.$t("alert.fileNotAllowed"),
+            color: "danger",
+          });
+          return;
+        }
+        
+        // Reset cropper state
+        this.cropperReady = false;
+        
+        // Open the cropper with the selected image
+        this.cropperImage = URL.createObjectURL(file);
+        this.showCropper = true;
+      }
+    },
+    
+    onCropperReady() {
+      this.cropperReady = true;
+    },
+    
+    onCropperClose() {
+      this.cropperReady = false;
+      this.cropperImage = '';
+    },
+    
+    cropImage() {
+      if (!this.cropperReady || !this.$refs.cropper) {
+        console.error('Cropper is not ready');
+        return;
+      }
+      
+      this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
+        if (!blob) {
+          console.error('Failed to create blob');
+          return;
+        }
+        
+        // Create a new File object from the Blob
+        const croppedFile = new File([blob], 'cropped_image.png', { type: 'image/png' });
+        
+        // Set preview image
+        this.previewImage = URL.createObjectURL(blob);
+        
+        // Upload the cropped image
+        this.uploadImage(croppedFile);
+        
+        // Close the cropper
+        this.showCropper = false;
+      }, 'image/png');
+    },
+    
+    cancelCrop() {
+      this.showCropper = false;
+    },
 
-    // Perform the upload
-    this.uploadImage(file);
-  }
-},
+    uploadImage(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("nameusr", this.nameusr); 
+      formData.append("prezimeusr", this.prezimeusr); 
+      formData.append("idmember", this.idmember); 
+
+      this.$api.skijasiFile.customuploadfile(formData)
+        .then(response => {
+          this.value = response.data.path;
+          this.$emit("input", response.data.path); 
+          URL.revokeObjectURL(this.previewImage);
+        })
+        .catch(error => {
+          console.error(error);
+          this.$vs.notify({
+            title: this.$t("alert.danger"),
+            text: this.$t("alert.uploadFailed"),
+            color: "danger",
+          });
+        });
+    },
+
+    removeImage() {
+      this.$emit('input', null);
+      this.previewImage = null;
+    },
 
 // ... other methods ...
 
@@ -338,76 +444,7 @@ onFilePicked(e) {
     },
 
 
-    uploadImage(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  // Retrieve the name and idmember values
 
-  formData.append("nameusr", this.nameusr); 
-  formData.append("prezimeusr", this.prezimeusr); 
-  formData.append("idmember", this.idmember); 
-
-  // Post the form data to the customUploadFile endpoint
-  this.$api.skijasiFile.customuploadfile(formData)
-  .then(response => {
-    // Handle the response from the server
-        // Update the value to show the image preview from the server
-        this.value = response.data.path; // Assuming 'path' is the key where the image URL is stored
-    this.previewImage = this.value; // Update the preview image to the final URL
-
-
-     // Emit the event to parent component with the new image URL
-     this.$emit("input", response.data.path); 
-
-    // Revoke the object URL if you want to release memory
-    URL.revokeObjectURL(this.previewImage);
-    console.log(response.data);
-    // You can now update your component's data or emit an event with the file's path if needed
-  })
-  .catch(error => {
-    // Handle any errors
-    console.error(error);
-  });
-},
-
-
-/*
-    uploadImage(file) {
-      const files = new FormData();
-      files.append("upload", file);
-      files.append("type", "image");
-      files.append("working_dir", this.getActiveFolder);
-      this.$api.skijasiFile
-        .uploadUsingLfm(files)
-        .then((res) => {
-          const error = _.get(res, "data.original.error", null);
-          if (error) {
-            this.$vs.notify({
-              title: this.$t("alert.danger"),
-              text: error.message,
-              color: "danger",
-            });
-          } else {
-            this.$vs.notify({
-              title: this.$t("alert.success"),
-              text: "Upload successful",
-              color: "success",
-            });
-          }
-        })
-        .catch((error) => {
-          this.$vs.notify({
-            title: this.$t("alert.danger"),
-            text: error.message,
-            color: "danger",
-          });
-        })
-        .finally(() => {
-          this.getImages();
-        });
-    },
-
-    */
     deleteImage() {
       this.$openLoader();
       this.$api.skijasiFile
@@ -455,5 +492,44 @@ onFilePicked(e) {
   padding: 5px;
 }
 
+.cropper-container {
+  position: relative;
+  z-index: 9999;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+}
+
+
+
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+
+.confirm-button,
+.cancel-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.confirm-button {
+  background-color: #03A9F4;
+  color: white;
+  
+}
+
+.cancel-button {
+  background-color: #676767;
+  color: white;
+  margin-right: 6px;
+}
 
 </style>

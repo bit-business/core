@@ -2574,7 +2574,7 @@ $html .= '</body></html>';
 
 
   // Check if the filetitle is 'Diploma'
-            if (isset($data['filetitle']) && $data['filetitle'] === 'Diploma') {
+            if (isset($data['filetitle']) && $data['filetitle'] === 'KIF Diploma') {
                 $this->sendDiplomaNotification($data['idmember']);
             }
 
@@ -2603,6 +2603,11 @@ $html .= '</body></html>';
             if (!$user) {
                 throw new Exception('User not found');
             }
+
+               // Save 'KIF' to the 'additional_info' column
+        DB::table('skijasi_users')
+        ->where('id', $userId)
+        ->update(['additional_info' => 'KIF']);
     
             // Send email
             Mail::to($user->email)->send(new KIFDiplomaNotification($user));

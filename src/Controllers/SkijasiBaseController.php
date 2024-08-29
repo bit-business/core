@@ -2573,7 +2573,7 @@ $html .= '</body></html>';
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_UPDATE, $table_name);
 
 
-  // Check if the filetitle is 'Diploma'
+  // Check if the filetitle is 'KIF Diploma'
             if (isset($data['filetitle']) && $data['filetitle'] === 'KIF Diploma') {
                 $this->sendDiplomaNotification($data['idmember']);
             }
@@ -2668,9 +2668,17 @@ $html .= '</body></html>';
 
             DB::commit();
 
+          
+
             // add event notification handle
             $table_name = $data_type->name;
             FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_CREATE, $table_name);
+
+                // Check if the filetitle is 'Diploma'
+                if (isset($data['filetitle']) && $data['filetitle'] === 'KIF Diploma') {
+                  $this->sendDiplomaNotification($data['idmember']);
+              }
+  
 
             return ApiResponse::onlyEntity($stored_data);
         } catch (Exception $e) {

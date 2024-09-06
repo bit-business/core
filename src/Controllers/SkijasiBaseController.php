@@ -2738,6 +2738,52 @@ $html .= '</body></html>';
         }
     }
 
+
+    public function deleteByFormId(Request $request)
+{
+    DB::beginTransaction();
+    try {
+        $request->validate([
+            'slug' => 'required',
+            'formId' => 'required',
+        ]);
+
+        $slug = $this->getSlug($request);
+        $data_type = $this->getDataType($slug);
+        $form_id = $request->input('formId');
+
+        // Find all records with the given formId
+        $records = DB::table($data_type->name)->where('form_id', $form_id)->get();
+
+        if ($records->isEmpty()) {
+            throw new Exception(__('No records found for the given formId'));
+        }
+
+        // Delete all records with the given formId
+        $deleted = DB::table($data_type->name)->where('form_id', $form_id)->delete();
+
+        activity($data_type->display_name_singular)
+            ->causedBy(auth()->user() ?? null)
+            ->withProperties(['formId' => $form_id, 'deleted_count' => $deleted])
+            ->log($data_type->display_name_singular . ' records were deleted for formId: ' . $form_id);
+
+        DB::commit();
+
+        // add event notification handle
+        $table_name = $data_type->name;
+        FCMNotification::notification(FCMNotification::$ACTIVE_EVENT_ON_DELETE, $table_name);
+
+        return ApiResponse::success([
+          'status' => 'success',  // Add status field
+          'message' => 'Successfully deleted all records for formId: ' . $form_id,
+          'deleted_count' => $deleted
+      ]);
+  } catch (Exception $e) {
+      DB::rollBack();
+      return ApiResponse::failed($e);
+  }
+}
+
     public function restore(Request $request)
     {
         DB::beginTransaction();

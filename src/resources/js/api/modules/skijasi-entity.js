@@ -115,6 +115,19 @@ export default {
     );
   },
 
+
+  deleteByFormId(data) {
+    const paramData = {
+      data: data,
+    };
+    return resource.delete(
+      entityPrefix + "/" + data.slug + "/deleteByFormId",
+      paramData
+    );
+  },
+
+
+
   deleteMultiple(data) {
     const paramData = {
       data: data,

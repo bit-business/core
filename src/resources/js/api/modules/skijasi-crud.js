@@ -42,4 +42,6 @@ export default {
     };
     return resource.delete(apiPrefix + "/v1/crud/delete", paramData);
   },
+
+ 
 };

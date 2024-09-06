@@ -278,6 +278,10 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         ->name($data_type->slug.'.delete')
                         ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',delete');
 
+                        Route::delete($data_type->slug.'/deleteByFormId', $crud_data_controller.'@deleteByFormId')
+                        ->name($data_type->slug.'.deleteByFormId')
+                        ->middleware(SkijasiCheckPermissionsForCRUD::class.':'.$data_type->slug.',delete');
+
                     Route::delete($data_type->slug.'/restore', $crud_data_controller.'@restore')
                         ->name($data_type->slug.'.restore')->middleware(SkijasiAuthenticate::class);
 

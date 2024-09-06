@@ -249,7 +249,6 @@ public function customUploadFileDokumenti(Request $request)
 {
     $chunk = $request->file('file');
     if (!$chunk) {
-        // Return an error response if the file chunk is not found
         return ApiResponse::failed(['message' => 'No file chunk received']);
     }
 
@@ -259,8 +258,10 @@ public function customUploadFileDokumenti(Request $request)
 
     // Generate temporary path for storing chunks
     $tempDir = storage_path('app/temp');
+    if (!File::exists($tempDir)) {
+        File::makeDirectory($tempDir, 0755, true);
+    }
     $tempPath = $tempDir . '/' . $originalFilename;
-
 
     // Store the current chunk
     file_put_contents($tempPath . '_' . $chunkIndex, file_get_contents($chunk->getPathname()));
@@ -293,7 +294,7 @@ private function generateFinalFilename($extension)
     $highestNumber = 0;
 
     foreach ($existingFiles as $file) {
-        if (preg_match('/dokument(\d+)/', $file, $matches)) {
+        if (preg_match('/dokument(\d+)\./', $file, $matches)) {
             $number = intval($matches[1]);
             if ($number > $highestNumber) {
                 $highestNumber = $number;
@@ -301,9 +302,10 @@ private function generateFinalFilename($extension)
         }
     }
 
-    // Use the original file extension
     return 'dokument' . ($highestNumber + 1) . '.' . $extension;
 }
+
+
 
 private function areAllChunksUploaded($tempPath, $totalChunks)
 {

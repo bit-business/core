@@ -269,7 +269,7 @@ export default {
 
   shouldShowCharts: {
     get() {
-      const allowedIds = [1, 2, 3, 7, 9, 4417, 2439];
+      const allowedIds = [1, 3, 7, 9, 4417, 2439];
       return this.currentUserId !== null && 
              this.currentUserId !== undefined && 
              allowedIds.includes(this.currentUserId);

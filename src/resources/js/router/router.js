@@ -167,6 +167,7 @@ const router = new VueRouter({
       component: AdminContainer,
       meta: {
         authenticatedUser: true,
+        preserveState: true, 
       },
       children: [..._adminRouters, ..._pluginRouters.AdminContainer],
     },
@@ -195,6 +196,7 @@ const router = new VueRouter({
         },
       ],
     },
+    
   ],
 });
 

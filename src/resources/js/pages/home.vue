@@ -48,7 +48,7 @@
               color="primary"
               type="border"
               size="small"
-              @click="otvoriplacanja"
+              @click="otvoriplacanja2"
             >
               Prikaži
             </vs-button>
@@ -624,8 +624,21 @@ fetchNewOrdersPerMonth() {
 //   });
 // },
   
-    otvoriplacanja() {
-      this.$router.push(`/skijasi-dashboard/order/`);    
+otvoriplacanja() {
+      this.$router.push({
+        path: '/skijasi-dashboard/order/',
+        query: { 
+          filter: 'waitingSellerConfirmation,waitingBuyerPayment'
+        }
+      });
+    },
+    otvoriplacanja2() {
+      this.$router.push({
+        path: '/skijasi-dashboard/order/',
+        query: { 
+          filter: 'done'
+        }
+      });
     },
     otvoricart() {
       this.$router.push(`/skijasi-dashboard/cart/`);    

@@ -47,6 +47,11 @@ export default {
         uploader: {
           insertImageAsBase64URI: true,
         },
+        createAttributes: {
+        hr: {
+          style: 'height: 2px; background-color: black; border: none;'
+        }
+      },
         toolbarButtonSize: 'large',
         buttons: [
           'source', '|',

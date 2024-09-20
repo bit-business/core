@@ -628,7 +628,7 @@ otvoriplacanja() {
       this.$router.push({
         path: '/skijasi-dashboard/order/',
         query: { 
-          filter: 'waitingSellerConfirmation,waitingBuyerPayment'
+          filter: 'waitingSellerConfirmation'
         }
       });
     },

@@ -873,7 +873,7 @@ private function addCartForUnpaidPayments($userId)
     foreach ($unpaidPayments as $payment) {
         $productId = $this->getProductIdForPayment($payment->idpaygroup);
         if ($productId) {
-            $this->addToCart($userId, $productId, 'Nije član'); // Using 'Default' as status, adjust if needed
+            $this->addToCart($userId, $productId, 'Nije član'); 
         }
     }
 }
@@ -886,7 +886,7 @@ private function getProductIdForPayment($paygroup)
         2 => 14,  // ISIA članarina
         7 => 15,  // ISIA Card članarina
         12 => 18, // Trenerska članarina
-        // Add more mappings as needed
+      
         13 => 14,
     ];
 

@@ -407,6 +407,7 @@ export default {
   padding-left: 24px;
   font-size: 16px; /* Adjust as needed */
   overflow: hidden;
+  z-index: 100;
 }
 
 
@@ -426,6 +427,7 @@ export default {
   background: transparent;
   padding-left: 24px;
   font-size: 16px;
+  z-index: 100;
 }
 
 .eye-icon {

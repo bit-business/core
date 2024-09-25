@@ -312,7 +312,10 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
                         Route::get($data_type->slug.'/generatepdffid', $crud_data_controller.'@generatepdffid')
                         ->name($data_type->slug.'.generatepdffid');
 
-            
+                
+
+                        Route::post('{slug}/send-hzuts-notification/{userId}', $crud_data_controller.'@sendNewHzutsNotificationAPI')
+                        ->name('sendNewHzutsNotification');
 
 
                         Route::get($data_type->slug.'/generatepdffpotvrdaisia', $crud_data_controller.'@generatepdffpotvrdaisia')

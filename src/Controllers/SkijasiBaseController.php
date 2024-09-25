@@ -19,6 +19,7 @@ use NadzorServera\Skijasi\Module\Commerce\Models\ProductDetail;
 
 
 use NadzorServera\Skijasi\Mail\KIFDiplomaNotification;
+use NadzorServera\Skijasi\Mail\NewHzutsNotification;
 use Illuminate\Support\Facades\Mail;
 
 use App\Models\AdminMessage;
@@ -2556,7 +2557,50 @@ $html .= '</body></html>';
     }
     
        
-       
+    public function sendNewHzutsNotificationAPI($slug, $userId)
+    {
+        try {
+            Log::info("Attempting to send HZUTS notification. Slug: {$slug}, UserID: {$userId}");
+            $this->sendNewHzutsNotification($userId);
+            return response()->json(['message' => 'Notification sent successfully']);
+        } catch (Exception $e) {
+            Log::error("Failed to send HZUTS notification. Slug: {$slug}, UserID: {$userId}. Error: " . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    private function sendNewHzutsNotification($userId)
+    {
+        try {
+            // Use DB facade to query the 'skijasi_users' table directly
+            $user = DB::table('skijasi_users')->where('id', $userId)->first();
+    
+            // Check if the user is found
+            if (!$user) {
+                throw new Exception('User not found');
+            }
+
+    
+            // Send email
+            Mail::to($user->email)->send(new NewHzutsNotification($user));
+    
+            // Send FCM notification
+        
+              AdminMessage::create([
+                  'message' => "{$user->name},\nčestitamo! Postali ste uspješno HZUTS član. Vaša prijava je odobrena!\n\nVaš HZUTS\n https://hzuts.hr",
+                  'sent_by' => 1, // Assuming 1 is the ID for system messages
+                  'sent_to' => ["$user->id"],
+                  'is_read' => [],
+                  'is_hidden' => [],
+              ]);
+            
+
+
+        
+        } catch (Exception $e) {
+            // Log the error, but don't throw it to prevent disrupting the main flow
+            Log::error('Failed to send New welcoming Hzuts member notification: ' . $e->getMessage());
+        }
+    }
   
 
 

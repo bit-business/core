@@ -15,6 +15,11 @@ export default {
     return resource.get(url);
   },
 
+  sendNewHzutsNotification(slug, userId) {
+    const ep = `${entityPrefix}/${slug}/send-hzuts-notification/${userId}`;
+    return resource.post(ep);
+  },
+
   generatepdff(data) {
     const ep = entityPrefix + "/" + data.slug + "/generatepdff";
     const qs = QueryString(data);

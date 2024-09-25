@@ -118,4 +118,23 @@ export default {
 .skijasi-editor__container .jodit-wysiwyg {
   font-family: 'Inter', sans-serif !important;
 }
+
+/* Add these styles to ensure the editor content is styled correctly */
+.skijasi-editor__container ::v-deep .jodit-wysiwyg ul {
+  padding-left: 20px !important;
+  list-style-type: disc !important;
+}
+
+.skijasi-editor__container ::v-deep .jodit-wysiwyg ol {
+  padding-left: 20px !important;
+  list-style-type: decimal !important;
+}
+
+.skijasi-editor__container ::v-deep .jodit-wysiwyg li {
+  display: list-item !important;
+  margin-bottom: 5px !important;
+  list-style-position: inside !important;
+}
+
+
 </style>

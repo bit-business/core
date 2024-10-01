@@ -4,120 +4,106 @@
       <template slot="action"> </template>
     </skijasi-breadcrumb-row>
 
-
     <vs-row class="pad-bot">
       <vs-col vs-lg="12">
-      <div  class="">
-            <vs-button class="compose-button" @click="toggleMessageComposer">Pošalji Novu Poruku</vs-button>
-          </div>
+        <div class="">
+          <vs-button class="compose-button" @click="toggleMessageComposer">Pošalji Novu Poruku</vs-button>
+        </div>
 
-          <div v-if="showMessageComposer">
-            <vs-card class="slanjekartica">
-              <template #header>
-                <h4>Slanje nove poruke/obavijesti</h4>
-              </template>
+        <div v-if="showMessageComposer">
+          <vs-card class="slanjekartica">
+            <template #header>
+              <h4>Slanje nove poruke/obavijesti</h4>
+            </template>
 
-              <div>
+            <div>
+              <div class="input-container">
+                <vs-textarea v-model="message" placeholder="Sadržaj poruke" rows="6" />
+                <vs-input v-model="url" placeholder="Link koji otvara poruka (neobavezno)" />
+                <skijasi-upload-image-poruke
+                  v-model="slika"
+                  size="3"
+                  :label="$t('Slika uz poruku (neobavezno)')"
+                  :placeholder="$t('Odaberi sliku')"
+                ></skijasi-upload-image-poruke>
 
-                <div class="input-container">
-                  <vs-textarea v-model="message" placeholder="Sadržaj poruke" rows="6" />
-
-  <vs-input v-model="url" placeholder="Link koji otvara poruka (neobavezno)" />
- <skijasi-upload-image-poruke
-                    v-model="slika"
-                    size="3"
-                    :label="$t('Slika uz poruku (neobavezno)')"
-                    :placeholder="$t('Odaberi sliku')"
-                  ></skijasi-upload-image-poruke>
-
-        
-                  <div>
-  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi' }" @click="selectSpecificUsers = false; sendToAll = 'svi'">Svim korisnicima</vs-button>
-  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi2', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi2' }" @click="selectSpecificUsers = false; sendToAll = 'svi2'">Hzuts članovima</vs-button>
-  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="selectSpecificUsers = true; sendToAll = ''">Specifični korisnici</vs-button>
-</div>
-
+                <div>
+                  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi' }" @click="selectSpecificUsers = false; sendToAll = 'svi'">Svim korisnicima</vs-button>
+                  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi2', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi2' }" @click="selectSpecificUsers = false; sendToAll = 'svi2'">Hzuts članovima</vs-button>
+                  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="selectSpecificUsers = true; sendToAll = ''">Specifični korisnici</vs-button>
+                </div>
 
                 <div v-if="selectSpecificUsers">
+                  <vs-input v-model="searchQuery" placeholder="Pretraživanje korisnika za slanje poruke" />
 
+                  <div class="user-table">
+                    <table class="">
+                      <thead>
+                        <tr>
+                          <th>Ime</th>
+                          <th>Prezime</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-if="searchQuery && filteredUsers.length" v-for="user in filteredUsers" :key="user.id" class="user-row">
+                          <td>{{ user.name }}</td>
+                          <td>{{ user.username }}</td>
+                          <td>
+                            <vs-button
+                              color="primary"
+                              icon="add"
+                              size="small"
+                              flat
+                              @click="toggleUserSelection(user)"
+                            ></vs-button>
+                          </td>
+                        </tr>
+                        <tr v-if="!searchQuery && users.length" class="user-row">
+                          <td colspan="3" class="no-data-message">
+                            Molimo upišite ime za pretraživanje HZUTS korisnika
+                          </td>
+                        </tr>
+                        <tr v-if="!users.length" class="user-row">
+                          <td colspan="3" class="no-data-message">
+                            Nema korisnika po tome imenu.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
 
-
-                <vs-input v-model="searchQuery" placeholder="Pretraživanje korisnika za slanje poruke" />
-
-<!-- Display the filtered users in a scrollable table -->
-<div class="user-table">
-  <table class="">
-    <thead>
-      <tr>
-        <th>Ime</th>
-        <th>Prezime</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-if="searchQuery && filteredUsers.length" v-for="user in filteredUsers" :key="user.id" class="user-row">
-        <td>{{ user.name }}</td>
-        <td>{{ user.username }}</td>
-        <td>
-          <vs-button
-          color="primary"
-            icon="add"
-            size="small"
-            flat
-            @click="toggleUserSelection(user)"
-          ></vs-button>
-        </td>
-      </tr>
-      <tr v-if="!searchQuery && users.length" class="user-row">
-        <td colspan="3" class="no-data-message">
-          Molimo upišite ime za pretraživanje HZUTS korisnika
-        </td>
-      </tr>
-      <tr v-if="!users.length" class="user-row">
-        <td colspan="3" class="no-data-message">
-          Nema korisnika po tome imenu.
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Display the selected users -->
-<div class="selected-users">
-  <span v-if="selectedUsers.length">Korisnici kojima će se poslati poruka:</span>
-  <span v-for="(user, index) in selectedUsers" :key="index" class="selected-user">
-    {{ user.username }} {{ user.name }}<span v-if="index !== selectedUsers.length - 1">,</span>
-  </span>
-</div>
-
-</div>
-<div v-else>
-  <p v-if="sendToAll === 'svi'">Poruka će biti poslana svim korisnicima.</p>
-  <p v-else-if="sendToAll === 'svi2'">Poruka će biti poslana HZUTS članovima.</p>
-</div>
-
-
-
-              </div>
-              </div>
-
-              <div class="button-group">
-                <div class="con-btn p-5">
-                  <vs-button class="posaljigumb" color="warning" @click="sendMessage">Pošalji Poruku</vs-button>
-                  <vs-button class="posaljigumb" color="gray" @click="toggleMessageComposer">Odustani</vs-button>
+                  <div class="selected-users">
+                    <span v-if="selectedUsers.length">Korisnici kojima će se poslati poruka:</span>
+                    <span v-for="(user, index) in selectedUsers" :key="index" class="selected-user">
+                      {{ user.username }} {{ user.name }}<span v-if="index !== selectedUsers.length - 1">,</span>
+                    </span>
+                  </div>
+                </div>
+                <div v-else>
+                  <p v-if="sendToAll === 'svi'">Poruka će biti poslana svim korisnicima.</p>
+                  <p v-else-if="sendToAll === 'svi2'">Poruka će biti poslana HZUTS članovima.</p>
                 </div>
               </div>
-            </vs-card>
-          </div>
-        </vs-col>      </vs-row>
-        <vs-row>
+            </div>
+
+            <div class="button-group">
+              <div class="con-btn p-5">
+                <vs-button class="posaljigumb" color="warning" @click="sendMessage">Pošalji Poruku</vs-button>
+                <vs-button class="posaljigumb" color="gray" @click="toggleMessageComposer">Odustani</vs-button>
+              </div>
+            </div>
+          </vs-card>
+        </div>
+      </vs-col>
+    </vs-row>
+    
+    <vs-row>
       <vs-col vs-lg="12">
         <vs-card>
           <div slot="header" class="header-container">
             <h3>Povijest poslanih poruka</h3>
           </div>
-
-
 
           <div>
             <skijasi-table
@@ -145,80 +131,72 @@
               </template>
 
               <template slot-scope="{ data }">
-                <vs-tr v-for="(message, index) in data" :key="index" :data="message" style=" text-align: center;">
+                <vs-tr v-for="(message, index) in data" :key="index" :data="message" style="text-align: center;">
                   <vs-td v-if="message">
-      {{ getSentByName(message.sent_by) }}
-    </vs-td>
-    <vs-td >
-  <img :src="message.slika" alt="Nema slike" style="max-width: 100px; max-height: 100px;">
-</vs-td>
-
-<vs-td style="max-width: 30vw; word-wrap: break-word;">
-  {{ message.message }}
-</vs-td>
-
-                  <vs-td >{{ message.url }}</vs-td>
+                    {{ message.sent_by_user ? `${message.sent_by_user.username} ${message.sent_by_user.name}` : 'Unknown User' }}
+                  </vs-td>
                   <vs-td>
-      <!-- Display the names and usernames of recipients horizontally -->
-      <template v-if="message && message.recipients">
-        <div class="recipient-list">
-          <span v-if="message.sent_to && message.sent_to.length === 1">
-            <template v-if="message.sent_to[0] === 'svi'">Poslano svima</template>
-            <template v-else-if="message.sent_to[0] === 'svi2'">Poslano članovima</template>
-          </span>
-          <span v-else v-for="(recipient, index) in message.recipients" :key="index" class="recipient">
-            {{ recipient.username }} {{ recipient.name }}
-          </span>
-        </div>
+                    <img :src="message.slika" alt="Nema slike" style="max-width: 100px; max-height: 100px;">
+                  </vs-td>
+                  <vs-td style="max-width: 30vw; word-wrap: break-word;">
+                    {{ message.message }}
+                  </vs-td>
+                  <vs-td>{{ message.url }}</vs-td>
+                  <vs-td>
+  <template v-if="message && message.sent_to_users">
+    <div class="recipient-list">
+      <span v-if="typeof message.sent_to_users === 'string'">
+        {{ message.sent_to_users === 'svi' ? 'Poslano svima' : 
+           message.sent_to_users === 'svi2' ? 'Poslano članovima' : 
+           message.sent_to_users }}
+      </span>
+      <template v-else-if="Array.isArray(message.sent_to_users)">
+        <span v-for="(recipient, index) in message.sent_to_users" :key="index" class="recipient">
+          {{ recipient && recipient.username ? recipient.username : '' }}
+          {{ recipient && recipient.name ? recipient.name : '' }}
+        </span>
       </template>
-    </vs-td>
+      <span v-else>Greška. Javit administratoru.</span>
+    </div>
+  </template>
+  <span v-else>Nema primatelja</span>
+</vs-td>
                   <vs-td v-if="message && message.created_at">{{ formatDate(message.created_at) }}</vs-td>
-
                   <vs-td>
-                    <template>
-        <div class="reader-list">
-          <span v-for="(reader, index) in message.readers" :key="index" class="recipient">
-            <template v-if="reader === '' || !reader">
-              <template v-if="message.sent_to && message.sent_to.length === 1">
-                <template v-if="message.sent_to[0] === 'svi'">Pročitali svi</template>
-                <template v-else-if="message.sent_to[0] === 'svi2'">Pročitali svi članovi</template>
-              </template>
-            </template>
-            <template v-else-if="reader && reader.username && reader.name">
-              {{ reader.username }} {{ reader.name }}
-            </template>
-          </span>
-        </div>
+  <template v-if="message && message.readers">
+    <div class="reader-list">
+      <span v-if="typeof message.readers === 'string' && ['svi', 'svi2'].includes(message.readers)">
+        Svi pročitali
+      </span>
+      <span v-else-if="typeof message.readers === 'string'">
+        {{ message.readers }}
+      </span>
+      <template v-else-if="Array.isArray(message.readers)">
+        <span v-for="(reader, index) in message.readers" :key="index" class="recipient">
+          {{ reader.username }} {{ reader.name }}
+        </span>
       </template>
+    </div>
+  </template>
+  <span v-else>Nitko nije pročitao</span>
 </vs-td>
-
-
-                  
-               
-
                   <vs-td>
-                        <skijasi-dropdown-item icon="delete" @click="deleteMessage(message.id)">
-                          Obriši
-                        </skijasi-dropdown-item>
-                          <skijasi-dropdown-item icon="check" @click="markAsRead(message)">
-                          Označi kao pročitano svima
-                          </skijasi-dropdown-item>
-                    
-      
+                    <skijasi-dropdown-item icon="delete" @click="deleteMessage(message.id)">
+                      Obriši
+                    </skijasi-dropdown-item>
+                    <skijasi-dropdown-item icon="check" @click="markAsRead(message)">
+                      Označi kao pročitano svima
+                    </skijasi-dropdown-item>
                   </vs-td>
                 </vs-tr>
               </template>
             </skijasi-table>
           </div>
-
         </vs-card>
       </vs-col>
     </vs-row>
   </div>
 </template>
-
-
-
 
 <script>
 import { mapState } from 'vuex'
@@ -233,13 +211,12 @@ export default {
       url: "",
       sendToAll: '',
       sentAt: null,
-      selectSpecificUsers: false, // Track whether to select specific users or all users
+      selectSpecificUsers: false,
       selectedUsers: [],
-      users: [], // Replace with your actual list of users
+      users: [],
       descriptionItems: [10, 50, 100],
       selected: [],
-      messages: [], // Replace with your actual list of messages
-
+      messages: [],
       searchQuery: '',
       tableHeight: '20vh',
     };
@@ -250,59 +227,28 @@ export default {
     this.fetchUserMessages();
   },
 
-
-
   computed: {
     sortedMessages() {
-      // Sort messages by created_at timestamp in descending order
       return this.messages.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     },
 
     filteredUsers() {
-    const query = this.searchQuery.trim().toLowerCase();
-    console.log('Search Query:', query);
-    const filtered = this.users.filter(user => {
-      const username = user.username.trim().toLowerCase();
-      const name = user.name.trim().toLowerCase();
-      return username.includes(query) || name.includes(query) || `${name} ${username}`.includes(query);
-    });
-    console.log('Filtered Users:', filtered);
-    return filtered;
-
-},
-
+      const query = this.searchQuery.trim().toLowerCase();
+      return this.users.filter(user => {
+        const username = user.username.trim().toLowerCase();
+        const name = user.name.trim().toLowerCase();
+        return username.includes(query) || name.includes(query) || `${name} ${username}`.includes(query);
+      });
+    },
   },
-
 
   methods: {
-    getSentByName(sentById) {
-      const user = this.users.find(user => user.id == parseInt(sentById));
-      return user ? `${user.username} ${user.name}` : '';
-    },
-
-    handleFileUpload(event) {
-    this.selectedFile = event.target.files[0];
-  },
-
-
-  toggleUserSelection(user) {
-  const index = this.selectedUsers.findIndex(u => u.id === user.id);
-  if (index === -1) {
-    this.selectedUsers.push(user);
-  } else {
-    this.selectedUsers.splice(index, 1);
-  }
-},
-
-    isSelected(user) {
-      return this.selectedUsers.some(u => u.id === user.id);
-    },
-
-    toggleSelectAll() {
-      if (this.selectedUsers.length === this.users.length) {
-        this.selectedUsers = [];
+    toggleUserSelection(user) {
+      const index = this.selectedUsers.findIndex(u => u.id === user.id);
+      if (index === -1) {
+        this.selectedUsers.push(user);
       } else {
-        this.selectedUsers = [...this.users];
+        this.selectedUsers.splice(index, 1);
       }
     },
 
@@ -312,8 +258,7 @@ export default {
         .browseuserporuke()
         .then((response) => {
           this.$closeLoader();
-          this.users = response.data.users;      
-          console.log("TEST", this.users);
+          this.users = response.data.users;
         })
         .catch((error) => {
           this.$closeLoader();
@@ -335,53 +280,45 @@ export default {
     resetForm() {
       this.message = "";
       this.slika = null;
-      this.sendToAll = false;
+      this.sendToAll = '';
       this.selectedUsers = [];
       this.url = "";
     },
 
     sendMessage() {
-  const messageData = {
-    url: this.url,
-    slika: this.slika,
-    message: this.message,
-    sendToAll: this.selectSpecificUsers ? 'specific' : this.sendToAll,
-    sentTo: this.selectSpecificUsers ? this.selectedUsers.map((user) => user.id.toString()) : [],
-  };
+      const messageData = {
+        url: this.url,
+        slika: this.slika,
+        message: this.message,
+        sendToAll: this.selectSpecificUsers ? 'specific' : this.sendToAll,
+        sentTo: this.selectSpecificUsers ? this.selectedUsers.map((user) => user.id.toString()) : [],
+      };
 
-  console.log("testsenddata:", messageData);
-
-  this.$api.skijasiPoruke
-    .sendMessage(messageData)
-    .then((response) => {
-      console.log("Message sent successfully:", response.data);
-      this.fetchUserMessages();
-      this.messages.push(response.data);
-
-      this.$vs.notify({
-        title: "Poruka poslana",
-        text: "Slanje uspješno!",
-        color: "success",
-      });
-
-      this.toggleMessageComposer(); // Close the message composer after sending
-    })
-    .catch((error) => {
-      console.error("Error sending message:", error);
-      this.$vs.notify({
-        title: "Greška",
-        text: "Došlo je do pogreške prilikom slanja poruke.",
-        color: "danger",
-      });
-    });
-},
-
+      this.$api.skijasiPoruke
+        .sendMessage(messageData)
+        .then((response) => {
+          this.fetchUserMessages();
+          this.$vs.notify({
+            title: "Poruka poslana",
+            text: "Slanje uspješno!",
+            color: "success",
+          });
+          this.toggleMessageComposer();
+        })
+        .catch((error) => {
+          console.error("Error sending message:", error);
+          this.$vs.notify({
+            title: "Greška",
+            text: "Došlo je do pogreške prilikom slanja poruke.",
+            color: "danger",
+          });
+        });
+    },
 
     deleteMessage(messageId) {
       this.$api.skijasiPoruke
         .deleteMessage(messageId)
         .then(() => {
-          // Remove the deleted message from the messages array
           this.messages = this.messages.filter((message) => message.id !== messageId);
         })
         .catch((error) => {
@@ -390,24 +327,45 @@ export default {
     },
 
     markAsRead(message) {
-  // Check if message has recipients and it's not null
-  if (message.recipients && Array.isArray(message.recipients)) {
-    // Copy the recipients of the message
-    const recipients = message.recipients.map(recipient => recipient && recipient.id ? recipient.id : null);
+  if (message.sent_to_users) {
+    let recipients;
 
-    // Check if 'svi' is included in the recipients
-    const isSviIncluded = recipients.includes('svi');
+    if (typeof message.sent_to_users === 'string') {
+      // Convert display text back to the correct database value
+      if (message.sent_to_users === 'Poslano svima') {
+        recipients = ['svi'];
+      } else if (message.sent_to_users === 'Poslano članovima') {
+        recipients = ['svi2'];
+      } else {
+        recipients = [message.sent_to_users];
+      }
+    } else if (Array.isArray(message.sent_to_users)) {
+      recipients = message.sent_to_users.map(user => {
+        if (user && typeof user === 'object' && user.id) {
+          return user.id.toString();
+        } else if (typeof user === 'string') {
+          return user;
+        }
+        return null;
+      }).filter(id => id !== null);
+    } else {
+      console.error("Error: Unexpected sent_to_users format", message.sent_to_users);
+      return;
+    }
 
-    // Send the list of recipients to the backend to mark the message as read for all of them
+    if (recipients.length === 0) {
+      console.error("Error: No valid recipients found", message.sent_to_users);
+      return;
+    }
+
+    console.log("Sending recipients:", recipients); // For debugging
+
     this.$api.skijasiPoruke
-      .markallread(message.id, { recipients: isSviIncluded ? ['svi'] : recipients }) // Send ['svi'] if 'svi' is included
+      .markallread(message.id, { recipients: recipients })
       .then((response) => {
-        // Update the message in the messages array
         const index = this.messages.findIndex((msg) => msg.id === message.id);
         if (index !== -1) {
-          // Mark the message as read for all recipients
-          this.messages[index].readers = message.recipients;
-          // Optionally, update the is_read property if available in the response
+          this.messages[index].readers = message.sent_to_users;
           if (response.data && response.data.is_read) {
             this.messages[index].is_read = response.data.is_read;
           }
@@ -415,72 +373,39 @@ export default {
       })
       .catch((error) => {
         console.error("Error marking message as read:", error);
+        if (error.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+          console.error("Response headers:", error.response.headers);
+        }
       });
   } else {
-    console.error("Error: Message recipients are not valid.");
+    console.error("Error: Message has no recipients", message);
   }
 },
 
-
-
-
-
-fetchUserMessages() {
-  console.log("Fetching user messages...");
-  this.$api.skijasiPoruke
-    .getMessages()
-    .then((response) => {
-      console.log("API Response:", response);
-      if (response) {
-        console.log("Response Data:", response);
-        // Update recipient information for each message
-        response.forEach((message) => {
-          // Check if message.sent_to is not null and is an array
-          if (Array.isArray(message.sent_to)) {
-            // Convert string IDs to integers for message.sent_to
-            const sentToIds = message.sent_to.map(id => parseInt(id));
-            message.recipients = sentToIds.map((userId) => {
-              const user = this.users.find((user) => user.id === userId);
-              return user ? { id: user.id, name: user.name, username: user.username } : null;
-            });
+    fetchUserMessages() {
+      this.$api.skijasiPoruke
+        .getMessages()
+        .then((response) => {
+          if (response) {
+            this.messages = response;
           } else {
-            // If message.sent_to is null or not an array, set recipients as an empty array
-            message.recipients = [];
+            console.error("No data received from API");
           }
-
-          // Convert string IDs to integers for message.is_read
-          let isReadIds = [];
-          if (Array.isArray(message.is_read)) {
-            isReadIds = message.is_read.map(id => parseInt(id));
-          }
-          message.readers = isReadIds.map((userId) => {
-            const user = this.users.find((user) => user.id === userId);
-            return user ? { id: user.id, name: user.name, username: user.username } : null;
-          });
+        })
+        .catch((error) => {
+          console.error("Error fetching user messages:", error);
         });
-        this.messages = response;
-        console.log("Messages:", this.messages);
-      } else {
-        console.error("No data received from API");
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching user messages:", error);
-    });
-},
-
-
-
-
-
+    },
 
     formatDate(dateString) {
-      // Format the date string as needed
       return new Date(dateString).toLocaleString();
     },
   },
 };
 </script>
+
 
 <style scoped>
 .user-list {

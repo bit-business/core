@@ -162,7 +162,7 @@
         style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
         <div style="text-align: center;"><img
             src="{{ Storage::url('photos/shares/logo-144px.png') }}"
-            width="25%" alt="Logo Skijasi"></div>
+            width="25%" alt="Logo HZUTS"></div>
         <div class="content"
           style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
 
@@ -174,12 +174,14 @@
                 <table border="0" cellpadding="0" cellspacing="0"
                   style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
                   <tr>
-                     <td>
-                      <p>Poštovani {{ $user->name }},</p>
-                      <p>Čestitamo! Postali ste uspješno HZUTS član. Vaša prijava je odobrena!"</p>
+                    <td>
+                        <h1>Čestitamo!</h1>
+                        <p>Poštovani {{ $user->name }},</p>
+                      <p>Postali ste uspješno HZUTS član. Vaša prijava za članstvo je odobrena!</p>
 
                       <p>Srdačno,<br />{{ config('app.name') }}</p>
-                      <p>https://hzuts.hr</p>
+                      <a href="https://hzuts.hr" style="color: #06bbd3; text-decoration: none;">www.hzuts.hr</a>
+
                     </td>
                   </tr>
                 </table>

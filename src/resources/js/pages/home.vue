@@ -54,7 +54,8 @@
             </vs-button>
           </div>
           <div class="icon-container">
-            <span class="icon-text">  {{ uspjesneOrdersCount }}</span> 
+            <span class="icon-text"> {{ totalCompletedOrders }}</span> 
+            <span  v-if="shouldShowCharts" class="icon-text"> ({{ totalPayedOrders }}€)</span> 
             <img src="/storage/slike/baza/placanjeikona2.svg" alt="Završene narudžbe" class="icon">
    
           </div>
@@ -75,6 +76,7 @@
           </div>
           <div class="icon-container">
             <span class="icon-text">{{ totalCartItems }}</span> 
+            <span v-if="shouldShowCharts" class="icon-text">({{ totalPriceCartItems }}€)</span> 
             <img src="/storage/slike/baza/placanjeikona3.svg" alt="Aktivna zaduženja" class="icon">
 
           </div>
@@ -145,7 +147,7 @@
     <vs-row class="mt-4" v-if="shouldShowCharts">
   <vs-col :vs-lg="6" vs-xs="12">
     <div class="chart-container">
-      <h4>Statistika novih registracija</h4>
+      <h4>Broj novih registracija</h4>
       <canvas ref="newUsersChart"></canvas>
     </div>
   </vs-col>
@@ -222,6 +224,9 @@ export default {
 
     orders: [], 
     totalCartItems: 0,
+    totalPriceCartItems: 0,
+    totalCompletedOrders: 0,
+    totalPayedOrders: 0,
 
     newUsersChartData: [],
     newOrdersChartData: null,
@@ -296,7 +301,7 @@ export default {
      // Set up a periodic check every 5 minutes (300000 milliseconds).
      this.intervalID = setInterval(this.fetchUnapprovedAvatars, 300000);
 
-
+   this.fetchTotalCompletedOrders();
 
   },
 
@@ -372,7 +377,7 @@ export default {
         labels: labels,
         datasets: [
           {
-            label: 'Hzuts Član',
+            label: 'Novih Hzuts Članova',
             data: dataClan,
             backgroundColor: 'rgba(75, 192, 192, 0.6)',
             borderColor: 'rgba(75, 192, 192, 1)',
@@ -381,7 +386,7 @@ export default {
       borderSkipped: false,
           },
           {
-            label: 'Običan Korisnik',
+            label: 'Novih Običnih Korisnika',
             data: dataObicanKorisnik,
             backgroundColor: 'rgba(255, 149, 132, 0.6)',
             borderColor: 'rgba(255, 149, 132, 1)',
@@ -554,6 +559,19 @@ fetchNewOrdersPerMonth() {
 },
 
 
+fetchTotalCompletedOrders() {
+      skijasiOrder.getTotalCompletedOrders()
+        .then(response => {
+        
+            this.totalCompletedOrders = response.data.totalCompletedOrders;
+            this.totalPayedOrders = response.data.totalPayed;
+            console.log('Updated totalOrders:',  this.totalCompletedOrders );
+          
+        })
+        .catch(error => {
+          console.error('Error fetching total cart items:', error);
+        });
+    },
 
 
   
@@ -562,6 +580,7 @@ fetchNewOrdersPerMonth() {
         .then(response => {
         
             this.totalCartItems = response.data.totalItems;
+            this.totalPriceCartItems = response.data.totalPrice;
             console.log('Updated totalCartItems:', this.totalCartItems);
           
         })

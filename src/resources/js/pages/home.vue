@@ -222,6 +222,8 @@ export default {
     dashboardData: [],
     col: 12,
 
+    newOrdersCount: 0,
+
     orders: [], 
     totalCartItems: 0,
     totalPriceCartItems: 0,
@@ -263,9 +265,7 @@ export default {
     
     }),
 
-        newOrdersCount() {
-      return this.orders.filter(order => order.status == 'waitingSellerConfirmation').length;
-    },
+ 
     uspjesneOrdersCount() {
       return this.orders.filter(order => order.status == 'done').length;
     },
@@ -297,17 +297,23 @@ export default {
     this.fetchzahtjeve();
 
     this.fetchOrders();
- 
+   
      // Set up a periodic check every 5 minutes (300000 milliseconds).
      this.intervalID = setInterval(this.fetchUnapprovedAvatars, 300000);
 
    this.fetchTotalCompletedOrders();
+   this.fetchNewOrdersPerMonth()
 
+   this.fetchNewOrdersCount();
+  this.newOrdersCountInterval = setInterval(this.fetchNewOrdersCount, 60000); 
+
+   
   },
 
   beforeDestroy() {
     // Clear the interval when the component is destroyed.
     clearInterval(this.intervalID);
+    clearInterval(this.newOrdersCountInterval);
   },
 
 
@@ -325,7 +331,7 @@ export default {
           
           // Transform the data into the desired structure
           this.newUsersChartData = Object.entries(clonedItems).map(([month, users]) => {
-            const monthData = { month, Član: 0, 'Običan korisnik': 0 };
+            const monthData = { month, Član: 0, 'Običan Korisnik': 0 };
             users.forEach(user => {
               monthData[user.user_type] = user.count;
             });
@@ -448,7 +454,24 @@ export default {
   }
 },
 
-
+fetchNewOrdersCount() {
+  console.log('Fetching new orders count...');
+  skijasiOrder.totalneworders()
+    .then(res => {
+      console.log('New orders count response:', res);
+      if (res.data && res.data.count !== undefined) {
+        this.newOrdersCount = res.data.count;
+        console.log('Updated newOrdersCount:', this.newOrdersCount);
+      } else {
+        this.newOrdersCount = 0;
+        console.log('No count in response, set newOrdersCount to 0');
+      }
+    })
+    .catch(err => {
+      console.error('Error fetching new orders count:', err);
+      this.$helper.displayErrors(err);
+    });
+},
 
 
 fetchNewOrdersPerMonth() {

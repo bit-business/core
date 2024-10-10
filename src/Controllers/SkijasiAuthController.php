@@ -63,7 +63,7 @@ class SkijasiAuthController extends Controller
                 $user = auth()->user();
                 if (is_null($user->email_verified_at)) {
                     $token = rand(111111, 999999);
-                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
                     $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                     $data = [
                         'user_id'            => $user->id,
@@ -132,7 +132,7 @@ class SkijasiAuthController extends Controller
                 $user = auth()->user();
                 if (is_null($user->email_verified_at)) {
                     $token = rand(111111, 999999);
-                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
                     $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                     $data = [
                         'user_id'            => $user->id,
@@ -202,7 +202,7 @@ class SkijasiAuthController extends Controller
                 $user = auth()->user();
                 if (is_null($user->email_verified_at)) {
                     $token = rand(111111, 999999);
-                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
                     $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                     $data = [
                         'user_id'            => $user->id,
@@ -363,7 +363,7 @@ class SkijasiAuthController extends Controller
                         'last_sent_token_at' => date('Y-m-d H:i:s'),
                     ]);
                     $token = rand(111111, 999999);
-                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                    $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
                     $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                     $data = [
                         'user_id'            => $existingUser->id,
@@ -463,7 +463,7 @@ class SkijasiAuthController extends Controller
                     'last_sent_token_at' => date('Y-m-d H:i:s'),
                 ]);
                 $token = rand(111111, 999999);
-                $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
                 $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                 $data = [
                     'user_id'            => $user->id,
@@ -772,7 +772,7 @@ class SkijasiAuthController extends Controller
             }
 
             $token = rand(111111, 999999);
-            $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+            $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
             $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
 
             $user_verification->verification_token = $token;
@@ -870,7 +870,7 @@ class SkijasiAuthController extends Controller
             $should_verify_email = Config::get('adminPanelVerifyEmail') == '1' ? true : false;
             if ($should_verify_email) {
                 $token = rand(111111, 999999);
-                $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 5);
+                $token_lifetime = env('VERIFICATION_TOKEN_LIFETIME', 15);
                 $expired_token = date('Y-m-d H:i:s', strtotime("+$token_lifetime minutes", strtotime(date('Y-m-d H:i:s'))));
                 $data = [
                     'user_id'            => $user->id,

@@ -247,45 +247,60 @@ public function customUploadFileDogadaji(Request $request)
 
 public function customUploadFileDokumenti(Request $request)
 {
-    $chunk = $request->file('file');
-    if (!$chunk) {
-        return ApiResponse::failed(['message' => 'No file chunk received']);
+    try {
+        $chunk = $request->file('file');
+        if (!$chunk) {
+            return ApiResponse::failed(['message' => 'No file chunk received']);
+        }
+
+        $originalFilename = $request->input('filename');
+        $chunkIndex = $request->input('chunkIndex');
+        $totalChunks = $request->input('totalChunks');
+        $fileIndex = $request->input('fileIndex'); // New parameter to identify each file
+
+        // Generate temporary path for storing chunks
+        $tempDir = storage_path('app/temp');
+        if (!File::exists($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true);
+        }
+        $tempPath = $tempDir . '/' . $fileIndex . '_' . $originalFilename;
+
+        // Store the current chunk
+        file_put_contents($tempPath . '_' . $chunkIndex, file_get_contents($chunk->getPathname()));
+
+        // Check if all chunks are uploaded
+        if ($this->areAllChunksUploaded($tempPath, $totalChunks)) {
+            // Extract the file extension from the original filename
+            $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+            $finalFilename = $this->generateFinalFilename($extension);
+            $finalPath = 'dokumenti-clanova/' . $finalFilename;
+
+            // Reassemble the file from chunks
+            $this->reassembleFile($tempPath, $finalPath, $totalChunks);
+
+            // Clean up temporary chunks
+            $this->cleanupChunks($tempPath, $totalChunks);
+
+            // Get the full path of the uploaded file
+            $fullPath = Storage::disk('public')->url($finalPath);
+
+            return ApiResponse::success([
+                'message' => 'File uploaded successfully',
+                'path' => $fullPath,
+                'filename' => $finalFilename,
+                'fileIndex' => $fileIndex
+            ]);
+        }
+
+        return ApiResponse::success([
+            'message' => 'Chunk ' . $chunkIndex . ' uploaded successfully',
+            'progress' => (($chunkIndex + 1) / $totalChunks) * 100,
+            'fileIndex' => $fileIndex
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('File upload error: ' . $e->getMessage());
+        return ApiResponse::failed(['message' => 'Error uploading file: ' . $e->getMessage()]);
     }
-
-    $originalFilename = $request->input('filename');
-    $chunkIndex = $request->input('chunkIndex');
-    $totalChunks = $request->input('totalChunks');
-
-    // Generate temporary path for storing chunks
-    $tempDir = storage_path('app/temp');
-    if (!File::exists($tempDir)) {
-        File::makeDirectory($tempDir, 0755, true);
-    }
-    $tempPath = $tempDir . '/' . $originalFilename;
-
-    // Store the current chunk
-    file_put_contents($tempPath . '_' . $chunkIndex, file_get_contents($chunk->getPathname()));
-
-    // Check if all chunks are uploaded
-    if ($this->areAllChunksUploaded($tempPath, $totalChunks)) {
-        // Extract the file extension from the original filename
-        $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
-        $finalFilename = $this->generateFinalFilename($extension);
-        $finalPath = 'dokumenti-clanova/' . $finalFilename;
-
-        // Reassemble the file from chunks
-        $this->reassembleFile($tempPath, $finalPath, $totalChunks);
-
-        // Clean up temporary chunks
-        $this->cleanupChunks($tempPath, $totalChunks);
-
-        // Get the full path of the uploaded file
-        $fullPath = Storage::disk('public')->url($finalPath);
-
-        return ApiResponse::success(['message' => 'File uploaded successfully', 'path' => $fullPath]);
-    }
-
-    return ApiResponse::success(['message' => 'Chunk ' . $chunkIndex . ' uploaded successfully']);
 }
 
 private function generateFinalFilename($extension)

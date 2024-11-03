@@ -79,6 +79,11 @@ export default {
     return resource.post(apiPrefix + "/v1/file/upload/customdogadaji", files);
   },
 
+  customuploadfileobradarobe(files) {
+    return resource.post(apiPrefix + "/v1/file/upload/customobradarobe", files);
+  },
+
+
   customuploadfiledokumenti(files) {
     return resource.post(apiPrefix + "/v1/file/upload/customdokumenti", files);
   },

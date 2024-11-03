@@ -94,6 +94,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
             Route::post('/upload/customporuke', 'SkijasiFileController@customuploadfileporuke');
 
             Route::post('/upload/customdogadaji', 'SkijasiFileController@customuploadfiledogadaji');
+            Route::post('/upload/customobradarobe', 'SkijasiFileController@customuploadfileobradarobe');
             Route::post('/upload/customdokumenti', 'SkijasiFileController@customuploadfiledokumenti');
             Route::post('/upload/customdokumentictt', 'SkijasiFileController@customuploadfiledokumentictt');
             Route::post('/upload/customdokumentiuciliste', 'SkijasiFileController@customuploaddokumentiuciliste');

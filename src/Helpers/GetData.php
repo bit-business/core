@@ -912,43 +912,36 @@ public static function getTrainerStatusLabels() {
 
     
 public static function calculateStatusAktivan($statusData) {
-    $today = new \DateTime(); // Use \DateTime for global namespace
-    $today->setTime(0, 0, 0); // Set to start of day
+    $today = new \DateTime();
+    $today->setTime(0, 0, 0);
 
     $statusAktivan = 'Istekla licenca';
     $latestEndDate = null;
-    $idevent = null;
-
-    $latestEventDate = null; 
+    $activeEvents = []; // Store all active events
 
     foreach ($statusData as $item) {
-        if (isset($item->endstatusdate)) {
-            $endDate = new \DateTime($item->endstatusdate); // Use \DateTime here as well
-            $endDate->setTime(0, 0, 0); // Set to start of day
+        if (isset($item->endstatusdate) && isset($item->idevent)) {
+            $endDate = new \DateTime($item->endstatusdate);
+            $endDate->setTime(0, 0, 0);
 
             if ($endDate >= $today) {
+                // Add all active events to the array
+                $activeEvents[] = $item->idevent;
+                
                 if ($latestEndDate === null || $endDate > new \DateTime($latestEndDate)) {
-                    $latestEndDate = $item->endstatusdate; // Always update to the latest end date
-                    $idevent = $item->idevent; // Update idevent corresponding to the latest end date
-                    
-                $statusAktivan = 'Aktivan';
-                $latestEndDate = $item->endstatusdate;
-                $idevent = $item->idevent; 
-               // break; // If one active status is found, no need to check further
-            }         }
-            else if ($endDate < $today) {
-                $latestEndDate = $item->endstatusdate;
-                $idevent = $item->idevent; 
-             
+                    $latestEndDate = $item->endstatusdate;
+                    $statusAktivan = 'Aktivan';
+                }
             }
-
-       
         }
     }
 
-    return ['status' => $statusAktivan, 'endstatusdate' => $latestEndDate,  'idevent' => $idevent];
+    return [
+        'status' => $statusAktivan,
+        'endstatusdate' => $latestEndDate,
+        'idevent' => !empty($activeEvents) ? $activeEvents : null // Return array of active events
+    ];
 }
-
 
 
 

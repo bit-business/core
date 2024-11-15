@@ -159,4 +159,6 @@ export default {
   maintenance(data = {}) {
     return resource.post(entityPrefix + "/" + data.slug + "/maintenance", data);
   },
+
+  
 };

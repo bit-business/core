@@ -24,6 +24,10 @@ Route::group(['prefix' => 'skijasi-api/v1/poruke', 'middleware' => 'auth'], func
 $api_route_prefix = \config('skijasi.api_route_prefix');
 Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skijasi\Controllers', 'as' => 'skijasi.', 'middleware' => [ApiRequest::class]], function () {
     Route::group(['prefix' => 'v1'], function () {
+        Route::get('/form-entries', 'SkijasiBaseController@getFormEntries');
+        Route::get('/form-entries/by-hotel', 'SkijasiBaseController@getFormEntriesByHotel');
+        Route::get('/form-entries/by-form', 'SkijasiBaseController@getFormEntriesByFormId');
+
         Route::group(['prefix' => 'dashboard'], function () {
             Route::get('/', 'SkijasiDashboardController@index')->middleware(SkijasiAuthenticate::class);
             Route::get('/cloudflare-analytics', 'SkijasiDashboardController@getCloudflareAnalytics')->middleware(SkijasiAuthenticate::class);
@@ -214,6 +218,7 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
       
 
 
+
         });
 
         Route::group(['prefix' => 'table'], function () {
@@ -228,6 +233,8 @@ Route::group(['prefix' => $api_route_prefix, 'namespace' => 'NadzorServera\Skija
         Route::group(['prefix' => 'maintenance'], function () {
             Route::post('/', 'SkijasiMaintenanceController@isMaintenance');
         });
+
+        
 
         Route::group(['prefix' => 'entities'], function () {
             try {

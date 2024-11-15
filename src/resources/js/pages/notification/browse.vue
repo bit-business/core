@@ -28,11 +28,93 @@
                 ></skijasi-upload-image-poruke>
 
                 <div>
-                  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi' }" @click="selectSpecificUsers = false; sendToAll = 'svi'">Svim korisnicima</vs-button>
-                  <vs-button :class="{ 'selected-button': !selectSpecificUsers && sendToAll === 'svi2', 'inactive-button': selectSpecificUsers || sendToAll !== 'svi2' }" @click="selectSpecificUsers = false; sendToAll = 'svi2'">Hzuts članovima</vs-button>
-                  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="selectSpecificUsers = true; sendToAll = ''">Specifični korisnici</vs-button>
+                  <vs-button :class="{ 'selected-button': !selectSpecificUsers && !filterByHotel && !filterBySeminar && sendToAll === 'svi', 'inactive-button': selectSpecificUsers || filterByHotel || filterBySeminar || sendToAll !== 'svi' }" @click="resetFilters(); sendToAll = 'svi'">Svim korisnicima</vs-button>
+                  <vs-button :class="{ 'selected-button': !selectSpecificUsers && !filterByHotel && !filterBySeminar && sendToAll === 'svi2', 'inactive-button': selectSpecificUsers || filterByHotel || filterBySeminar || sendToAll !== 'svi2' }" @click="resetFilters(); sendToAll = 'svi2'">Hzuts članovima</vs-button>
+                  <vs-button :class="{ 'selected-button': selectSpecificUsers, 'inactive-button': !selectSpecificUsers }" @click="enableSpecificUsers">Specifični korisnici</vs-button>
+                  <vs-button 
+  :class="{ 'selected-button': filterByHotel, 'inactive-button': !filterByHotel }" 
+  @click="enableHotelFilter">
+  Po hotelu
+</vs-button>
+                  <vs-button :class="{ 'selected-button': filterBySeminar, 'inactive-button': !filterBySeminar }" @click="enableSeminarFilter">Po seminaru</vs-button>
                 </div>
 
+        
+<!-- Hotel selection -->
+<div v-if="filterByHotel" class="mt-4">
+  <skijasi-dropdown
+    :vs-trigger-click="true"
+  >
+    <div class="dropdown-toggle">
+      {{ selectedHotel || 'Odaberi hotel' }}
+    </div>
+
+    <vs-dropdown-menu>
+      <div v-if="uniqueHotels.length === 0" class="p-2 text-gray-500">
+        No hotels available
+      </div>
+      <skijasi-dropdown-item 
+        v-for="hotel in uniqueHotels"
+        :key="hotel"
+        @click.native="handleHotelSelect(hotel)"
+      >
+        {{ hotel }}
+      </skijasi-dropdown-item>
+    </vs-dropdown-menu>
+  </skijasi-dropdown>
+
+  <!-- Show filtered users for hotel -->
+  <div class="selected-users" v-if="selectedHotel && filteredUsersByHotel.length">
+    <span>Korisnici iz hotela {{ selectedHotel }} ({{ filteredUsersByHotel.length }}):</span>
+    <div class="user-list">
+      <span 
+        v-for="user in filteredUsersByHotel" 
+        :key="user.id" 
+        class="selected-user"
+      >
+        {{ user.name }} {{ user.username }}
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Seminar selection -->
+<div v-if="filterBySeminar" class="mt-4">
+  <skijasi-dropdown
+    :vs-trigger-click="true"
+  >
+    <div class="dropdown-toggle">
+      {{ selectedSeminar || 'Odaberi seminar' }}
+    </div>
+
+    <vs-dropdown-menu>
+      <div v-if="uniqueSeminars.length === 0" class="p-2 text-gray-500">
+        No seminars available
+      </div>
+      <skijasi-dropdown-item 
+        v-for="seminar in uniqueSeminars"
+        :key="seminar"
+        @click.native="handleSeminarSelect(seminar)"
+      >
+        {{ seminar }}
+      </skijasi-dropdown-item>
+    </vs-dropdown-menu>
+  </skijasi-dropdown>
+
+  <!-- Show filtered users for seminar -->
+  <div class="selected-users" v-if="selectedSeminar && filteredUsersBySeminar.length">
+    <span>Korisnici na seminaru {{ selectedSeminar }} ({{ filteredUsersBySeminar.length }}):</span>
+    <div class="user-list">
+      <span 
+        v-for="user in filteredUsersBySeminar" 
+        :key="user.id" 
+        class="selected-user"
+      >
+        {{ user.name }} {{ user.username }}
+      </span>
+    </div>
+  </div>
+</div>
                 <div v-if="selectSpecificUsers">
                   <vs-input v-model="searchQuery" placeholder="Pretraživanje korisnika za slanje poruke" />
 
@@ -145,16 +227,23 @@
                   <vs-td>
   <template v-if="message && message.sent_to_users">
     <div class="recipient-list">
+      <!-- Handle string values (svi/svi2) -->
       <span v-if="typeof message.sent_to_users === 'string'">
         {{ message.sent_to_users === 'svi' ? 'Poslano svima' : 
            message.sent_to_users === 'svi2' ? 'Poslano članovima' : 
            message.sent_to_users }}
       </span>
+      <!-- Handle array of users -->
       <template v-else-if="Array.isArray(message.sent_to_users)">
-        <span v-for="(recipient, index) in message.sent_to_users" :key="index" class="recipient">
-          {{ recipient && recipient.username ? recipient.username : '' }}
-          {{ recipient && recipient.name ? recipient.name : '' }}
-        </span>
+        <div>
+          <div class="recipient-count">Poslano korisnicima ({{ message.sent_to_users.length }})</div>
+          <div class="recipients-scroll">
+            <span v-for="(recipient, index) in message.sent_to_users" :key="index" class="recipient">
+              {{ recipient.username }}{{ recipient.name ? ` ${recipient.name}` : '' }}
+              <span v-if="index !== message.sent_to_users.length - 1">, </span>
+            </span>
+          </div>
+        </div>
       </template>
       <span v-else>Greška. Javit administratoru.</span>
     </div>
@@ -219,13 +308,32 @@ export default {
       messages: [],
       searchQuery: '',
       tableHeight: '20vh',
+
+      records: {
+      '*items': [],
+      uniqueHotels: [],
+      uniqueSeminars: []
+    },
+      filterByHotel: false,
+      filterBySeminar: false,
+      selectedHotel: null,
+      selectedSeminar: null,
     };
   },
 
   created() {
+  try {
     this.getUserList();
     this.fetchUserMessages();
-  },
+    this.loadFormEntries().then(() => {
+      this.logDataStructure();
+    }).catch(error => {
+      console.error('Error in loadFormEntries:', error);
+    });
+  } catch (error) {
+    console.error('Error in created hook:', error);
+  }
+},
 
   computed: {
     sortedMessages() {
@@ -240,9 +348,254 @@ export default {
         return username.includes(query) || name.includes(query) || `${name} ${username}`.includes(query);
       });
     },
+
+
+
+    uniqueHotels() {
+    const hotels = this.records?.uniqueHotels || [];
+    console.log('Available hotels:', hotels);
+    return hotels;
   },
 
+  uniqueSeminars() {
+    const seminars = this.records?.uniqueSeminars || [];
+    console.log('Available seminars:', seminars);
+    return seminars;
+  },
+
+  filteredUsersByHotel() {
+    if (!this.selectedHotel || !this.records?.['*items']) {
+      return [];
+    }
+    
+    return this.records['*items']
+      .filter(record => record.hotel === this.selectedHotel)
+      .map(record => {
+        let userData = record.data;
+        try {
+          if (typeof userData === 'string') {
+            userData = JSON.parse(userData);
+          }
+          
+          if (!record.userid) {
+            console.warn('No userid found for record:', record);
+            return null;
+          }
+
+          return {
+            id: record.id, // Original id
+            userid: record.userid, // userid for sending messages
+            name: `${userData.name || ''} ${userData.surname || ''}`.trim(),
+            username: userData.username || userData.email || '',
+            data: userData
+          };
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+          return null;
+        }
+      })
+      .filter(user => user && user.userid); // Filter by userid instead of id
+  },
+
+  filteredUsersBySeminar() {
+    if (!this.selectedSeminar || !this.records?.['*items']) {
+      return [];
+    }
+    
+    return this.records['*items']
+      .filter(record => record.formName === this.selectedSeminar)
+      .map(record => {
+        let userData = record.data;
+        try {
+          if (typeof userData === 'string') {
+            userData = JSON.parse(userData);
+          }
+          
+          if (!record.userid) {
+            console.warn('No userid found for record:', record);
+            return null;
+          }
+
+          return {
+            id: record.id, // Original id
+            userid: record.userid, // userid for sending messages
+            name: `${userData.name || ''} ${userData.surname || ''}`.trim(),
+            username: userData.username || userData.email || '',
+            data: userData
+          };
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+          return null;
+        }
+      })
+      .filter(user => user && user.userid); // Filter by userid instead of id
+  },
+
+  },
+  mounted() {
+  this.$nextTick(() => {
+    this.debugData();
+  });
+},
   methods: {
+    logDataStructure() {
+        console.log('Current state:', {
+            entries: this.entries,
+            records: this.records,
+            uniqueHotels: this.uniqueHotels,
+            uniqueSeminars: this.uniqueSeminars,
+            selectedHotel: this.selectedHotel,
+            selectedSeminar: this.selectedSeminar,
+            filteredUsersByHotel: this.filteredUsersByHotel,
+            filteredUsersBySeminar: this.filteredUsersBySeminar
+        });
+    },
+
+    debugData() {
+    console.log('Records structure:', {
+      records: this.records,
+      hotels: this.uniqueHotels,
+      seminars: this.uniqueSeminars,
+      selectedHotel: this.selectedHotel,
+      selectedSeminar: this.selectedSeminar,
+      filteredHotelUsers: this.filteredUsersByHotel,
+      filteredSeminarUsers: this.filteredUsersBySeminar
+    });
+  },
+
+
+    enableHotelFilter() {
+      this.resetFilters();
+      this.filterByHotel = true;  // Set the data property
+      this.sendToAll = '';
+    },
+
+    enableSeminarFilter() {
+      this.resetFilters();
+      this.filterBySeminar = true;  // Set the data property
+      this.sendToAll = '';
+    },
+
+
+    async loadFormEntries() {
+  try {
+    this.$openLoader();
+    const response = await this.$api.skijasi.getFormEntries();
+    console.log('Raw API Response:', response);
+    
+    if (response?.data) {
+      // Extract data from Laravel collection objects
+      let entries = [];
+      let hotels = [];
+      let seminars = [];
+
+      // Handle entries collection
+      if (response.data.entries && response.data.entries['\u0000*\u0000items']) {
+        entries = response.data.entries['\u0000*\u0000items'];
+      }
+
+      // Handle uniqueHotels collection
+      if (response.data.uniqueHotels && response.data.uniqueHotels['\u0000*\u0000items']) {
+        hotels = response.data.uniqueHotels['\u0000*\u0000items'];
+      }
+
+      // Handle uniqueSeminars collection
+      if (response.data.uniqueSeminars && response.data.uniqueSeminars['\u0000*\u0000items']) {
+        seminars = response.data.uniqueSeminars['\u0000*\u0000items'];
+      }
+
+      // Store the extracted data
+      this.records = {
+        '*items': entries,
+        uniqueHotels: hotels,
+        uniqueSeminars: seminars
+      };
+
+      console.log('Processed records:', {
+        entriesCount: entries.length,
+        hotels: hotels,
+        seminars: seminars
+      });
+    }
+  } catch (error) {
+    console.error('Error loading form entries:', error);
+    this.$vs.notify({
+      title: 'Error',
+      text: 'Failed to load entries',
+      color: 'danger'
+    });
+  } finally {
+    this.$closeLoader();
+  }
+},
+
+    handleHotelSelect(hotel) {
+      console.log('Selecting hotel:', hotel);
+      this.selectedHotel = hotel;
+      this.selectedUsers = [...this.filteredUsersByHotel];
+      console.log('Selected users:', this.selectedUsers);
+    },
+
+    handleSeminarSelect(seminar) {
+      console.log('Selecting seminar:', seminar);
+      this.selectedSeminar = seminar;
+      this.selectedUsers = [...this.filteredUsersBySeminar];
+      console.log('Selected users:', this.selectedUsers);
+    },
+
+    resetFilters() {
+      this.selectSpecificUsers = false;
+      this.filterByHotel = false;
+      this.filterBySeminar = false;
+      this.selectedHotel = null;
+      this.selectedSeminar = null;
+      this.selectedUsers = [];
+    },
+
+
+
+// Make sure the groupEntriesByForm method matches the backend data structure
+groupEntriesByForm(records) {
+  if (!Array.isArray(records)) return [];
+
+  return Object.values(records.reduce((acc, record) => {
+    const formId = record.formId;
+    
+    if (!acc[formId]) {
+      acc[formId] = {
+        formId: formId,
+        formName: record.formName,
+        entries: []
+      };
+    }
+    
+    acc[formId].entries.push(record);
+    return acc;
+  }, {}));
+},
+
+
+
+
+
+    resetFilters() {
+      this.selectSpecificUsers = false;
+      this.filterByHotel = false;
+      this.filterBySeminar = false;
+      this.selectedHotel = null;
+      this.selectedSeminar = null;
+      this.selectedUsers = [];
+    },
+
+    enableSpecificUsers() {
+      this.resetFilters();
+      this.selectSpecificUsers = true;
+      this.sendToAll = '';
+    },
+
+
+
+
     toggleUserSelection(user) {
       const index = this.selectedUsers.findIndex(u => u.id === user.id);
       if (index === -1) {
@@ -286,34 +639,73 @@ export default {
     },
 
     sendMessage() {
-      const messageData = {
-        url: this.url,
-        slika: this.slika,
-        message: this.message,
-        sendToAll: this.selectSpecificUsers ? 'specific' : this.sendToAll,
-        sentTo: this.selectSpecificUsers ? this.selectedUsers.map((user) => user.id.toString()) : [],
-      };
+  let messageData = {
+    url: this.url,
+    slika: this.slika,
+    message: this.message,
+  };
 
-      this.$api.skijasiPoruke
-        .sendMessage(messageData)
-        .then((response) => {
-          this.fetchUserMessages();
-          this.$vs.notify({
-            title: "Poruka poslana",
-            text: "Slanje uspješno!",
-            color: "success",
-          });
-          this.toggleMessageComposer();
-        })
-        .catch((error) => {
-          console.error("Error sending message:", error);
-          this.$vs.notify({
-            title: "Greška",
-            text: "Došlo je do pogreške prilikom slanja poruke.",
-            color: "danger",
-          });
-        });
-    },
+  if (this.filterByHotel && this.selectedHotel) {
+    messageData.sendToAll = 'specific';
+    messageData.sentTo = this.filteredUsersByHotel
+      .map(user => user.userid.toString())
+      .filter(Boolean);
+  } else if (this.filterBySeminar && this.selectedSeminar) {
+    messageData.sendToAll = 'specific';
+    messageData.sentTo = this.filteredUsersBySeminar
+      .map(user => user.userid.toString())
+      .filter(Boolean);
+  } else if (this.selectSpecificUsers) {
+    messageData.sendToAll = 'specific';
+    messageData.sentTo = this.selectedUsers
+      .map(user => user.userid.toString())
+      .filter(Boolean);
+  } else {
+    messageData.sendToAll = this.sendToAll;
+    messageData.sentTo = [];
+  }
+
+  console.log('Message Data:', messageData);
+
+  // Add validation
+  if (messageData.sendToAll === 'specific' && (!messageData.sentTo || messageData.sentTo.length === 0)) {
+    this.$vs.notify({
+      title: "Greška",
+      text: "Niste odabrali korisnike za slanje poruke",
+      color: "danger",
+    });
+    return;
+  }
+
+
+  // Make sure sentTo is an array even when empty
+  if (!Array.isArray(messageData.sentTo)) {
+    messageData.sentTo = [];
+  }
+
+  this.$api.skijasiPoruke
+    .sendMessage(messageData)
+    .then((response) => {
+      console.log('Success response:', response);
+      this.fetchUserMessages();
+      this.$vs.notify({
+        title: "Poruka poslana",
+        text: "Slanje uspješno!",
+        color: "success",
+      });
+      this.toggleMessageComposer();
+    })
+    .catch((error) => {
+      console.error('Error response:', error.response?.data);
+      console.error('Sent data:', messageData);
+      this.$vs.notify({
+        title: "Greška",
+        text: error.response?.data?.message || "Došlo je do pogreške prilikom slanja poruke.",
+        color: "danger",
+      });
+    });
+},
+
 
     deleteMessage(messageId) {
       this.$api.skijasiPoruke
@@ -540,4 +932,39 @@ border: #06bbd3 2px solid;
  /* Add a gray border to table cells */
   padding: 0.5rem; /* Add some padding to the cells */
 }
+
+
+
+.selected-users {
+  margin-top: 1rem;
+}
+
+.user-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.selected-user {
+  background-color: #f0f0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.dropdown-toggle {
+  padding: 7px 12px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 150px;
+}
+
+
+
 </style>

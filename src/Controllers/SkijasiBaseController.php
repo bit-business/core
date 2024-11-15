@@ -2831,7 +2831,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties($data)
-                ->log($data_type->display_name_singular.' je masovno obrisano');
+                ->log($data_type->display_name_singular.' je obrisano');
 
             DB::commit();
 
@@ -2871,7 +2871,7 @@ $html .= '</body></html>';
             activity($data_type->display_name_singular)
                 ->causedBy(auth()->user() ?? null)
                 ->withProperties($data)
-                ->log($data_type->display_name_singular.' je masovno vraćeno');
+                ->log($data_type->display_name_singular.' je vraćeno iz backupa');
 
             DB::commit();
 
@@ -2955,4 +2955,167 @@ $html .= '</body></html>';
             return ApiResponse::failed($e);
         }
     }
+
+
+
+
+
+    public function getFormEntries(Request $request)
+    {
+        try {
+            $formEntries = DB::table('skijasi_form_entries')
+                ->select([
+                    'skijasi_form_entries.id',
+                    'skijasi_form_entries.userid', // Added userid
+                    'skijasi_form_entries.form_id',
+                    'skijasi_form_entries.data',
+                    'skijasi_form_entries.hotel',
+                    'skijasi_form_entries.created_at',
+                    'skijasi_forms.name as formName'
+                ])
+                ->leftJoin('skijasi_forms', 'skijasi_form_entries.form_id', '=', 'skijasi_forms.id')
+                ->whereNotNull('data')
+                ->orderBy('skijasi_form_entries.created_at', 'desc')
+                ->get();
+    
+            // Process entries and extract unique hotels and seminars
+            $processedEntries = collect();
+            $uniqueHotels = collect();
+            $uniqueSeminars = collect();
+    
+            foreach ($formEntries as $entry) {
+                try {
+                    $data = json_decode($entry->data, true);
+                    
+                    // Add to processed entries
+                    $processedEntry = [
+                        'id' => $entry->id, // Keep original id
+                        'userid' => $entry->userid, // Add userid
+                        'formId' => $entry->form_id,
+                        'formName' => $entry->formName,
+                        'hotel' => $entry->hotel,
+                        'createdAt' => $entry->created_at,
+                        'data' => $data
+                    ];
+                    $processedEntries->push($processedEntry);
+    
+                    // Collect unique hotels
+                    if (!empty($entry->hotel)) {
+                        $uniqueHotels->push($entry->hotel);
+                    }
+    
+                    // Collect unique seminars from formName
+                    if (!empty($entry->formName)) {
+                        $uniqueSeminars->push($entry->formName);
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error processing form entry {$entry->id}: " . $e->getMessage());
+                    continue;
+                }
+            }
+    
+            return ApiResponse::success([
+                'entries' => $processedEntries->values(),
+                'uniqueHotels' => $uniqueHotels->unique()->values(),
+                'uniqueSeminars' => $uniqueSeminars->unique()->values()
+            ]);
+    
+        } catch (Exception $e) {
+            Log::error('Error in getFormEntries:', ['error' => $e->getMessage()]);
+            return ApiResponse::failed($e);
+        }
+    }
+    public function getFormEntriesByHotel(Request $request)
+    {
+        try {
+            $hotel = $request->input('hotel');
+            
+            if (!$hotel) {
+                throw new Exception('Hotel parameter is required');
+            }
+    
+            $entries = DB::table('skijasi_form_entries')
+                ->select([
+                    'skijasi_form_entries.id',
+                    'skijasi_form_entries.form_id',
+                    'skijasi_form_entries.data',
+                    'skijasi_form_entries.hotel',
+                    'skijasi_form_entries.created_at',
+                    'skijasi_forms.name as form_name'
+                ])
+                ->leftJoin('skijasi_forms', 'skijasi_form_entries.form_id', '=', 'skijasi_forms.id')
+                ->where('hotel', $hotel)
+                ->orderBy('created_at', 'desc')
+                ->get();
+    
+            $processedEntries = $entries->map(function ($entry) {
+                try {
+                    return [
+                        'id' => $entry->id,
+                        'form_id' => $entry->form_id,
+                        'form_name' => $entry->form_name,
+                        'hotel' => $entry->hotel,
+                        'created_at' => $entry->created_at,
+                        'data' => json_decode($entry->data, true)
+                    ];
+                } catch (\Exception $e) {
+                    Log::error("Error processing form entry {$entry->id}: " . $e->getMessage());
+                    return null;
+                }
+            })->filter();
+    
+            return ApiResponse::success(['data' => $processedEntries]);
+    
+        } catch (Exception $e) {
+            return ApiResponse::failed($e);
+        }
+    }
+    
+    public function getFormEntriesByFormId(Request $request)
+    {
+        try {
+            $formId = $request->input('form_id');
+            
+            if (!$formId) {
+                throw new Exception('Form ID parameter is required');
+            }
+    
+            $entries = DB::table('skijasi_form_entries')
+                ->select([
+                    'skijasi_form_entries.id',
+                    'skijasi_form_entries.form_id',
+                    'skijasi_form_entries.data',
+                    'skijasi_form_entries.hotel',
+                    'skijasi_form_entries.created_at',
+                    'skijasi_forms.name as form_name'
+                ])
+                ->leftJoin('skijasi_forms', 'skijasi_form_entries.form_id', '=', 'skijasi_forms.id')
+                ->where('form_id', $formId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+    
+            $processedEntries = $entries->map(function ($entry) {
+                try {
+                    return [
+                        'id' => $entry->id,
+                        'form_id' => $entry->form_id,
+                        'form_name' => $entry->form_name,
+                        'hotel' => $entry->hotel,
+                        'created_at' => $entry->created_at,
+                        'data' => json_decode($entry->data, true)
+                    ];
+                } catch (\Exception $e) {
+                    Log::error("Error processing form entry {$entry->id}: " . $e->getMessage());
+                    return null;
+                }
+            })->filter();
+    
+            return ApiResponse::success(['data' => $processedEntries]);
+    
+        } catch (Exception $e) {
+            return ApiResponse::failed($e);
+        }
+    }
+
+
 }

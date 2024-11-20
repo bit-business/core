@@ -33,6 +33,7 @@ class ForgotPassword extends Mailable
     public function build()
     {
         return $this
+            ->subject('Zaboravljena lozinka | HZUTS')
             ->markdown('skijasi::mail.forgot-password');
     }
 }

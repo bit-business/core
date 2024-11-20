@@ -19,6 +19,21 @@ Route::group(['prefix' => 'skijasi-api/v1/poruke', 'middleware' => 'auth'], func
     Route::put('/markallread/{id}', [AdminMessageController::class, 'markallread']);
     Route::put('/hidenotification/{id}', [AdminMessageController::class, 'hideNotification']);
     Route::put('/markread/{id}', [AdminMessageController::class, 'markRead']);
+
+    
+// routes/web.php
+Route::get('/notifications/unsubscribe/{token}', function($token) {
+    $email = Cache::get('unsubscribe_' . $token);
+    if ($email) {
+        app(EmailService::class)->unsubscribe($email);
+        Cache::forget('unsubscribe_' . $token);
+        return view('emails.unsubscribed', ['email' => $email]);
+    }
+    return abort(404);
+})->name('notifications.unsubscribe');
+
+    Route::post('/notification/email', [AdminMessageController::class, 'sendEmailNotification']);
+Route::get('/notification/email-quota', [AdminMessageController::class, 'getEmailQuota']);
 });
 
 $api_route_prefix = \config('skijasi.api_route_prefix');

@@ -64,15 +64,16 @@
   </skijasi-dropdown>
 
   <!-- Show filtered users for hotel -->
-  <div class="selected-users" v-if="selectedHotel && filteredUsersByHotel.length">
-    <span>Korisnici iz hotela {{ selectedHotel }} ({{ filteredUsersByHotel.length }}):</span>
+  <div class="selected-users" v-if="selectedHotel && displayedHotelUsers.length">
+    <span>Korisnici iz hotela {{ selectedHotel }} ({{ displayedHotelUsers.length }}):</span>
     <div class="user-list">
       <span 
-        v-for="user in filteredUsersByHotel" 
+        v-for="user in displayedHotelUsers" 
         :key="user.id" 
         class="selected-user"
       >
         {{ user.name }} {{ user.username }}
+        <span class="remove-user" @click.stop="removeSelectedUser(user)">×</span>
       </span>
     </div>
   </div>
@@ -102,15 +103,16 @@
   </skijasi-dropdown>
 
   <!-- Show filtered users for seminar -->
-  <div class="selected-users" v-if="selectedSeminar && filteredUsersBySeminar.length">
-    <span>Korisnici na seminaru {{ selectedSeminar }} ({{ filteredUsersBySeminar.length }}):</span>
+  <div class="selected-users" v-if="selectedSeminar && displayedSeminarUsers.length">
+    <span>Korisnici na seminaru {{ selectedSeminar }} ({{ displayedSeminarUsers.length }}):</span>
     <div class="user-list">
       <span 
-        v-for="user in filteredUsersBySeminar" 
+        v-for="user in displayedSeminarUsers" 
         :key="user.id" 
         class="selected-user"
       >
         {{ user.name }} {{ user.username }}
+        <span class="remove-user" @click.stop="removeSelectedUser(user)">×</span>
       </span>
     </div>
   </div>
@@ -158,7 +160,8 @@
                   <div class="selected-users">
                     <span v-if="selectedUsers.length">Korisnici kojima će se poslati poruka:</span>
                     <span v-for="(user, index) in selectedUsers" :key="index" class="selected-user">
-                      {{ user.username }} {{ user.name }}<span v-if="index !== selectedUsers.length - 1">,</span>
+                      {{ user.username }} {{ user.name }}
+                      <span class="remove-user" @click.stop="removeSelectedUser(user)">×</span>
                     </span>
                   </div>
                 </div>
@@ -169,12 +172,27 @@
               </div>
             </div>
 
+
+            <div class="con-btn p-5">
+  <vs-checkbox v-model="sendEmail">Pošalji i kao email</vs-checkbox>
+    <div v-if="sendEmail" class="text-black font-bolder text-base">
+      ({{ emailStatus.remaining }} emailova preostalo za danas )
+    </div>
+  </div>
             <div class="button-group">
-              <div class="con-btn p-5">
-                <vs-button class="posaljigumb" color="warning" @click="sendMessage">Pošalji Poruku</vs-button>
-                <vs-button class="posaljigumb" color="gray" @click="toggleMessageComposer">Odustani</vs-button>
-              </div>
-            </div>
+              
+  <div class="con-btn p-5">
+  
+    <vs-button 
+      class="posaljigumb" 
+      color="warning" 
+      @click="sendMessage"
+      :loading="emailStatus.sending"
+    >Pošalji Poruku</vs-button>
+    <vs-button class="posaljigumb" color="gray" @click="toggleMessageComposer">Odustani</vs-button>
+  </div>
+
+</div>
           </vs-card>
         </div>
       </vs-col>
@@ -294,6 +312,13 @@ export default {
   name: "NotificationBrowse",
   data() {
     return {
+      sendEmail: false,
+    emailStatus: {
+      remaining: 95,
+      sending: false
+    },
+    excludedUsers: [], 
+
       showMessageComposer: false,
       message: "",
       slika: null,
@@ -350,7 +375,6 @@ export default {
     },
 
 
-
     uniqueHotels() {
     const hotels = this.records?.uniqueHotels || [];
     console.log('Available hotels:', hotels);
@@ -368,33 +392,40 @@ export default {
       return [];
     }
     
-    return this.records['*items']
+    // Create a Map to track unique users by userid
+    const uniqueUsers = new Map();
+    
+    this.records['*items']
       .filter(record => record.hotel === this.selectedHotel)
-      .map(record => {
-        let userData = record.data;
+      .forEach(record => {
         try {
+          let userData = record.data;
           if (typeof userData === 'string') {
             userData = JSON.parse(userData);
           }
           
           if (!record.userid) {
             console.warn('No userid found for record:', record);
-            return null;
+            return;
           }
 
-          return {
-            id: record.id, // Original id
-            userid: record.userid, // userid for sending messages
-            name: `${userData.name || ''} ${userData.surname || ''}`.trim(),
-            username: userData.username || userData.email || '',
-            data: userData
-          };
+          // Only add if this userid hasn't been seen before
+          if (!uniqueUsers.has(record.userid)) {
+            uniqueUsers.set(record.userid, {
+              id: record.id,
+              userid: record.userid,
+              name: `${userData.name || ''} ${userData.surname || ''}`.trim(),
+              username: userData.username || userData.email || '',
+              data: userData
+            });
+          }
         } catch (e) {
           console.error('Error parsing user data:', e);
-          return null;
         }
-      })
-      .filter(user => user && user.userid); // Filter by userid instead of id
+      });
+
+    // Convert Map values back to array
+    return Array.from(uniqueUsers.values());
   },
 
   filteredUsersBySeminar() {
@@ -402,40 +433,57 @@ export default {
       return [];
     }
     
-    return this.records['*items']
+    // Create a Map to track unique users by userid
+    const uniqueUsers = new Map();
+    
+    this.records['*items']
       .filter(record => record.formName === this.selectedSeminar)
-      .map(record => {
-        let userData = record.data;
+      .forEach(record => {
         try {
+          let userData = record.data;
           if (typeof userData === 'string') {
             userData = JSON.parse(userData);
           }
           
           if (!record.userid) {
             console.warn('No userid found for record:', record);
-            return null;
+            return;
           }
 
-          return {
-            id: record.id, // Original id
-            userid: record.userid, // userid for sending messages
-            name: `${userData.name || ''} ${userData.surname || ''}`.trim(),
-            username: userData.username || userData.email || '',
-            data: userData
-          };
+          // Only add if this userid hasn't been seen before
+          if (!uniqueUsers.has(record.userid)) {
+            uniqueUsers.set(record.userid, {
+              id: record.id,
+              userid: record.userid,
+              name: `${userData.name || ''} ${userData.surname || ''}`.trim(),
+              username: userData.username || userData.email || '',
+              data: userData
+            });
+          }
         } catch (e) {
           console.error('Error parsing user data:', e);
-          return null;
         }
-      })
-      .filter(user => user && user.userid); // Filter by userid instead of id
+      });
+
+    // Convert Map values back to array
+    return Array.from(uniqueUsers.values());
+  },
+
+  displayedHotelUsers() {
+    // Filter out excluded users from the unique hotel users
+    return this.filteredUsersByHotel.filter(user => !this.excludedUsers.includes(user.id));
+  },
+
+  displayedSeminarUsers() {
+    // Filter out excluded users from the unique seminar users
+    return this.filteredUsersBySeminar.filter(user => !this.excludedUsers.includes(user.id));
   },
 
   },
   mounted() {
-  this.$nextTick(() => {
-    this.debugData();
-  });
+
+
+  this.checkEmailQuota();
 },
   methods: {
     logDataStructure() {
@@ -451,17 +499,7 @@ export default {
         });
     },
 
-    debugData() {
-    console.log('Records structure:', {
-      records: this.records,
-      hotels: this.uniqueHotels,
-      seminars: this.uniqueSeminars,
-      selectedHotel: this.selectedHotel,
-      selectedSeminar: this.selectedSeminar,
-      filteredHotelUsers: this.filteredUsersByHotel,
-      filteredSeminarUsers: this.filteredUsersBySeminar
-    });
-  },
+
 
 
     enableHotelFilter() {
@@ -529,29 +567,50 @@ export default {
   }
 },
 
-    handleHotelSelect(hotel) {
-      console.log('Selecting hotel:', hotel);
-      this.selectedHotel = hotel;
-      this.selectedUsers = [...this.filteredUsersByHotel];
-      console.log('Selected users:', this.selectedUsers);
-    },
 
-    handleSeminarSelect(seminar) {
-      console.log('Selecting seminar:', seminar);
-      this.selectedSeminar = seminar;
-      this.selectedUsers = [...this.filteredUsersBySeminar];
-      console.log('Selected users:', this.selectedUsers);
-    },
 
-    resetFilters() {
-      this.selectSpecificUsers = false;
-      this.filterByHotel = false;
-      this.filterBySeminar = false;
-      this.selectedHotel = null;
-      this.selectedSeminar = null;
-      this.selectedUsers = [];
-    },
 
+
+
+removeSelectedUser(user) {
+    // Add to excluded users list
+    this.excludedUsers.push(user.id);
+    
+    // Update counts and checks
+    if (this.sendEmail) {
+      this.checkEmailQuota();
+    }
+
+    // Show notification
+    this.$vs.notify({
+      title: "Korisnik uklonjen",
+      text: `${user.name} ${user.username} uklonjen iz primatelja`,
+      color: "success"
+    });
+  },
+
+  handleHotelSelect(hotel) {
+    console.log('Selecting hotel:', hotel);
+    this.selectedHotel = hotel;
+    this.excludedUsers = []; // Reset excluded users when selecting new hotel
+    console.log('Selected hotel users:', this.filteredUsersByHotel);
+  },
+
+  handleSeminarSelect(seminar) {
+    console.log('Selecting seminar:', seminar);
+    this.selectedSeminar = seminar;
+    this.excludedUsers = []; // Reset excluded users when selecting new seminar
+    console.log('Selected seminar users:', this.filteredUsersBySeminar);
+  },
+
+  resetForm() {
+    this.message = "";
+    this.slika = null;
+    this.sendToAll = '';
+    this.selectedUsers = [];
+    this.excludedUsers = []; // Reset excluded users when resetting form
+    this.url = "";
+  },
 
 
 // Make sure the groupEntriesByForm method matches the backend data structure
@@ -638,7 +697,7 @@ groupEntriesByForm(records) {
       this.url = "";
     },
 
-    sendMessage() {
+    async sendMessage() {
   let messageData = {
     url: this.url,
     slika: this.slika,
@@ -647,27 +706,38 @@ groupEntriesByForm(records) {
 
   if (this.filterByHotel && this.selectedHotel) {
     messageData.sendToAll = 'specific';
-    messageData.sentTo = this.filteredUsersByHotel
-      .map(user => user.userid.toString())
+    // Use displayedHotelUsers instead of filteredUsersByHotel to respect excluded users
+    messageData.sentTo = this.displayedHotelUsers
+      .filter(user => user && user.userid)
+      .map(user => user.userid?.toString())
       .filter(Boolean);
   } else if (this.filterBySeminar && this.selectedSeminar) {
     messageData.sendToAll = 'specific';
-    messageData.sentTo = this.filteredUsersBySeminar
-      .map(user => user.userid.toString())
+    // Use displayedSeminarUsers instead of filteredUsersBySeminar to respect excluded users
+    messageData.sentTo = this.displayedSeminarUsers
+      .filter(user => user && user.userid)
+      .map(user => user.userid?.toString())
       .filter(Boolean);
   } else if (this.selectSpecificUsers) {
     messageData.sendToAll = 'specific';
     messageData.sentTo = this.selectedUsers
-      .map(user => user.userid.toString())
+      .filter(user => user && (user.userid || user.id))
+      .map(user => (user.userid || user.id)?.toString())
       .filter(Boolean);
   } else {
     messageData.sendToAll = this.sendToAll;
     messageData.sentTo = [];
   }
 
-  console.log('Message Data:', messageData);
+  // Log user data for debugging
+  console.log('Sending to users:', {
+    messageType: this.filterByHotel ? 'hotel' : this.filterBySeminar ? 'seminar' : 'specific',
+    totalUsers: messageData.sentTo.length,
+    excludedUsers: this.excludedUsers,
+    sentTo: messageData.sentTo
+  });
 
-  // Add validation
+  // Validate that we have recipients
   if (messageData.sendToAll === 'specific' && (!messageData.sentTo || messageData.sentTo.length === 0)) {
     this.$vs.notify({
       title: "Greška",
@@ -677,34 +747,93 @@ groupEntriesByForm(records) {
     return;
   }
 
-
-  // Make sure sentTo is an array even when empty
-  if (!Array.isArray(messageData.sentTo)) {
-    messageData.sentTo = [];
-  }
-
-  this.$api.skijasiPoruke
-    .sendMessage(messageData)
-    .then((response) => {
-      console.log('Success response:', response);
-      this.fetchUserMessages();
+  // Send email if selected
+  if (this.sendEmail) {
+    try {
+      this.emailStatus.sending = true;
+      const emailResponse = await this.$api.skijasiPoruke.sendEmailNotification(messageData);
+      console.log('Email response:', emailResponse);
+      
+      if (emailResponse && emailResponse.remaining_emails !== undefined) {
+        this.emailStatus.remaining = emailResponse.remaining_emails;
+        this.$vs.notify({
+          title: "Email Poslan",
+          text: `Emailovi uspješno poslani. Preostalo ${this.emailStatus.remaining} emailova za danas.`,
+          color: "success",
+        });
+      } else {
+        console.warn('Unexpected email response format:', emailResponse);
+        this.$vs.notify({
+          title: "Upozorenje",
+          text: "Email poslan, ali nije moguće dohvatiti preostalu kvotu",
+          color: "warning",
+        });
+      }
+    } catch (error) {
+      console.error('Email error:', error);
       this.$vs.notify({
-        title: "Poruka poslana",
-        text: "Slanje uspješno!",
-        color: "success",
-      });
-      this.toggleMessageComposer();
-    })
-    .catch((error) => {
-      console.error('Error response:', error.response?.data);
-      console.error('Sent data:', messageData);
-      this.$vs.notify({
-        title: "Greška",
-        text: error.response?.data?.message || "Došlo je do pogreške prilikom slanja poruke.",
+        title: "Email Greška",
+        text: error.response?.data?.error || error.message || "Greška prilikom slanja emaila",
         color: "danger",
       });
+    } finally {
+      this.emailStatus.sending = false;
+    }
+  }
+
+  // Send the message
+  try {
+    const response = await this.$api.skijasiPoruke.sendMessage(messageData);
+    console.log('Success response:', response);
+    await this.fetchUserMessages();
+    this.$vs.notify({
+      title: "Poruka poslana",
+      text: "Slanje uspješno!",
+      color: "success",
     });
+    this.toggleMessageComposer();
+  } catch (error) {
+    console.error('Error response:', error.response?.data);
+    console.error('Sent data:', messageData);
+    this.$vs.notify({
+      title: "Greška",
+      text: error.response?.data?.message || "Došlo je do pogreške prilikom slanja poruke.",
+      color: "danger",
+    });
+  }
 },
+
+
+
+async checkEmailQuota() {
+    try {
+      const response = await this.$api.skijasiPoruke.getEmailQuota();
+      console.log('Email quota response:', response); // Debug log
+      
+      // Check for response data structure
+      if (response && typeof response.remaining_emails === 'number') {
+        this.emailStatus.remaining = response.remaining_emails;
+      } else if (response && response.data && typeof response.data.remaining_emails === 'number') {
+        this.emailStatus.remaining = response.data.remaining_emails;
+      } else {
+        console.warn('Unexpected response format:', response);
+        this.emailStatus.remaining = 0;
+        this.$vs.notify({
+          title: 'Warning',
+          text: 'Could not get email quota information',
+          color: 'warning'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch email quota:', error);
+      this.emailStatus.remaining = 0;
+      this.$vs.notify({
+        title: 'Error',
+        text: 'Failed to fetch email quota',
+        color: 'danger'
+      });
+    }
+  },
 
 
     deleteMessage(messageId) {
@@ -947,10 +1076,49 @@ border: #06bbd3 2px solid;
 }
 
 .selected-user {
+  margin-left: 0.5rem;
   background-color: #f0f0f0;
-  padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.remove-user {
+  position: absolute;
+  right: -8px;
+  top: -4px; 
+  width: 13px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #6f6f6f;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.remove-user:hover {
+  opacity: 1;
+  background-color: #ff0000;
+}
+.user-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  min-height: 50px;
 }
 
 .mt-4 {

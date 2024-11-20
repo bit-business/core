@@ -4,7 +4,7 @@
 <head>
   <meta name="viewport" content="width=device-width">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Email template</title>
+  <title>Zaboravljena lozinka</title>
   <style>
     * {
       color: black;

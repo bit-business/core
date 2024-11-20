@@ -21,3 +21,4 @@ $admin_panel_route_prefix = \config('skijasi.admin_panel_route_prefix');
 Route::get('/'.$admin_panel_route_prefix.'/{any?}', function () {
     return view('skijasi::admin-panel.index');
 })->where('any', '.*');
+

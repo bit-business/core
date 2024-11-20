@@ -49,6 +49,16 @@ export default {
   },
 
 
+  sendEmailNotification(data) {
+    return resource.post(apiPrefix + "/v1/poruke/notification/email", data);
+  },
+
+  getEmailQuota() {
+    const url = `${apiPrefix}/v1/poruke/notification/email-quota`;
+    return resource.get(url); 
+  },
+
+
 
 
 
